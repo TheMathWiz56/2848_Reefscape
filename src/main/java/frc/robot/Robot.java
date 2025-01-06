@@ -14,14 +14,16 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
-  @Override
-  public void robotInit() {
-    m_robotContainer = new RobotContainer();
-
-    //Limelight port forwarding?
+  public Robot() {
+    //Limelight 3a port forwarding
     PortForwarder.add(5800, "limelight-a.local", 5800);
     PortForwarder.add(5801, "limelight-a.local", 5801);
     PortForwarder.add(5805, "limelight-a.local", 5805);
+ }
+
+  @Override
+  public void robotInit() {
+    m_robotContainer = new RobotContainer();
   }
 
   @Override
