@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
     }
 
     for (int port = 5800; port <= 5809; port++) {
-      PortForwarder.add(port+10, "limelight-a.local", port);
+      PortForwarder.add(port+10, "limelight-b.local", port);
       //PortForwarder.add(port+10, "172.28.0.1", port);
     }
   }
