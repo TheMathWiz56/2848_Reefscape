@@ -114,10 +114,10 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
       //Select the limelight with more visible tags (there is probably a better solution than this)
       String limelightUsed;
         
-      if(LimelightHelpers.getTargetCount("limelight") < LimelightHelpers.getTargetCount("limelight-b")){
-        limelightUsed = "limelight-b";
+      if(LimelightHelpers.getTargetCount("limelight-front") < LimelightHelpers.getTargetCount("limelight-back")){
+        limelightUsed = "limelight-back";
       }else{
-        limelightUsed = "limelight";
+        limelightUsed = "limelight-front";
       }
 
       if (useMegaTag2 == false) {
@@ -141,9 +141,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
       } else if (useMegaTag2 == true) {
         
 
-        LimelightHelpers.SetRobotOrientation("limelight", getState().Pose.getRotation().getDegrees(),
+        LimelightHelpers.SetRobotOrientation("limelight-front", getState().Pose.getRotation().getDegrees(),
           0, 0, 0, 0, 0);
-        LimelightHelpers.SetRobotOrientation("limelight-b", getState().Pose.getRotation().getDegrees(),
+        LimelightHelpers.SetRobotOrientation("limelight-back", getState().Pose.getRotation().getDegrees(),
           0, 0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightUsed);
         if (mt2 == null) { // in case mt2 returns a nullptr, need to figure out why this is happening
