@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.LimelightHelpers;
+import frc.robot.LimelightHelpers.LimelightResults;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
@@ -109,8 +110,18 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
       boolean useMegaTag2 = true; // set to false to use MegaTag1
       boolean doRejectUpdate = false;
+      
+      //Select the limelight with more visible tags (there is probably a better solution than this)
+      String limelightUsed;
+        
+      if(LimelightHelpers.getTargetCount("limelight") < LimelightHelpers.getTargetCount("limelight-b")){
+        limelightUsed = "limelight-b";
+      }else{
+        limelightUsed = "limelight";
+      }
+
       if (useMegaTag2 == false) {
-        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightUsed);
 
         if (mt1.tagCount == 1 && mt1.rawFiducials.length == 1) {
           if (mt1.rawFiducials[0].ambiguity > .7) {
@@ -128,9 +139,11 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
               addVisionMeasurement(mt1.pose, mt1.timestampSeconds);
         }
       } else if (useMegaTag2 == true) {
-        LimelightHelpers.SetRobotOrientation("limelight", getState().Pose.getRotation().getDegrees(),
+        
+
+        LimelightHelpers.SetRobotOrientation(limelightUsed, getState().Pose.getRotation().getDegrees(),
           0, 0, 0, 0, 0);
-        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightUsed);
         if (mt2 == null) { // in case mt2 returns a nullptr, need to figure out why this is happening
           doRejectUpdate = true;
         } else {
