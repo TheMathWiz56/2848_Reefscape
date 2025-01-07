@@ -141,7 +141,9 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
       } else if (useMegaTag2 == true) {
         
 
-        LimelightHelpers.SetRobotOrientation(limelightUsed, getState().Pose.getRotation().getDegrees(),
+        LimelightHelpers.SetRobotOrientation("limelight", getState().Pose.getRotation().getDegrees(),
+          0, 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-b", getState().Pose.getRotation().getDegrees(),
           0, 0, 0, 0, 0);
         LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightUsed);
         if (mt2 == null) { // in case mt2 returns a nullptr, need to figure out why this is happening
