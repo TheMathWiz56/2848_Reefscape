@@ -115,16 +115,19 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
       boolean doRejectUpdate = false;
       
 
-      //Code to get distance from an apriltag
+      //Code to get distance from an apriltag (doesn't work)
+      
       /*
       LimelightResults lResults = LimelightHelpers.getLatestResults("limelight-front");
 
       Pose3d targetPose = lResults.targets_Fiducials[0].getTargetPose_RobotSpace();
       double distance = Math.abs(targetPose.getTranslation().getNorm());
+      
+      SmartDashboard.putNumber("apriltag distance", distance);
       */
 
-      //Testing code: put apriltag distance data to dashboard
-      LimelightResults frontResults = LimelightHelpers.getLatestResults("limelight-front");
+      //Testing code: put apriltag distance data to dashboard (doesn't work)
+      /*LimelightResults frontResults = LimelightHelpers.getLatestResults("limelight-front");
       LimelightResults backResults = LimelightHelpers.getLatestResults("limelight-back");
 
       ArrayList<Double> frontDistances = new ArrayList<Double>();
@@ -140,7 +143,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
 
       SmartDashboard.putString("frontResults", frontDistances.toString());
       SmartDashboard.putString("backResults", backDistances.toString());
-
+      */
       //Select the limelight with more visible tags (there is probably a better solution than this)
       String limelightUsed;
         
