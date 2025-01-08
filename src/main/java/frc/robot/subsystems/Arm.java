@@ -35,15 +35,21 @@ public class Arm extends SubsystemBase{
     private final double EPSILON = 1e-9;
 
     public Arm (){
-        pivot_motor = new CANSparkMax(11, CANSparkLowLevel.MotorType.kBrushless);
+        pivot_motor = new CANSparkMax(13, CANSparkLowLevel.MotorType.kBrushless);
         pivot_motor.restoreFactoryDefaults();
+        pivot_motor.setSmartCurrentLimit(40);
+        pivot_motor.setIdleMode(CANSparkBase.IdleMode.kCoast);
+        pivot_motor.burnFlash();
+        // Might need a delay
+
         abs_encoder = pivot_motor.getAbsoluteEncoder();
-        abs_encoder.setZeroOffset(0);
+        // 19 deg -(0.0527777) + 0.1745584
+        abs_encoder.setZeroOffset(0.12107807);
 
         reference = 0;
         previous_reference = 0;
         current_setpoint = new TrapezoidProfile.State();
-        P = 0;
+        P = 0; //1.5
         I = 0;
         D = 0;
         FF = 0;
@@ -83,8 +89,8 @@ public class Arm extends SubsystemBase{
         FF = feedforward.calculate(abs_encoder.getPosition(), current_setpoint.velocity);
         
         // Feed the PID the current position setpoint from the motion profile
-        pivot_controller.setReference(current_setpoint.position, CANSparkBase.ControlType.kPosition); // Make sure updating the Spark Max reference doesn't reset the I accum
-        pivot_controller.setFF(FF);
+        //pivot_controller.setReference(current_setpoint.position, CANSparkBase.ControlType.kPosition); // Make sure updating the Spark Max reference doesn't reset the I accum
+        //pivot_controller.setFF(FF);
     }
 
     @Override
@@ -97,7 +103,7 @@ public class Arm extends SubsystemBase{
         // This might be necessary to have the sendable builder work
         //super.initSendable(builder);
         
-        builder.addDoubleProperty("reference", ()->reference, null);
+        builder.addDoubleProperty("reference", ()->reference, value->reference = value);
         // Might also be able to add the sendable builder for the encoder to this: check later
         builder.addDoubleProperty("position", ()->abs_encoder.getPosition(), null);
 
