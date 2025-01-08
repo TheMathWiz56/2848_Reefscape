@@ -120,6 +120,8 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         limelightUsed = "limelight-front";
       }
 
+      SmartDashboard.putString("Limelight Used", limelightUsed); //Output to SmartDashboard
+
       if (useMegaTag2 == false) {
         LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightUsed);
 
