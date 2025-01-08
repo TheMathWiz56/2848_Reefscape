@@ -7,15 +7,20 @@ package frc.robot;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.elevator;
@@ -27,7 +32,7 @@ public class RobotContainer {
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController joystick = new CommandXboxController(0); // My joystick
   private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
-  private final CommandXboxController keypad = new CommandXboxController(2);
+  private final CommandGenericHID keypad = new CommandGenericHID(1);
   private final elevator ele = new elevator();
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -37,7 +42,11 @@ public class RobotContainer {
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
+   private final SendableChooser<Command> autoChooser;
+ 
+
   private final Telemetry logger = new Telemetry(MaxSpeed);
+
  
 
   private void configureBindings() {
@@ -47,11 +56,11 @@ public class RobotContainer {
             .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
             .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
         ));
-    keypad.rightTrigger().whileTrue()    
+    
 
 
     
-
+    //keypad.button(0).and(keypad.button(1)).onTrue()
     joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
     joystick.b().whileTrue(drivetrain
         .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
@@ -74,12 +83,21 @@ public class RobotContainer {
     drivetrain.registerTelemetry(logger::telemeterize);
   }
 
+
+   
+
   public RobotContainer() {
     //NamedCommands.registerCommand("drive",drivetrain.applyRequest(null));
     configureBindings();
+     autoChooser = AutoBuilder.buildAutoChooser();
+
+    // Another option that allows you to specify the default auto by its name
+    // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
+
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return autoChooser.getSelected();
   }
 }
