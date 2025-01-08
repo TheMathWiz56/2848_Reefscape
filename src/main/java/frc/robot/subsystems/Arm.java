@@ -1,20 +1,14 @@
 package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase;
-import com.revrobotics.MotorFeedbackSensor;
-
-import javax.swing.plaf.nimbus.State;
 
 import com.revrobotics.AbsoluteEncoder;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -28,8 +22,9 @@ public class Arm extends SubsystemBase{
 
     private final ArmFeedforward feedforward;
     private final TrapezoidProfile profile;
+    private TrapezoidProfile.State current_setpoint;
 
-    private double reference, previous_setpoint, P, I, D, FF;
+    private double reference, previous_reference, P, I, D, FF;
 
     private final Timer timer = new Timer();
 
@@ -43,7 +38,8 @@ public class Arm extends SubsystemBase{
         abs_encoder.setZeroOffset(0);
 
         reference = 0;
-        previous_setpoint = 0;
+        previous_reference = 0;
+        current_setpoint = new TrapezoidProfile.State();
         P = 0;
         I = 0;
         D = 0;
@@ -77,7 +73,7 @@ public class Arm extends SubsystemBase{
         }
         
         // Calculates the position and velocity for the profile at a time t where the current state is at time t = 0.
-        var current_setpoint = profile.calculate(timer.get(), new TrapezoidProfile.State(abs_encoder.getPosition(), abs_encoder.getVelocity()),
+        current_setpoint = profile.calculate(timer.get(), new TrapezoidProfile.State(abs_encoder.getPosition(), abs_encoder.getVelocity()),
                                                      new TrapezoidProfile.State(reference, 0));
         
         // Calculates the feedforward using the position for the kG and velocity setpoint for kV. MIGHT need to divide by the battery voltage
@@ -105,10 +101,15 @@ public class Arm extends SubsystemBase{
         builder.addDoubleProperty("P", null, null);
         builder.addDoubleProperty("I", null, null);
         builder.addDoubleProperty("D", null, null);
+
+        builder.addDoubleProperty("timer", ()-> timer.get(), null);
+        builder.addDoubleProperty("FF", ()->FF, null);
+        builder.addDoubleProperty("MP_Position", ()->current_setpoint.position, null);
+        builder.addDoubleProperty("MP_Velocity", ()->current_setpoint.velocity, null);
     }
 
-    public Command go_to_setpoint(double setpoint){
-        return runOnce(()-> this.reference = setpoint);
+    public Command go_to_reference(double reference){
+        return runOnce(()-> this.reference = reference);
     }
 
     /**
@@ -147,7 +148,7 @@ public class Arm extends SubsystemBase{
      */
     private boolean is_reference_updated() {
         // Check if the setpoint has changed significantly
-        if (Math.abs(reference - previous_setpoint) > EPSILON) {
+        if (Math.abs(reference - previous_reference) > EPSILON) {
             return true; // A significant update has occurred
         }
         return false; // No significant change
