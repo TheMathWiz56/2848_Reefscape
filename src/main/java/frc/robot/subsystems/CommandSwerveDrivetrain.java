@@ -9,6 +9,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -111,6 +112,12 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
       boolean useMegaTag2 = true; // set to false to use MegaTag1
       boolean doRejectUpdate = false;
       
+      LimelightResults lResults = LimelightHelpers.getLatestResults("limelight-front");
+
+      //Code to get distance from an apriltag
+      Pose3d targetPose = lResults.targets_Fiducials[0].getTargetPose_RobotSpace();
+      double distance = Math.abs(targetPose.getTranslation().getNorm());
+
       //Select the limelight with more visible tags (there is probably a better solution than this)
       String limelightUsed;
         
