@@ -42,7 +42,7 @@ public class RobotContainer {
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
   private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
-   private final SendableChooser<Command> autoChooser;
+   private SendableChooser<Command> autoChooser;
  
 
   private final Telemetry logger = new Telemetry(MaxSpeed);
@@ -89,12 +89,14 @@ public class RobotContainer {
   public RobotContainer() {
     //NamedCommands.registerCommand("drive",drivetrain.applyRequest(null));
     configureBindings();
+  
      autoChooser = AutoBuilder.buildAutoChooser();
 
     // Another option that allows you to specify the default auto by its name
     // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
 
-    SmartDashboard.putData("Auto Chooser", autoChooser);
+    //SmartDashboard.putData("Auto Chooser", autoChooser);
+    SmartDashboard.putData(autoChooser);
   }
 
   public Command getAutonomousCommand() {

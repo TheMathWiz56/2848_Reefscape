@@ -73,6 +73,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
         for (var moduleLocation : m_moduleLocations) {
             driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
         }
+        driveBaseRadius = .386;
       
         
     AutoBuilder.configureHolonomic(
