@@ -24,11 +24,14 @@ public class Arm extends SubsystemBase{
     private final TrapezoidProfile profile;
     private TrapezoidProfile.State current_setpoint;
 
+    // Reference is the same as a setpoint, but for clarity, the final target arm position is reference
     private double reference, previous_reference, P, I, D, FF;
 
+    // Timer for stepping between motion profile setpoints
     private final Timer timer = new Timer();
 
-    // Define a small tolerance for floating-point comparison. SHOULD BE PLACED IN CONSTANTS FILE ONCE MERGED
+    // Define a small tolerance for floating-point comparison. 
+    // (JOSEPH) SHOULD BE PLACED IN CONSTANTS FILE ONCE MERGED, also should place the double comparison in utils ...
     private final double EPSILON = 1e-9;
 
     public Arm (){
@@ -51,7 +54,7 @@ public class Arm extends SubsystemBase{
         pivot_controller.setOutputRange(-1, 1);
         pivot_controller.setFeedbackDevice(abs_encoder);
 
-        // Gains from ReCalc, either estimate or use sysID to determien ks
+        // Gains from ReCalc, either experiment or use sysID to determien ks
         feedforward = new ArmFeedforward(0, 0.07, 1.25, 0);
 
         // Rev/s and Rev/s/s         |        1.33 rev/s and ~1.33 rev/s/s MAX
@@ -80,7 +83,7 @@ public class Arm extends SubsystemBase{
         FF = feedforward.calculate(abs_encoder.getPosition(), current_setpoint.velocity);
         
         // Feed the PID the current position setpoint from the motion profile
-        pivot_controller.setReference(current_setpoint.position, CANSparkBase.ControlType.kPosition);
+        pivot_controller.setReference(current_setpoint.position, CANSparkBase.ControlType.kPosition); // Make sure updating the Spark Max reference doesn't reset the I accum
         pivot_controller.setFF(FF);
     }
 
@@ -94,7 +97,7 @@ public class Arm extends SubsystemBase{
         // This might be necessary to have the sendable builder work
         //super.initSendable(builder);
         
-        builder.addDoubleProperty("setpoint", ()->reference, null);
+        builder.addDoubleProperty("reference", ()->reference, null);
         // Might also be able to add the sendable builder for the encoder to this: check later
         builder.addDoubleProperty("position", ()->abs_encoder.getPosition(), null);
 
