@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.ArrayList;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.Utils;
@@ -20,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.LimelightHelpers;
 import frc.robot.LimelightHelpers.LimelightResults;
+import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
@@ -112,11 +114,32 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
       boolean useMegaTag2 = true; // set to false to use MegaTag1
       boolean doRejectUpdate = false;
       
-      LimelightResults lResults = LimelightHelpers.getLatestResults("limelight-front");
 
       //Code to get distance from an apriltag
+      /*
+      LimelightResults lResults = LimelightHelpers.getLatestResults("limelight-front");
+
       Pose3d targetPose = lResults.targets_Fiducials[0].getTargetPose_RobotSpace();
       double distance = Math.abs(targetPose.getTranslation().getNorm());
+      */
+
+      //Testing code: put apriltag distance data to dashboard
+      LimelightResults frontResults = LimelightHelpers.getLatestResults("limelight-front");
+      LimelightResults backResults = LimelightHelpers.getLatestResults("limelight-back");
+
+      ArrayList<Double> frontDistances = new ArrayList<Double>();
+      ArrayList<Double> backDistances = new ArrayList<Double>();
+
+      for(LimelightTarget_Fiducial i : frontResults.targets_Fiducials) {
+        frontDistances.add(Math.abs(i.getTargetPose_RobotSpace().getTranslation().getNorm()));
+      }
+
+      for(LimelightTarget_Fiducial i : backResults.targets_Fiducials) {
+        backDistances.add(Math.abs(i.getTargetPose_RobotSpace().getTranslation().getNorm()));
+      }
+
+      SmartDashboard.putString("frontResults", frontDistances.toString());
+      SmartDashboard.putString("backResults", backDistances.toString());
 
       //Select the limelight with more visible tags (there is probably a better solution than this)
       String limelightUsed;
