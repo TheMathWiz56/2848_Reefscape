@@ -19,8 +19,7 @@ public class Arm extends SubsystemBase{
 
     private final CANSparkMax pivot_motor;
     private final SparkPIDController pivot_controller;
-    private final DutyCycleEncoder encoder;
-    private final AbsoluteEncoder rev_encoder;
+    private final AbsoluteEncoder abs_encoder;
 
     private final ArmFeedforward feedforward;
 
@@ -28,16 +27,21 @@ public class Arm extends SubsystemBase{
 
     public Arm (){
         pivot_motor = new CANSparkMax(11, CANSparkLowLevel.MotorType.kBrushless);
-        encoder = new DutyCycleEncoder(0);
-        rev_encoder = encoder;
+        pivot_motor.restoreFactoryDefaults();
+        abs_encoder = pivot_motor.getAbsoluteEncoder();
+        abs_encoder.setZeroOffset(0);
 
         setpoint = 0;
         P = 0;
         I = 0;
         D = 0;
+
         pivot_controller = pivot_motor.getPIDController();
         update_controller_PID();
+
         pivot_controller.setOutputRange(-1, 1);
+        pivot_controller.setFeedbackDevice(abs_encoder);
+        pivot_controller.getPositionPIDWrappingEnabled();
 
         feedforward = new ArmFeedforward(0, 0, 0, 0);
     }
@@ -49,7 +53,7 @@ public class Arm extends SubsystemBase{
         }
         
         pivot_controller.setReference(setpoint, CANSparkBase.ControlType.kPosition);
-        pivot_controller.setFeedbackDevice(encoder);
+        pivot_controller.setFeedbackDevice(abs_encoder);
         pivot_controller.setFF(I);
     }
 
@@ -65,7 +69,7 @@ public class Arm extends SubsystemBase{
         
         builder.addDoubleProperty("setpoint", ()->setpoint, null);
         // Might also be able to add the sendable builder for the encoder to this: check later
-        builder.addDoubleProperty("position", ()->encoder.getAbsolutePosition(), null);
+        builder.addDoubleProperty("position", ()->abs_encoder.getPosition(), null);
 
         builder.addDoubleProperty("P", null, null);
         builder.addDoubleProperty("I", null, null);
