@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVLibError;
 import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase;
@@ -13,6 +14,9 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.revrobotics.SparkPIDController;
+;
 
 public class Arm extends SubsystemBase{
 
@@ -22,10 +26,10 @@ public class Arm extends SubsystemBase{
 
     private final ArmFeedforward feedforward;
     private final TrapezoidProfile profile;
-    private TrapezoidProfile.State current_setpoint;
+    private TrapezoidProfile.State goal_state, start_state;
 
     // Reference is the same as a setpoint, but for clarity, the final target arm position is reference
-    private double reference, previous_reference, P, I, D, FF;
+    private double reference, previous_reference, P, I, D, FF, IZone;
 
     // Timer for stepping between motion profile setpoints
     private final Timer timer = new Timer();
@@ -46,22 +50,26 @@ public class Arm extends SubsystemBase{
         // 19 deg -(0.0527777) + 0.1745584
         abs_encoder.setZeroOffset(0.12107807);
 
-        reference = 0;
-        previous_reference = 0;
-        current_setpoint = new TrapezoidProfile.State();
+        reference = .25;
+        previous_reference = .25;
+        goal_state = new TrapezoidProfile.State();
+        start_state = new TrapezoidProfile.State();
         P = 0; //1.5
         I = 0;
+        IZone = 0;
         D = 0;
+
         FF = 0;
 
         pivot_controller = pivot_motor.getPIDController();
         update_controller_PID();
 
+        pivot_controller.setIZone(IZone);
         pivot_controller.setOutputRange(-1, 1);
         pivot_controller.setFeedbackDevice(abs_encoder);
 
         // Gains from ReCalc, either experiment or use sysID to determien ks
-        feedforward = new ArmFeedforward(0, 0.07, 1.25, 0);
+        feedforward = new ArmFeedforward(0, 0, 0.75, 0); //0.07 kG
 
         // Rev/s and Rev/s/s         |        1.33 rev/s and ~1.33 rev/s/s MAX
         profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(0.5,1));
@@ -79,18 +87,25 @@ public class Arm extends SubsystemBase{
         if (is_reference_updated()){
             // Restart motion profile timer
             timer.reset();
+            start_state = new TrapezoidProfile.State(abs_encoder.getPosition(), abs_encoder.getVelocity());
         }
         
         // Calculates the position and velocity for the profile at a time t where the current state is at time t = 0.
-        current_setpoint = profile.calculate(timer.get(), new TrapezoidProfile.State(abs_encoder.getPosition(), abs_encoder.getVelocity()),
+        goal_state = profile.calculate(timer.get(), start_state,
                                                      new TrapezoidProfile.State(reference, 0));
         
         // Calculates the feedforward using the position for the kG and velocity setpoint for kV. MIGHT need to divide by the battery voltage
-        FF = feedforward.calculate(abs_encoder.getPosition(), current_setpoint.velocity);
+        FF = feedforward.calculate(abs_encoder.getPosition() * 2 * Math.PI, goal_state.velocity);
+        // convert to radians, could use a position conversion factor in abs setup instead
         
         // Feed the PID the current position setpoint from the motion profile
-        //pivot_controller.setReference(current_setpoint.position, CANSparkBase.ControlType.kPosition); // Make sure updating the Spark Max reference doesn't reset the I accum
-        //pivot_controller.setFF(FF);
+        //pivot_controller.setReference(goal_state.position, CANSparkBase.ControlType.kPosition); // Make sure updating the Spark Max reference doesn't reset the I accum
+        //pivot_controller.setReference(goal_state.position, CANSparkBase.ControlType.kPosition, 0, FF, SparkPIDController.ArbFFUnits.kPercentOut);
+        //FF = Math.abs(FF); // Cannot be negative?
+        if (pivot_controller.setReference(goal_state.position, CANSparkBase.ControlType.kPosition, 0, FF, SparkPIDController.ArbFFUnits.kPercentOut) != REVLibError.kOk){
+            SmartDashboard.putNumber("error_FF", FF);
+        }
+        SmartDashboard.putData(this);
     }
 
     @Override
@@ -101,24 +116,33 @@ public class Arm extends SubsystemBase{
     @Override
     public void initSendable(SendableBuilder builder) {
         // This might be necessary to have the sendable builder work
-        //super.initSendable(builder);
+        super.initSendable(builder);
         
-        builder.addDoubleProperty("reference", ()->reference, value->reference = value);
+        builder.addDoubleProperty("previous reference", ()->previous_reference, null);
+        builder.addDoubleProperty("reference", ()->reference, value->reference = adjusted_reference(value));
         // Might also be able to add the sendable builder for the encoder to this: check later
         builder.addDoubleProperty("position", ()->abs_encoder.getPosition(), null);
 
         builder.addDoubleProperty("P", null, null);
         builder.addDoubleProperty("I", null, null);
+        builder.addDoubleProperty("IZone", null, null);
         builder.addDoubleProperty("D", null, null);
 
         builder.addDoubleProperty("timer", ()-> timer.get(), null);
         builder.addDoubleProperty("FF", ()->FF, null);
-        builder.addDoubleProperty("MP_Position", ()->current_setpoint.position, null);
-        builder.addDoubleProperty("MP_Velocity", ()->current_setpoint.velocity, null);
+        builder.addDoubleProperty("MP_Position", ()->goal_state.position, null);
+        builder.addDoubleProperty("MP_Velocity", ()->goal_state.velocity, null);
+        builder.addDoubleProperty("motor output", ()->pivot_motor.getAppliedOutput(), null);
     }
 
     public Command go_to_reference(double reference){
-        return runOnce(()-> this.reference = reference);
+        return runOnce(()-> this.previous_reference = this.reference).andThen(()-> this.reference = adjusted_reference(reference));
+    }
+
+    private double adjusted_reference(double reference){
+        reference = Math.min(reference, 0.4);
+        reference = Math.max(reference, 0.2);
+        return reference;
     }
 
     /**
@@ -131,6 +155,8 @@ public class Arm extends SubsystemBase{
         pivot_controller.setI(I);
         // Set the derivative gain (D) of the PID controller
         pivot_controller.setD(D);
+        // Set the integral zone (IZone) of the PID controller
+        pivot_controller.setIZone(IZone);
     }
 
     /**
@@ -158,8 +184,21 @@ public class Arm extends SubsystemBase{
     private boolean is_reference_updated() {
         // Check if the setpoint has changed significantly
         if (Math.abs(reference - previous_reference) > EPSILON) {
+            previous_reference = reference;
             return true; // A significant update has occurred
         }
         return false; // No significant change
     }
 }
+
+
+/*
+ * ____________________________Feed forward Notes____________________________
+ * 
+ * The kG is too high from ReCalc, arm moves towards vertical
+    *  Could be a result from error in position sensor or recalc
+    *  Going to leave as is and let PID handle fine tuning
+    *  pivot stays at setpoint without any input so may put kG to 0
+ * 
+ * 
+ */
