@@ -24,8 +24,8 @@ public class RobotContainer {
   private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
   /* Setting up bindings for necessary control of the swerve drive platform */
-  private final CommandXboxController joystick = new CommandXboxController(0); // My joystick
-  private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
+  //private final CommandXboxController joystick = new CommandXboxController(0); // My joystick
+  //private final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
   private final Arm arm = new Arm(); // My arm
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -38,28 +38,28 @@ public class RobotContainer {
   private final Telemetry logger = new Telemetry(MaxSpeed);
 
   private void configureBindings() {
-    drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
+    /*drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
         drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with
                                                                                            // negative Y (forward)
             .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
             .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-        ));
+        ));*/
     arm.setDefaultCommand(Commands.idle(arm)); // All control handled in periodic
 
-    joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+    /*joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
     joystick.b().whileTrue(drivetrain
-        .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
+        .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));*/
 
     // reset the field-centric heading on left bumper press
     /*joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative())
     .andThen(drivetrain.runOnce(()->drivetrain.seedFieldRelative(new Pose2d(drivetrain.getState().Pose.getTranslation(), new Rotation2d())))));*/
 
-    joystick.leftBumper().onTrue(drivetrain.runOnce(()->drivetrain.seedFieldRelative(new Pose2d(drivetrain.getState().Pose.getTranslation(), new Rotation2d()))));
+    /*joystick.leftBumper().onTrue(drivetrain.runOnce(()->drivetrain.seedFieldRelative(new Pose2d(drivetrain.getState().Pose.getTranslation(), new Rotation2d()))));
 
     if (Utils.isSimulation()) {
       drivetrain.seedFieldRelative(new Pose2d(new Translation2d(), Rotation2d.fromDegrees(90)));
     }
-    drivetrain.registerTelemetry(logger::telemeterize);
+    drivetrain.registerTelemetry(logger::telemeterize);*/
   }
 
   public RobotContainer() {

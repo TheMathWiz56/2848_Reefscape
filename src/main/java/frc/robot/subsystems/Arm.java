@@ -206,7 +206,8 @@ public class Arm extends SubsystemBase{
  * The kG is too high from ReCalc, arm moves towards vertical
     *  Could be a result from error in position sensor or recalc
     *  Going to leave as is and let PID handle fine tuning
-    *  pivot stays at setpoint without any input so may put kG to 0
+    *  pivot stays at setpoint without any input (due to low mass and high stiction) so put kG to 0
  * 
- * 
+ * How does IZone handle the accumulated I contribution when the arm goes outside of the IZone?
+ *      
  */
