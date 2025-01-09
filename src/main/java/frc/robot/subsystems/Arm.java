@@ -73,11 +73,11 @@ public class Arm extends SubsystemBase{
         pivot_controller.setIZone(IZone);
         pivot_controller.setIMaxAccum(IMaxAccum, 0);
 
-        pivot_controller.setOutputRange(-1, 1);
+        pivot_controller.setOutputRange(-1, 1); // Could change with a high gain P controller to help eliminate some steady state error
         pivot_controller.setFeedbackDevice(abs_encoder);
 
         // Gains from ReCalc, either experiment or use sysID to determien ks
-        feedforward = new ArmFeedforward(0, 0, 0, 0); //0.02 kG, 0.75kV
+        feedforward = new ArmFeedforward(0, 0.02, 0.75, 0); //0.02 kG, 0.75kV
 
         // Rev/s and Rev/s/s         |        1.33 rev/s and ~1.33 rev/s/s MAX
         profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(0.5,1));
@@ -154,7 +154,7 @@ public class Arm extends SubsystemBase{
     }
 
     private double adjusted_reference(double reference){
-        reference = Math.min(reference, 0.25);
+        reference = Math.min(reference, 0.35);
         reference = Math.max(reference, 0.1);
         return reference;
     }
