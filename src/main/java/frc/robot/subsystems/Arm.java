@@ -28,23 +28,26 @@ public class Arm extends SubsystemBase{
     private final TrapezoidProfile profile;
     private TrapezoidProfile.State goal_state, start_state;
 
-    // Reference is the same as a setpoint, but for clarity, the final target arm position is reference
-    private double reference, previous_reference, P, I, D, FF, IZone;
+    // Reference means the same thing as setpoint
+    private double reference, previous_reference, P, I, D, FF, IZone, IMaxAccum;
 
     // Timer for stepping between motion profile setpoints
     private final Timer timer = new Timer();
 
+    // _____________________________________________________________________________________________________________
     // Define a small tolerance for floating-point comparison. 
     // (JOSEPH) SHOULD BE PLACED IN CONSTANTS FILE ONCE MERGED, also should place the double comparison in utils ...
-    private final double EPSILON = 1e-9;
+    private static final double EPSILON = 1e-9;
+    private static boolean hasSignificantChange(double current, double previous) {
+        return Math.abs(current - previous) > EPSILON;
+    }
+    // _____________________________________________________________________________________________________________
 
     public Arm (){
         pivot_motor = new CANSparkMax(13, CANSparkLowLevel.MotorType.kBrushless);
         pivot_motor.restoreFactoryDefaults();
         pivot_motor.setSmartCurrentLimit(40);
         pivot_motor.setIdleMode(CANSparkBase.IdleMode.kCoast);
-        pivot_motor.burnFlash();
-        // Might need a delay
 
         abs_encoder = pivot_motor.getAbsoluteEncoder();
         // 19 deg -(0.0527777) + 0.1745584
@@ -57,6 +60,7 @@ public class Arm extends SubsystemBase{
         P = 0; //1.5
         I = 0;
         IZone = 0;
+        IMaxAccum = 0;
         D = 0;
 
         FF = 0;
@@ -65,6 +69,8 @@ public class Arm extends SubsystemBase{
         update_controller_PID();
 
         pivot_controller.setIZone(IZone);
+        pivot_controller.setIMaxAccum(IMaxAccum, 0);
+
         pivot_controller.setOutputRange(-1, 1);
         pivot_controller.setFeedbackDevice(abs_encoder);
 
@@ -76,6 +82,10 @@ public class Arm extends SubsystemBase{
 
         // Start at subsystem initialization
         timer.start();
+
+        // Burn configuration to the spark max in case of power loss
+        pivot_motor.burnFlash();
+        // Might need a delay
     }
 
     @Override
@@ -98,13 +108,8 @@ public class Arm extends SubsystemBase{
         FF = feedforward.calculate(abs_encoder.getPosition() * 2 * Math.PI, goal_state.velocity);
         // convert to radians, could use a position conversion factor in abs setup instead
         
-        // Feed the PID the current position setpoint from the motion profile
-        //pivot_controller.setReference(goal_state.position, CANSparkBase.ControlType.kPosition); // Make sure updating the Spark Max reference doesn't reset the I accum
-        //pivot_controller.setReference(goal_state.position, CANSparkBase.ControlType.kPosition, 0, FF, SparkPIDController.ArbFFUnits.kPercentOut);
-        //FF = Math.abs(FF); // Cannot be negative?
-        if (pivot_controller.setReference(goal_state.position, CANSparkBase.ControlType.kPosition, 0, FF, SparkPIDController.ArbFFUnits.kPercentOut) != REVLibError.kOk){
-            SmartDashboard.putNumber("error_FF", FF);
-        }
+        // Feed the PID the current position setpoint from the motion profile with the feedforward component (percentoutput)
+        pivot_controller.setReference(goal_state.position, CANSparkBase.ControlType.kPosition, 0, FF, SparkPIDController.ArbFFUnits.kPercentOut);
         SmartDashboard.putData(this);
     }
 
@@ -123,10 +128,11 @@ public class Arm extends SubsystemBase{
         // Might also be able to add the sendable builder for the encoder to this: check later
         builder.addDoubleProperty("position", ()->abs_encoder.getPosition(), null);
 
-        builder.addDoubleProperty("P", null, null);
-        builder.addDoubleProperty("I", null, null);
-        builder.addDoubleProperty("IZone", null, null);
-        builder.addDoubleProperty("D", null, null);
+        builder.addDoubleProperty("P", () -> P, value -> P = value);
+        builder.addDoubleProperty("I", () -> I, value -> I = value);
+        builder.addDoubleProperty("IZone", () -> IZone, value -> IZone = value);
+        builder.addDoubleProperty("IMaxAccum", () -> IMaxAccum, value -> IMaxAccum = value);
+        builder.addDoubleProperty("D", () -> D, value -> D = value);
 
         builder.addDoubleProperty("timer", ()-> timer.get(), null);
         builder.addDoubleProperty("FF", ()->FF, null);
@@ -153,10 +159,13 @@ public class Arm extends SubsystemBase{
         pivot_controller.setP(P);
         // Set the integral gain (I) of the PID controller
         pivot_controller.setI(I);
-        // Set the derivative gain (D) of the PID controller
-        pivot_controller.setD(D);
         // Set the integral zone (IZone) of the PID controller
         pivot_controller.setIZone(IZone);
+        // Set the integral max accumulation (IMaxAccum) of the PID controller
+        pivot_controller.setIMaxAccum(IMaxAccum, 0);
+        // Set the derivative gain (D) of the PID controller
+        pivot_controller.setD(D);
+        
     }
 
     /**
@@ -167,13 +176,12 @@ public class Arm extends SubsystemBase{
      *         different from the current values, false otherwise.
      */
     private boolean is_PID_updated() {
-        // Compare the proportional gain (P) in the controller with the current value
-        // Compare the integral gain (I) in the controller with the current value
-        // Compare the derivative gain (D) in the controller with the current value
-        // Return true if any of these gains differ
-        return pivot_controller.getP() != P || 
-            pivot_controller.getI() != I || 
-            pivot_controller.getD() != D;
+        // Return true if any of the PID gains differ significantly from the current values
+        return hasSignificantChange(P, pivot_controller.getP()) || 
+               hasSignificantChange(I, pivot_controller.getI()) || 
+               hasSignificantChange(IZone, pivot_controller.getIZone()) || 
+               hasSignificantChange(IMaxAccum, pivot_controller.getIMaxAccum(0)) || 
+               hasSignificantChange(D, pivot_controller.getD());
     }
 
     /**
