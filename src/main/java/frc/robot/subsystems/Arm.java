@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkBase;
 import com.revrobotics.AbsoluteEncoder;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -33,6 +34,7 @@ public class Arm extends SubsystemBase{
 
     // Timer for stepping between motion profile setpoints
     private final Timer timer = new Timer();
+    private final Timer periodic_timer = new Timer();
 
     // _____________________________________________________________________________________________________________
     // Define a small tolerance for floating-point comparison. 
@@ -47,7 +49,7 @@ public class Arm extends SubsystemBase{
         pivot_motor = new CANSparkMax(13, CANSparkLowLevel.MotorType.kBrushless);
         pivot_motor.restoreFactoryDefaults();
         pivot_motor.setSmartCurrentLimit(40);
-        pivot_motor.setIdleMode(CANSparkBase.IdleMode.kCoast);
+        pivot_motor.setIdleMode(CANSparkBase.IdleMode.kBrake);
 
         abs_encoder = pivot_motor.getAbsoluteEncoder();
         // 19 deg -(0.0527777) + 0.1745584
@@ -75,13 +77,14 @@ public class Arm extends SubsystemBase{
         pivot_controller.setFeedbackDevice(abs_encoder);
 
         // Gains from ReCalc, either experiment or use sysID to determien ks
-        feedforward = new ArmFeedforward(0, 0, 0.75, 0); //0.07 kG
+        feedforward = new ArmFeedforward(0, 0, 0, 0); //0.02 kG, 0.75kV
 
         // Rev/s and Rev/s/s         |        1.33 rev/s and ~1.33 rev/s/s MAX
         profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(0.5,1));
 
         // Start at subsystem initialization
         timer.start();
+        periodic_timer.start();
 
         // Burn configuration to the spark max in case of power loss
         pivot_motor.burnFlash();
@@ -90,6 +93,7 @@ public class Arm extends SubsystemBase{
 
     @Override
     public void periodic() {
+        periodic_timer.reset();
         if (is_PID_updated()){
             update_controller_PID();
         }
@@ -111,6 +115,7 @@ public class Arm extends SubsystemBase{
         // Feed the PID the current position setpoint from the motion profile with the feedforward component (percentoutput)
         pivot_controller.setReference(goal_state.position, CANSparkBase.ControlType.kPosition, 0, FF, SparkPIDController.ArbFFUnits.kPercentOut);
         SmartDashboard.putData(this);
+        SmartDashboard.putNumber("periodic_timer", periodic_timer.get());
     }
 
     @Override
@@ -120,6 +125,7 @@ public class Arm extends SubsystemBase{
 
     @Override
     public void initSendable(SendableBuilder builder) {
+
         // This might be necessary to have the sendable builder work
         super.initSendable(builder);
         
@@ -139,6 +145,8 @@ public class Arm extends SubsystemBase{
         builder.addDoubleProperty("MP_Position", ()->goal_state.position, null);
         builder.addDoubleProperty("MP_Velocity", ()->goal_state.velocity, null);
         builder.addDoubleProperty("motor output", ()->pivot_motor.getAppliedOutput(), null);
+        builder.addDoubleProperty("Error", ()->goal_state.position - abs_encoder.getPosition(), null);
+        builder.addDoubleProperty("Error_Degrees", ()-> (goal_state.position - abs_encoder.getPosition())*360, null);
     }
 
     public Command go_to_reference(double reference){
@@ -146,8 +154,8 @@ public class Arm extends SubsystemBase{
     }
 
     private double adjusted_reference(double reference){
-        reference = Math.min(reference, 0.4);
-        reference = Math.max(reference, 0.2);
+        reference = Math.min(reference, 0.25);
+        reference = Math.max(reference, 0.1);
         return reference;
     }
 
@@ -210,4 +218,7 @@ public class Arm extends SubsystemBase{
  * 
  * How does IZone handle the accumulated I contribution when the arm goes outside of the IZone?
  *      
+ * Lots of command loop overrun, should check to see how long this periodic loop is taking
+ * might need to move motion profile generation to a different function
+ * Issue stems from setting the IZone and maybe IMaxAccum periodically, these should be set infrequently
  */
