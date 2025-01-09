@@ -59,7 +59,7 @@ public class Arm extends SubsystemBase{
         previous_reference = .25;
         goal_state = new TrapezoidProfile.State();
         start_state = new TrapezoidProfile.State();
-        P = 0; //1.5
+        P = 8;
         I = 0;
         IZone = 0;
         IMaxAccum = 0;
