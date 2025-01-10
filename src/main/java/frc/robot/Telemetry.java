@@ -1,7 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.Utils;
-import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain.SwerveDriveState;
+//import com.ctre.phoenix6.mechanisms.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -73,18 +73,18 @@ public class Telemetry {
             .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
     };
 
-    /* Accept the swerve drive state and telemeterize it to smartdashboard */
+    /* Accept the swerve drive state and telemeterize it to smartdashboard 
     public void telemeterize(SwerveDriveState state) {
-        /* Telemeterize the pose */
+        /* Telemeterize the pose 
         Pose2d pose = state.Pose;
         fieldTypePub.set("Field2d");
         fieldPub.set(new double[] {
             pose.getX(),
             pose.getY(),
             pose.getRotation().getDegrees()
-        });
+        });*/
 
-        /* Telemeterize the robot's general speeds */
+        /* Telemeterize the robot's general speeds 
         double currentTime = Utils.getCurrentTimeSeconds();
         double diffTime = currentTime - lastTime;
         lastTime = currentTime;
@@ -98,7 +98,7 @@ public class Telemetry {
         velocityY.set(velocities.getY());
         odomPeriod.set(state.OdometryPeriod);
 
-        /* Telemeterize the module's states */
+        /* Telemeterize the module's states 
         for (int i = 0; i < 4; ++i) {
             m_moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
             m_moduleDirections[i].setAngle(state.ModuleStates[i].angle);
@@ -106,5 +106,5 @@ public class Telemetry {
 
             SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
         }
-    }
+    }*/
 }

@@ -1,31 +1,32 @@
 package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.REVLibError;
-import com.revrobotics.CANSparkLowLevel;
-import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkBase;
-
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.SparkLowLevel;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Voltage;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.MotorLog;;
 
 public class Arm extends SubsystemBase{
 
-    private final CANSparkMax pivot_motor;
-    private final SparkPIDController pivot_controller;
+    private final SparkMax pivot_motor;
+    private final SparkMaxConfig pivot_config;
+    private final SparkClosedLoopController pivot_controller;
     private final AbsoluteEncoder abs_encoder;
 
     private final ArmFeedforward feedforward;
@@ -34,15 +35,16 @@ public class Arm extends SubsystemBase{
 
     // Reference means the same thing as setpoint
     private double reference, previous_reference, P, I, D, FF, IZone, IMaxAccum;
-    private float forward_limit, reverse_limit;
+
+    private boolean PIDupdated;
 
     // Timer for stepping between motion profile setpoints
     private final Timer timer = new Timer();
     private final Timer periodic_timer = new Timer();
 
-    private SysIdRoutine routine;
+    private final SysIdRoutine routine;
 
-    // _____________________________________________________________________________________________________________
+    //  _____________________________________________________________________________________________________________
     // Define a small tolerance for floating-point comparison. 
     // (JOSEPH) SHOULD BE PLACED IN CONSTANTS FILE ONCE MERGED, also should place the double comparison in utils ...
     private static final double EPSILON = 1e-9;
@@ -52,17 +54,10 @@ public class Arm extends SubsystemBase{
     // _____________________________________________________________________________________________________________
 
     public Arm (){
-        pivot_motor = new CANSparkMax(13, CANSparkLowLevel.MotorType.kBrushless);
-        pivot_motor.restoreFactoryDefaults();
-        pivot_motor.setSmartCurrentLimit(40);
-        pivot_motor.setIdleMode(CANSparkBase.IdleMode.kBrake);
-
-        pivot_motor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, false ); // dont work with absolute encoder, use interal motor encoder
-        pivot_motor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false); // dont work with absolute encoder, use interal motor encoder
-
+        pivot_motor = new SparkMax(13, SparkLowLevel.MotorType.kBrushless);
+        pivot_config = new SparkMaxConfig();
         abs_encoder = pivot_motor.getAbsoluteEncoder();
-        // 19 deg -(0.0527777) + 0.1745584
-        abs_encoder.setZeroOffset(0.12107807);
+        pivot_controller = pivot_motor.getClosedLoopController();
 
         reference = .25;
         previous_reference = .25;
@@ -75,22 +70,23 @@ public class Arm extends SubsystemBase{
         D = 0;
 
         FF = 0;
+        PIDupdated = false;
 
-        forward_limit = 0.1f; // have to explicitly cast to a float
-        reverse_limit = 0.35f;
-        pivot_motor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, forward_limit);
-        pivot_motor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, reverse_limit);
+        pivot_config
+            .inverted(false)
+            .idleMode(IdleMode.kCoast)
+            .smartCurrentLimit(40);
+        pivot_config.closedLoop
+            .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+            .pid(P, I, D)
+            .iZone(IZone)
+            .iMaxAccum(IMaxAccum)
+            .outputRange(-1, 1);
 
-        pivot_controller = pivot_motor.getPIDController();
-        update_controller_PID();
+        // 19 deg -(0.0527777) + 0.1745584
+        pivot_config.absoluteEncoder
+            .zeroOffset(0.12107807);
 
-        pivot_controller.setIZone(IZone);
-        pivot_controller.setIMaxAccum(IMaxAccum, 0);
-
-        pivot_controller.setOutputRange(-1, 1); // Could change with a high gain P controller to help eliminate some steady state error
-        pivot_controller.setFeedbackDevice(abs_encoder);
-
-        // Gains from ReCalc, either experiment or use sysID to determien ks
         // Units of the gain values will dictate units of the computed feedforward.
         feedforward = new ArmFeedforward(0, 0.02, 0.75, 0); //0.02 kG, 0.75kV . UNITS: percent output
 
@@ -107,8 +103,8 @@ public class Arm extends SubsystemBase{
         periodic_timer.start();
 
         // Burn configuration to the spark max in case of power loss
-        pivot_motor.burnFlash();
-        // Might need a delay
+        pivot_motor.configure(pivot_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        Timer.delay(.1); // give time for the controller to properly configure itself
     }
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
@@ -119,7 +115,7 @@ public class Arm extends SubsystemBase{
     return routine.dynamic(direction);
     }
 
-    public void voltageDrive(Measure<Voltage> voltage){
+    public void voltageDrive(Voltage voltage){
         SmartDashboard.putNumber("SysID magnitude", voltage.magnitude());
         //pivot_motor.setVoltage(voltage.magnitude());
         // test to see what magnitude returns first
@@ -128,8 +124,9 @@ public class Arm extends SubsystemBase{
     @Override
     public void periodic() {
         periodic_timer.reset();
-        if (is_PID_updated()){
+        if (PIDupdated){
             update_controller_PID();
+            PIDupdated = false;
         }
         
         if (is_reference_updated()){
@@ -149,10 +146,10 @@ public class Arm extends SubsystemBase{
         // convert to radians, could use a position conversion factor in abs setup instead
         
         // Feed the PID the current position setpoint from the motion profile with the feedforward component (percentoutput)
-        pivot_controller.setReference(goal_state.position, CANSparkBase.ControlType.kPosition, 0, FF, SparkPIDController.ArbFFUnits.kPercentOut);
+        // pivot_controller.setReference(goal_state.position, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kPercentOut);
         // the internal pid controller is using voltage control, so the gains correspond to a voltage increase. ~ max around 12, depends on battery
         SmartDashboard.putData(this);
-        SmartDashboard.putNumber("periodic_timer", periodic_timer.get());
+        SmartDashboard.putNumber("periodic_timer", periodic_timer.get()); // testing for command scheduler loop overrun, caused by updating PID values so often
     }
 
     @Override
@@ -171,11 +168,11 @@ public class Arm extends SubsystemBase{
         // Might also be able to add the sendable builder for the encoder to this: check later
         builder.addDoubleProperty("position", ()->abs_encoder.getPosition(), null);
 
-        builder.addDoubleProperty("P", () -> P, value -> P = value);
-        builder.addDoubleProperty("I", () -> I, value -> I = value);
-        builder.addDoubleProperty("IZone", () -> IZone, value -> IZone = value);
-        builder.addDoubleProperty("IMaxAccum", () -> IMaxAccum, value -> IMaxAccum = value);
-        builder.addDoubleProperty("D", () -> D, value -> D = value);
+        builder.addDoubleProperty("P", () -> P, value -> { P = value; PIDupdated = true; });
+        builder.addDoubleProperty("I", () -> I, value -> { I = value; PIDupdated = true; });
+        builder.addDoubleProperty("IZone", () -> IZone, value -> { IZone = value; PIDupdated = true; });
+        builder.addDoubleProperty("IMaxAccum", () -> IMaxAccum, value -> { IMaxAccum = value; PIDupdated = true; });
+        builder.addDoubleProperty("D", () -> D, value -> { D = value; PIDupdated = true; });
 
         builder.addDoubleProperty("timer", ()-> timer.get(), null);
         builder.addDoubleProperty("FF", ()->FF, null);
@@ -184,9 +181,6 @@ public class Arm extends SubsystemBase{
         builder.addDoubleProperty("motor output", ()->pivot_motor.getAppliedOutput(), null);
         builder.addDoubleProperty("Error", ()->goal_state.position - abs_encoder.getPosition(), null);
         builder.addDoubleProperty("Error_Degrees", ()-> (goal_state.position - abs_encoder.getPosition())*360, null);
-
-        builder.addBooleanProperty("forward limit", ()->pivot_motor.isSoftLimitEnabled(CANSparkMax.SoftLimitDirection.kForward), null);
-        builder.addBooleanProperty("reverse limit", ()->pivot_motor.isSoftLimitEnabled(CANSparkMax.SoftLimitDirection.kReverse), null);
     }
 
     public Command go_to_reference(double reference){
@@ -203,33 +197,12 @@ public class Arm extends SubsystemBase{
      * Updates the PID controller with the current values of P, I, and D.
      */
     private void update_controller_PID() {
-        // Set the proportional gain (P) of the PID controller
-        pivot_controller.setP(P);
-        // Set the integral gain (I) of the PID controller
-        pivot_controller.setI(I);
-        // Set the integral zone (IZone) of the PID controller
-        pivot_controller.setIZone(IZone);
-        // Set the integral max accumulation (IMaxAccum) of the PID controller
-        pivot_controller.setIMaxAccum(IMaxAccum, 0);
-        // Set the derivative gain (D) of the PID controller
-        pivot_controller.setD(D);
-        
-    }
-
-    /**
-     * Checks if the PID gains (P, I, D) in the controller are up-to-date 
-     * with the current values. 
-     * 
-     * @return true if any of the PID gains in the controller are 
-     *         different from the current values, false otherwise.
-     */
-    private boolean is_PID_updated() {
-        // Return true if any of the PID gains differ significantly from the current values
-        return hasSignificantChange(P, pivot_controller.getP()) || 
-               hasSignificantChange(I, pivot_controller.getI()) || 
-               hasSignificantChange(IZone, pivot_controller.getIZone()) || 
-               hasSignificantChange(IMaxAccum, pivot_controller.getIMaxAccum(0)) || 
-               hasSignificantChange(D, pivot_controller.getD());
+        // Set the closed loops gains of the spark max controller
+        pivot_config.closedLoop
+            .pid(P, I, D)
+            .iZone(IZone)
+            .iMaxAccum(IMaxAccum); 
+        pivot_motor.configure(pivot_config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     /**
@@ -239,7 +212,7 @@ public class Arm extends SubsystemBase{
      */
     private boolean is_reference_updated() {
         // Check if the setpoint has changed significantly
-        if (Math.abs(reference - previous_reference) > EPSILON) {
+        if (hasSignificantChange(reference, previous_reference)) {
             previous_reference = reference;
             return true; // A significant update has occurred
         }
@@ -273,3 +246,31 @@ public class Arm extends SubsystemBase{
  * try running
  * 
  */
+
+ /*
+        2024 Implementation CONFIGURATION
+        pivot_motor.();
+        pivot_motor.setSmartCurrentLimit(40);
+        pivot_motor.setIdleMode(CANSparkBase.IdleMode.kBrake);
+
+        pivot_motor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, false ); // dont work with absolute encoder, use interal motor encoder
+        pivot_motor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false); // dont work with absolute encoder, use interal motor encoder
+
+        abs_encoder = pivot_motor.getAbsoluteEncoder();
+        // 19 deg -(0.0527777) + 0.1745584
+        abs_encoder.setZeroOffset(0.12107807);
+
+        forward_limit = 0.1f; // have to explicitly cast to a float
+        reverse_limit = 0.35f;
+        pivot_motor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, forward_limit);
+        pivot_motor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, reverse_limit);
+
+        pivot_controller = pivot_motor.getClosedLoopController();
+        update_controller_PID();
+
+        pivot_controller.
+        pivot_controller.setIZone(IZone);
+        pivot_controller.setIMaxAccum(IMaxAccum, 0);
+
+        pivot_controller.setOutputRange(-1, 1); // Could change with a high gain P controller to help eliminate some steady state error
+        pivot_controller.setFeedbackDevice(abs_encoder);*/
