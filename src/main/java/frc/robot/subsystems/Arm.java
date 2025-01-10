@@ -14,10 +14,13 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import com.revrobotics.SparkPIDController;
-;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
+import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog.MotorLog;;
 
 public class Arm extends SubsystemBase{
 
@@ -31,10 +34,13 @@ public class Arm extends SubsystemBase{
 
     // Reference means the same thing as setpoint
     private double reference, previous_reference, P, I, D, FF, IZone, IMaxAccum;
+    private float forward_limit, reverse_limit;
 
     // Timer for stepping between motion profile setpoints
     private final Timer timer = new Timer();
     private final Timer periodic_timer = new Timer();
+
+    private SysIdRoutine routine;
 
     // _____________________________________________________________________________________________________________
     // Define a small tolerance for floating-point comparison. 
@@ -50,6 +56,9 @@ public class Arm extends SubsystemBase{
         pivot_motor.restoreFactoryDefaults();
         pivot_motor.setSmartCurrentLimit(40);
         pivot_motor.setIdleMode(CANSparkBase.IdleMode.kBrake);
+
+        pivot_motor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, false ); // dont work with absolute encoder, use interal motor encoder
+        pivot_motor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false); // dont work with absolute encoder, use interal motor encoder
 
         abs_encoder = pivot_motor.getAbsoluteEncoder();
         // 19 deg -(0.0527777) + 0.1745584
@@ -67,6 +76,11 @@ public class Arm extends SubsystemBase{
 
         FF = 0;
 
+        forward_limit = 0.1f; // have to explicitly cast to a float
+        reverse_limit = 0.35f;
+        pivot_motor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, forward_limit);
+        pivot_motor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, reverse_limit);
+
         pivot_controller = pivot_motor.getPIDController();
         update_controller_PID();
 
@@ -77,10 +91,16 @@ public class Arm extends SubsystemBase{
         pivot_controller.setFeedbackDevice(abs_encoder);
 
         // Gains from ReCalc, either experiment or use sysID to determien ks
-        feedforward = new ArmFeedforward(0, 0.02, 0.75, 0); //0.02 kG, 0.75kV
+        // Units of the gain values will dictate units of the computed feedforward.
+        feedforward = new ArmFeedforward(0, 0.02, 0.75, 0); //0.02 kG, 0.75kV . UNITS: percent output
 
         // Rev/s and Rev/s/s         |        1.33 rev/s and ~1.33 rev/s/s MAX
         profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(0.5,1));
+
+        // Creates a SysIdRoutine
+        routine = new SysIdRoutine(
+            new SysIdRoutine.Config(),
+            new SysIdRoutine.Mechanism(this::voltageDrive, null, this));
 
         // Start at subsystem initialization
         timer.start();
@@ -89,6 +109,20 @@ public class Arm extends SubsystemBase{
         // Burn configuration to the spark max in case of power loss
         pivot_motor.burnFlash();
         // Might need a delay
+    }
+
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return routine.quasistatic(direction);
+      }
+      
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return routine.dynamic(direction);
+    }
+
+    public void voltageDrive(Measure<Voltage> voltage){
+        SmartDashboard.putNumber("SysID magnitude", voltage.magnitude());
+        //pivot_motor.setVoltage(voltage.magnitude());
+        // test to see what magnitude returns first
     }
 
     @Override
@@ -108,12 +142,15 @@ public class Arm extends SubsystemBase{
         goal_state = profile.calculate(timer.get(), start_state,
                                                      new TrapezoidProfile.State(reference, 0));
         
-        // Calculates the feedforward using the position for the kG and velocity setpoint for kV. MIGHT need to divide by the battery voltage
+        // Calculates the feedforward using the position for the kG and velocity setpoint for kV. 
+        // MIGHT need to divide by the battery voltage, don't need to divide by battery voltage because initial feedforward gains are in percent output
+        // import edu.wpi.first.units. should allow you to specifiy units for numbers?
         FF = feedforward.calculate(abs_encoder.getPosition() * 2 * Math.PI, goal_state.velocity);
         // convert to radians, could use a position conversion factor in abs setup instead
         
         // Feed the PID the current position setpoint from the motion profile with the feedforward component (percentoutput)
         pivot_controller.setReference(goal_state.position, CANSparkBase.ControlType.kPosition, 0, FF, SparkPIDController.ArbFFUnits.kPercentOut);
+        // the internal pid controller is using voltage control, so the gains correspond to a voltage increase. ~ max around 12, depends on battery
         SmartDashboard.putData(this);
         SmartDashboard.putNumber("periodic_timer", periodic_timer.get());
     }
@@ -147,6 +184,9 @@ public class Arm extends SubsystemBase{
         builder.addDoubleProperty("motor output", ()->pivot_motor.getAppliedOutput(), null);
         builder.addDoubleProperty("Error", ()->goal_state.position - abs_encoder.getPosition(), null);
         builder.addDoubleProperty("Error_Degrees", ()-> (goal_state.position - abs_encoder.getPosition())*360, null);
+
+        builder.addBooleanProperty("forward limit", ()->pivot_motor.isSoftLimitEnabled(CANSparkMax.SoftLimitDirection.kForward), null);
+        builder.addBooleanProperty("reverse limit", ()->pivot_motor.isSoftLimitEnabled(CANSparkMax.SoftLimitDirection.kReverse), null);
     }
 
     public Command go_to_reference(double reference){
@@ -228,7 +268,7 @@ public class Arm extends SubsystemBase{
  * 
  * SYSID
  * First, go through and figure out the units of all numbers and make sure they make sense
- * configure soft limits
+ * configure soft limits -- built in soft limits wont work because not using internal encoder
  * create sysID code
  * try running
  * 
