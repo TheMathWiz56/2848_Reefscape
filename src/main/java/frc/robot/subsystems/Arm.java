@@ -17,10 +17,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.VelocityUnit;
+
+import static edu.wpi.first.units.Units.*;
 
 public class Arm extends SubsystemBase{
 
@@ -95,7 +103,7 @@ public class Arm extends SubsystemBase{
 
         // Creates a SysIdRoutine
         routine = new SysIdRoutine(
-            new SysIdRoutine.Config(),
+            new SysIdRoutine.Config( Velocity.ofBaseUnits(0.25, null),Voltage.ofBaseUnits(3, Volts),Time.ofBaseUnits(5, Seconds)),
             new SysIdRoutine.Mechanism(this::voltageDrive, null, this));
 
         // Start at subsystem initialization
@@ -116,8 +124,8 @@ public class Arm extends SubsystemBase{
     }
 
     public void voltageDrive(Voltage voltage){
-        SmartDashboard.putNumber("SysID magnitude", voltage.magnitude());
-        //pivot_motor.setVoltage(voltage.magnitude());
+        SmartDashboard.putNumber("SysID magnitude", voltage.magnitude()); // works
+        pivot_motor.setVoltage(voltage.magnitude());
         // test to see what magnitude returns first
     }
 
@@ -146,7 +154,7 @@ public class Arm extends SubsystemBase{
         // convert to radians, could use a position conversion factor in abs setup instead
         
         // Feed the PID the current position setpoint from the motion profile with the feedforward component (percentoutput)
-        // pivot_controller.setReference(goal_state.position, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kPercentOut);
+        // pivot_controller.setReference(goal_state.position, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kPercentOut); // should be a command to keep current position
         // the internal pid controller is using voltage control, so the gains correspond to a voltage increase. ~ max around 12, depends on battery
         SmartDashboard.putData(this);
         SmartDashboard.putNumber("periodic_timer", periodic_timer.get()); // testing for command scheduler loop overrun, caused by updating PID values so often

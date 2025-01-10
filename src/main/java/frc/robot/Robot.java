@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import org.littletonrobotics.urcl.URCL;
+
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -16,6 +19,13 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     m_robotContainer = new RobotContainer();
+    // If publishing to NetworkTables and DataLog
+    
+    DataLogManager.start();
+    URCL.start();
+
+    // If logging only to DataLog
+    //URCL.start(DataLogManager.getLog());
   }
 
   @Override
