@@ -221,4 +221,15 @@ public class Arm extends SubsystemBase{
  * Lots of command loop overrun, should check to see how long this periodic loop is taking
  * might need to move motion profile generation to a different function
  * Issue stems from setting the IZone and maybe IMaxAccum periodically, these should be set infrequently
+ * 
+ * TO DO:
+ * Look into shuffleboard alternatives
+ * What is advantage scope? ^
+ * 
+ * SYSID
+ * First, go through and figure out the units of all numbers and make sure they make sense
+ * configure soft limits
+ * create sysID code
+ * try running
+ * 
  */
