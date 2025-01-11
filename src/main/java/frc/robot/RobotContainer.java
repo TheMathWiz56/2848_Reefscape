@@ -26,8 +26,8 @@ public class RobotContainer {
   private void configureBindings() {
     // updated_reference.onTrue(arm.go_to_reference()); Disabled for manual testing
     arm.setDefaultCommand(arm.hold_position());
-    keypad.button(0).onTrue(arm.go_to_reference(.1));
-    keypad.button(0).onFalse(arm.go_to_reference(.2));
+    keypad.button(1).onTrue(arm.go_to_reference(.1));
+    keypad.button(1).onFalse(arm.go_to_reference(.2));
     m_chooser.setDefaultOption("None", Commands.idle(arm));
     m_chooser.addOption("Q_Forward", arm.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     m_chooser.addOption("Q_Reverse", arm.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
