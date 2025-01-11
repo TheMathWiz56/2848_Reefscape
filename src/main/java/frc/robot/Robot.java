@@ -20,9 +20,8 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     m_robotContainer = new RobotContainer();
     // If publishing to NetworkTables and DataLog
-    
-    DataLogManager.start();
-    URCL.start();
+    //DataLogManager.start();
+    //URCL.start();
 
     // If logging only to DataLog
     //URCL.start(DataLogManager.getLog());

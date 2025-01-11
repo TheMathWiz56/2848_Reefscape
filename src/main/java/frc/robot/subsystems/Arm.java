@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.MutableMeasure;
 import edu.wpi.first.units.VelocityUnit;
+import edu.wpi.first.units.VoltageUnit;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -71,11 +72,11 @@ public class Arm extends SubsystemBase{
         previous_reference = .25;
         goal_state = new TrapezoidProfile.State();
         start_state = new TrapezoidProfile.State();
-        P = 8;
+        P = 7; // 8
         I = 0;
         IZone = 0;
         IMaxAccum = 0;
-        D = 0;
+        D = 1.233;
 
         FF = 0;
         PIDupdated = false;
@@ -96,14 +97,15 @@ public class Arm extends SubsystemBase{
             .zeroOffset(0.12107807);
 
         // Units of the gain values will dictate units of the computed feedforward.
-        feedforward = new ArmFeedforward(0, 0.02, 0.75, 0); //0.02 kG, 0.75kV . UNITS: percent output
+        feedforward = new ArmFeedforward(0, 0.035173, 1.1233, 0.11294); //0.02 kG, 0.75kV . UNITS: Volts???
+        // 0'd ks because of slop, was 0.32415
 
         // Rev/s and Rev/s/s         |        1.33 rev/s and ~1.33 rev/s/s MAX
         profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(0.5,1));
 
         // Creates a SysIdRoutine
         routine = new SysIdRoutine(
-            new SysIdRoutine.Config( Velocity.ofBaseUnits(0.25, null),Voltage.ofBaseUnits(3, Volts),Time.ofBaseUnits(5, Seconds)),
+            new SysIdRoutine.Config(),
             new SysIdRoutine.Mechanism(this::voltageDrive, null, this));
 
         // Start at subsystem initialization
@@ -116,11 +118,15 @@ public class Arm extends SubsystemBase{
     }
 
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return routine.quasistatic(direction);
-      }
+        return routine.quasistatic(direction)
+                    .until( () -> (abs_encoder.getPosition() > .4 && pivot_motor.getAppliedOutput() > 0) || (abs_encoder.getPosition() < .05 && pivot_motor.getAppliedOutput() < 0))
+                    .andThen(stop_motor()); // motion limits
+    }
       
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return routine.dynamic(direction);
+    return routine.dynamic(direction)
+                    .until( () -> (abs_encoder.getPosition() > .4 && pivot_motor.getAppliedOutput() > 0) || (abs_encoder.getPosition() < .05 && pivot_motor.getAppliedOutput() < 0))
+                    .andThen(stop_motor()); // motion limits
     }
 
     public void voltageDrive(Voltage voltage){
@@ -154,7 +160,7 @@ public class Arm extends SubsystemBase{
         // convert to radians, could use a position conversion factor in abs setup instead
         
         // Feed the PID the current position setpoint from the motion profile with the feedforward component (percentoutput)
-        // pivot_controller.setReference(goal_state.position, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kPercentOut); // should be a command to keep current position
+        pivot_controller.setReference(goal_state.position, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kPercentOut); // should be a command to keep current position
         // the internal pid controller is using voltage control, so the gains correspond to a voltage increase. ~ max around 12, depends on battery
         SmartDashboard.putData(this);
         SmartDashboard.putNumber("periodic_timer", periodic_timer.get()); // testing for command scheduler loop overrun, caused by updating PID values so often
@@ -189,10 +195,21 @@ public class Arm extends SubsystemBase{
         builder.addDoubleProperty("motor output", ()->pivot_motor.getAppliedOutput(), null);
         builder.addDoubleProperty("Error", ()->goal_state.position - abs_encoder.getPosition(), null);
         builder.addDoubleProperty("Error_Degrees", ()-> (goal_state.position - abs_encoder.getPosition())*360, null);
+
+        builder.addDoubleProperty("SYSID_Voltage", ()->pivot_motor.getBusVoltage() * pivot_motor.getAppliedOutput(), null);
+        builder.addDoubleProperty("SYSID_Velocity", ()->abs_encoder.getVelocity()  * 2 * Math.PI, null); // radians
+        builder.addDoubleProperty("SYSID_Position", ()->abs_encoder.getPosition() * 2 * Math.PI, null); // radians
+        builder.addBooleanProperty("Reverse Soft Limit", () -> abs_encoder.getPosition() < .05 && pivot_motor.getAppliedOutput() < 0, null);
+        builder.addBooleanProperty("Forward Soft Limit", () -> abs_encoder.getPosition() > .4 && pivot_motor.getAppliedOutput() > 0, null);
+        builder.addBooleanProperty("Combined Limits", ()-> (abs_encoder.getPosition() > .4 && pivot_motor.getAppliedOutput() > 0) || (abs_encoder.getPosition() < .05 && pivot_motor.getAppliedOutput() < 0), null);
     }
 
     public Command go_to_reference(double reference){
         return runOnce(()-> this.previous_reference = this.reference).andThen(()-> this.reference = adjusted_reference(reference));
+    }
+
+    public Command stop_motor(){
+        return runOnce(()->pivot_motor.stopMotor());
     }
 
     private double adjusted_reference(double reference){

@@ -11,6 +11,8 @@ import com.ctre.phoenix6.Utils;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -36,7 +38,16 @@ public class RobotContainer {
 
   //private final Telemetry logger = new Telemetry(MaxSpeed);
 
+  SendableChooser<Command> m_chooser = new SendableChooser<>();
+
   private void configureBindings() {
+
+    m_chooser.setDefaultOption("None", Commands.idle(arm));
+    m_chooser.addOption("Q_Forward", arm.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_chooser.addOption("Q_Reverse", arm.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    m_chooser.addOption("D_Forward", arm.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    m_chooser.addOption("D_Reverse", arm.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    SmartDashboard.putData(m_chooser);
     /*drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
         drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with
                                                                                            // negative Y (forward)
@@ -66,6 +77,6 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return arm.sysIdQuasistatic(SysIdRoutine.Direction.kReverse);
+    return m_chooser.getSelected();
   }
 }
