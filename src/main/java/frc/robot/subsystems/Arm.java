@@ -187,10 +187,11 @@ public class Arm extends SubsystemBase{
                     // Calculates the position and velocity for the profile at a time t where the start state is at time t = 0.
                     current_state = profile.calculate(timer.get(), start_state, new TrapezoidProfile.State(reference, 0));
 
-                    command_output(current_state.velocity);
+                    command_output(current_state.position, current_state.velocity);
                 })
                 .until(()->profile.isFinished(timer.get()))
-                .unless(()-> !is_reference_updated());
+                .unless(()-> !is_reference_updated())
+                .withName("Go To Reference");
     }
 
     public Command go_to_reference(){
@@ -206,10 +207,10 @@ public class Arm extends SubsystemBase{
                     // Calculates the position and velocity for the profile at a time t where the start state is at time t = 0.
                     current_state = profile.calculate(timer.get(), start_state, new TrapezoidProfile.State(reference, 0));
 
-                    command_output(current_state.velocity);
+                    command_output(current_state.position, current_state.velocity);
                 })
                 .until(()->profile.isFinished(timer.get()))
-                .unless(()-> !is_reference_updated());
+                .withName("Go To Reference");
     }
 
     public Command stop_motor(){
@@ -217,14 +218,15 @@ public class Arm extends SubsystemBase{
     }
 
     public Command hold_position(){
-        return run(()->command_output());
+        return run(()->command_output())
+                .withName("Hold Position");
     }
 
     private void command_output(){
-        command_output(0);
+        command_output(reference, 0);
     }
 
-    private void command_output(double velocity){
+    private void command_output(double position, double velocity){
         // Calculates the feedforward using the position for the kG and velocity setpoint for kV. 
         // MIGHT need to divide by the battery voltage, don't need to divide by battery voltage because initial feedforward gains are in percent output
         // import edu.wpi.first.units. should allow you to specifiy units for numbers?
@@ -232,7 +234,7 @@ public class Arm extends SubsystemBase{
         // convert to radians, could use a position conversion factor in abs setup instead
 
         // Feed the PID the current position setpoint from the motion profile with the feedforward component (percentoutput)
-        pivot_controller.setReference(current_state.position, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kPercentOut); // should be a command to keep current position
+        pivot_controller.setReference(position, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kPercentOut); // should be a command to keep current position
         // the internal pid controller is using voltage control, so the gains correspond to a voltage increase. ~ max around 12, depends on battery
     }
 
