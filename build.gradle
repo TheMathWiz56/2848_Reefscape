@@ -1,11 +1,16 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2024.3.2"
+    id("edu.wpi.first.GradleRIO") version "2024.3.2"
 }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
+}
+repositories {
+    maven {
+        url "https://3015rangerrobotics.github.io/pathplannerlib/repo"
+    }
 }
 
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
@@ -69,6 +74,8 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation 'com.pathplanner.lib:PathplannerLib-java:2025.1.1'
 }
 
 test {

@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.Utils;
@@ -9,16 +10,14 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.PIDConstants;
-import com.pathplanner.lib.util.ReplanningConfig;
+
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,6 +29,11 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants;
 import edu.wpi.first.math.controller.HolonomicDriveController;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.path.Waypoint;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.GoalEndState;
+
 
 /**
  * Class that extends the Phoenix SwerveDrivetrain class and implements
@@ -39,6 +43,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
   private static final double kSimLoopPeriod = 0.005; // 5 ms
   private Notifier m_simNotifier = null;
   private double m_lastSimTime;
+  private RobotConfig config;
 
     
 
@@ -48,9 +53,7 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
   private final Rotation2d RedAlliancePerspectiveRotation = Rotation2d.fromDegrees(180);
   /* Keep track if we've ever applied the operator perspective before or not */
   private boolean hasAppliedOperatorPerspective = false;
-
   private final SwerveRequest.ApplyChassisSpeeds AutoRequest = new SwerveRequest.ApplyChassisSpeeds();
-
 
   public CommandSwerveDrivetrain(SwerveDrivetrainConstants driveTrainConstants, double OdometryUpdateFrequency,
       SwerveModuleConstants... modules) {
@@ -65,44 +68,22 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
     if (Utils.isSimulation()) {
       startSimThread();
     }
-    
-    
-    
-    
-    double driveBaseRadius = 0;
-        for (var moduleLocation : m_moduleLocations) {
-            driveBaseRadius = Math.max(driveBaseRadius, moduleLocation.getNorm());
-        }
-        driveBaseRadius = .386;
-      
-        
-    AutoBuilder.configureHolonomic(
-            ()->this.getState().Pose, // Supplier of current robot pose
-            this::seedFieldRelative,  // Consumer for seeding pose against auto
-            ()->this.getState().speeds,
-            (speeds)->this.setControl(AutoRequest.withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
-            new HolonomicPathFollowerConfig(new PIDConstants(10, 0, 0),
-                                            new PIDConstants(10, 0, 0),
-                                            TunerConstants.kSpeedAt12VoltsMps,
-                                            driveBaseRadius,
-                                            new ReplanningConfig()),
-            () -> DriverStation.getAlliance().orElse(Alliance.Blue)==Alliance.Red, // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-            this); // Subsystem for requirements
 
-    // Configure AutoBuilder last
-    
-    /* 
-    AutoBuilder.configureHolonomic(
-            this::getPose, // Robot pose supplier
-            this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-            this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
-            
-            new PPHolonomicDriveController(
-              new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                    new PIDConstants(5.0, 0.0, 0.0),
-                    4.75,
-                    .386),
+    try{
+      config = RobotConfig.fromGUISettings();
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
+    AutoBuilder.configure(
+      ()->this.getState().Pose, // Supplier of current robot pose
+      this::seedFieldRelative,  // Consumer for seeding pose against auto
+      ()->this.getState().speeds,
+      (speeds)->this.setControl(AutoRequest.withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
+            new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                    new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                    new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+            ),
             config, // The robot configuration
             () -> {
               // Boolean supplier that controls when the path will be mirrored for the red alliance
@@ -117,7 +98,41 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
             },
             this // Reference to this subsystem to set requirements
     );
-    */
+
+    
+
+    
+  }
+  public Command drivePath(Pose2d endPoint) {
+    // Create a list of waypoints from poses. Each pose represents one waypoint.
+// The rotation component of the pose should be the direction of travel. Do not use holonomic rotation.
+        List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+          endPoint
+        );
+        
+        PathConstraints constraints = new PathConstraints(3.0, 3.0, 2 * Math.PI, 4 * Math.PI); // The constraints for this path.
+        // PathConstraints constraints = PathConstraints.unlimitedConstraints(12.0); // You can also use unlimited constraints, only limited by motor torque and nominal battery voltage
+
+        // Create the path using the waypoints created above
+        PathPlannerPath path = new PathPlannerPath(
+          waypoints,
+          constraints,
+          null, // The ideal starting state, this is only relevant for pre-planned paths, so can be null for on-the-fly paths.
+          new GoalEndState(0.0, endPoint.getRotation()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
+        );
+
+        // Prevent the path from being flipped if the coordinates are already correct
+        path.preventFlipping = true;
+    try{
+        // Load the path you want to follow using its name in the GUI
+        
+
+        // Create a path following command using AutoBuilder. This will also trigger event markers.
+        return AutoBuilder.followPath(path);
+    } catch (Exception e) {
+        DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
+        return Commands.none();
+    }
   }
 
   public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -127,18 +142,17 @@ public class CommandSwerveDrivetrain extends SwerveDrivetrain implements Subsyst
   public Command followPathCommand(String pathName) {
     try{
         PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
-        
 
         return new FollowPathCommand(
                 path,
-                this::getPose, // Robot pose supplier
-                this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                this::drive, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds, AND feedforwards
+                ()->this.getState().Pose, // Supplier of current robot pose
+              ()->this.getState().speeds,
+                (speeds)->this.setControl(AutoRequest.withSpeeds(speeds)), // Consumer of ChassisSpeeds to drive the robot
                 new PPHolonomicDriveController(
                   new PIDConstants(5.0,5.0,5.0),
                   new PIDConstants(5.0,5.0,5.0)
                 ),
-                Constants.robotConfig, // The robot configuration
+                config, // The robot configuration
                 () -> {
                   // Boolean supplier that controls when the path will be mirrored for the red alliance
                   // This will flip the path being followed to the red side of the field.
