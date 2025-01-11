@@ -14,6 +14,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
@@ -289,14 +290,22 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
       SmartDashboard.putString("frontResults", frontDistances.toString());
       SmartDashboard.putString("backResults", backDistances.toString());
       */
-      //Select the limelight with more visible tags (there is probably a better solution than this)
       String limelightUsed;
-        
+    
+      /*
       if(LimelightHelpers.getTargetCount("limelight-front") < LimelightHelpers.getTargetCount("limelight-back")){
         limelightUsed = "limelight-back";
       }else{
         limelightUsed = "limelight-front";
       }
+        */
+    //Choose the limelight with the highest average tag area (percentage of image)
+    if(NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10] > 
+        NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10]){
+            limelightUsed = "limelight-front";
+        }else{
+            limelightUsed = "limelight-back";
+        }
 
       SmartDashboard.putString("Limelight Used", limelightUsed); //Output to SmartDashboard
 
