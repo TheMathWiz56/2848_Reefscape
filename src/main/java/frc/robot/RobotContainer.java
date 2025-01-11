@@ -19,7 +19,7 @@ public class RobotContainer {
   SendableChooser<Command> m_chooser = new SendableChooser<>();
 
   private void configureBindings() {
-    updated_reference.onTrue(arm.go_to_reference());
+    // updated_reference.onTrue(arm.go_to_reference()); Disabled for manual testing
     arm.setDefaultCommand(arm.hold_position());
 
     m_chooser.setDefaultOption("None", Commands.idle(arm));

@@ -177,20 +177,21 @@ public class Arm extends SubsystemBase{
     public Command go_to_reference(double reference){
         return startRun(
                 ()-> {
+                    // Adjust Reference for limits
+                    // because of local variable restrictions moved to wherever needed for now, not proper implementation
                     // Reset the timer for the motion profile
                     timer.reset();
                     // record the initial state
                     start_state = new TrapezoidProfile.State(abs_encoder.getPosition(), abs_encoder.getVelocity());
-                    goal_state = new TrapezoidProfile.State(reference, 0);
+                    goal_state = new TrapezoidProfile.State(adjusted_reference(reference), 0);
                 }, 
                 ()->{
                     // Calculates the position and velocity for the profile at a time t where the start state is at time t = 0.
-                    current_state = profile.calculate(timer.get(), start_state, new TrapezoidProfile.State(reference, 0));
+                    current_state = profile.calculate(timer.get(), start_state, new TrapezoidProfile.State(adjusted_reference(reference), 0));
 
                     command_output(current_state.position, current_state.velocity);
                 })
                 .until(()->profile.isFinished(timer.get()))
-                .unless(()-> !is_reference_updated())
                 .withName("Go To Reference");
     }
 
@@ -257,7 +258,7 @@ public class Arm extends SubsystemBase{
         pivot_motor.configure(pivot_config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
-    /**
+    /*
      * Checks if the current setpoint has significantly changed from the previous setpoint.
      *
      * @return true if the setpoint has changed, false otherwise.
