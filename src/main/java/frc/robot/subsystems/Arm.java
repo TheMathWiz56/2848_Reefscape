@@ -17,19 +17,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Time;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.MutableMeasure;
-import edu.wpi.first.units.VelocityUnit;
-import edu.wpi.first.units.VoltageUnit;
-
-import static edu.wpi.first.units.Units.*;
 
 public class Arm extends SubsystemBase{
 
@@ -40,7 +31,7 @@ public class Arm extends SubsystemBase{
 
     private final ArmFeedforward feedforward;
     private final TrapezoidProfile profile;
-    private TrapezoidProfile.State goal_state, start_state;
+    private TrapezoidProfile.State goal_state, start_state, current_state;
 
     // Reference means the same thing as setpoint
     private double reference, previous_reference, P, I, D, FF, IZone, IMaxAccum;
@@ -49,7 +40,6 @@ public class Arm extends SubsystemBase{
 
     // Timer for stepping between motion profile setpoints
     private final Timer timer = new Timer();
-    private final Timer periodic_timer = new Timer();
 
     private final SysIdRoutine routine;
 
@@ -72,6 +62,7 @@ public class Arm extends SubsystemBase{
         previous_reference = .25;
         goal_state = new TrapezoidProfile.State();
         start_state = new TrapezoidProfile.State();
+        current_state = new TrapezoidProfile.State();
         P = 7; // 8
         I = 0;
         IZone = 0;
@@ -110,7 +101,6 @@ public class Arm extends SubsystemBase{
 
         // Start at subsystem initialization
         timer.start();
-        periodic_timer.start();
 
         // Burn configuration to the spark max in case of power loss
         pivot_motor.configure(pivot_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -137,33 +127,11 @@ public class Arm extends SubsystemBase{
 
     @Override
     public void periodic() {
-        periodic_timer.reset();
         if (PIDupdated){
             update_controller_PID();
             PIDupdated = false;
         }
-        
-        if (is_reference_updated()){
-            // Restart motion profile timer
-            timer.reset();
-            start_state = new TrapezoidProfile.State(abs_encoder.getPosition(), abs_encoder.getVelocity());
-        }
-        
-        // Calculates the position and velocity for the profile at a time t where the current state is at time t = 0.
-        goal_state = profile.calculate(timer.get(), start_state,
-                                                     new TrapezoidProfile.State(reference, 0));
-        
-        // Calculates the feedforward using the position for the kG and velocity setpoint for kV. 
-        // MIGHT need to divide by the battery voltage, don't need to divide by battery voltage because initial feedforward gains are in percent output
-        // import edu.wpi.first.units. should allow you to specifiy units for numbers?
-        FF = feedforward.calculate(abs_encoder.getPosition() * 2 * Math.PI, goal_state.velocity);
-        // convert to radians, could use a position conversion factor in abs setup instead
-        
-        // Feed the PID the current position setpoint from the motion profile with the feedforward component (percentoutput)
-        pivot_controller.setReference(goal_state.position, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kPercentOut); // should be a command to keep current position
-        // the internal pid controller is using voltage control, so the gains correspond to a voltage increase. ~ max around 12, depends on battery
         SmartDashboard.putData(this);
-        SmartDashboard.putNumber("periodic_timer", periodic_timer.get()); // testing for command scheduler loop overrun, caused by updating PID values so often
     }
 
     @Override
@@ -204,13 +172,51 @@ public class Arm extends SubsystemBase{
         builder.addBooleanProperty("Combined Limits", ()-> (abs_encoder.getPosition() > .4 && pivot_motor.getAppliedOutput() > 0) || (abs_encoder.getPosition() < .05 && pivot_motor.getAppliedOutput() < 0), null);
     }
 
+    // Is reference updated should be a trigger to schedule this command. Once the profile finishes, switch to hold_position
     public Command go_to_reference(double reference){
-        return runOnce(()-> this.previous_reference = this.reference).andThen(()-> this.reference = adjusted_reference(reference));
+        return startRun(
+                ()-> {
+                    // Reset the timer for the motion profile
+                    timer.reset();
+                    // record the initial state
+                    start_state = new TrapezoidProfile.State(abs_encoder.getPosition(), abs_encoder.getVelocity());
+                    goal_state = new TrapezoidProfile.State(reference, 0);
+                }, 
+                ()->{
+                    // Calculates the position and velocity for the profile at a time t where the start state is at time t = 0.
+                    current_state = profile.calculate(timer.get(), start_state, new TrapezoidProfile.State(reference, 0));
+
+                    command_output(current_state.velocity);
+                })
+                .until(()->profile.isFinished(timer.get()));
+
+        // return runOnce(()-> this.previous_reference = this.reference).andThen(()-> this.reference = adjusted_reference(reference));
     }
 
     public Command stop_motor(){
         return runOnce(()->pivot_motor.stopMotor());
     }
+
+    public Command hold_position(){
+        return run(()->command_output());
+    }
+
+    private void command_output(){
+        command_output(0);
+    }
+
+    private void command_output(double velocity){
+        // Calculates the feedforward using the position for the kG and velocity setpoint for kV. 
+        // MIGHT need to divide by the battery voltage, don't need to divide by battery voltage because initial feedforward gains are in percent output
+        // import edu.wpi.first.units. should allow you to specifiy units for numbers?
+        FF = feedforward.calculate(abs_encoder.getPosition() * 2 * Math.PI, current_state.velocity);
+        // convert to radians, could use a position conversion factor in abs setup instead
+
+        // Feed the PID the current position setpoint from the motion profile with the feedforward component (percentoutput)
+        pivot_controller.setReference(current_state.position, SparkBase.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kPercentOut); // should be a command to keep current position
+        // the internal pid controller is using voltage control, so the gains correspond to a voltage increase. ~ max around 12, depends on battery
+    }
+
 
     private double adjusted_reference(double reference){
         reference = Math.min(reference, 0.35);
@@ -271,31 +277,3 @@ public class Arm extends SubsystemBase{
  * try running
  * 
  */
-
- /*
-        2024 Implementation CONFIGURATION
-        pivot_motor.();
-        pivot_motor.setSmartCurrentLimit(40);
-        pivot_motor.setIdleMode(CANSparkBase.IdleMode.kBrake);
-
-        pivot_motor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kForward, false ); // dont work with absolute encoder, use interal motor encoder
-        pivot_motor.enableSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, false); // dont work with absolute encoder, use interal motor encoder
-
-        abs_encoder = pivot_motor.getAbsoluteEncoder();
-        // 19 deg -(0.0527777) + 0.1745584
-        abs_encoder.setZeroOffset(0.12107807);
-
-        forward_limit = 0.1f; // have to explicitly cast to a float
-        reverse_limit = 0.35f;
-        pivot_motor.setSoftLimit(CANSparkMax.SoftLimitDirection.kForward, forward_limit);
-        pivot_motor.setSoftLimit(CANSparkMax.SoftLimitDirection.kReverse, reverse_limit);
-
-        pivot_controller = pivot_motor.getClosedLoopController();
-        update_controller_PID();
-
-        pivot_controller.
-        pivot_controller.setIZone(IZone);
-        pivot_controller.setIMaxAccum(IMaxAccum, 0);
-
-        pivot_controller.setOutputRange(-1, 1); // Could change with a high gain P controller to help eliminate some steady state error
-        pivot_controller.setFeedbackDevice(abs_encoder);*/
