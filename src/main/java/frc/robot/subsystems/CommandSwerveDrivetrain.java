@@ -299,9 +299,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         limelightUsed = "limelight-front";
       }
         */
-    //Choose the limelight with the highest average tag area (percentage of image)
-    if(NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10] > 
-        NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10]){
+    //Get average tag areas (percentage of image), Choose the limelight with the highest average tag area
+    double limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
+    double limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
+
+    SmartDashboard.putNumber("Front Limelight Tag Area", limelightBackAvgTagArea);
+    SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);    
+
+    if(limelightFrontAvgTagArea > 
+        limelightBackAvgTagArea){
             limelightUsed = "limelight-front";
         }else{
             limelightUsed = "limelight-back";
