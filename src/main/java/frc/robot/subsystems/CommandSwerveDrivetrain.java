@@ -18,10 +18,11 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -234,6 +235,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+
     }
 
     private void startSimThread() {
@@ -250,4 +253,96 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
+
+    public void updateOdometry() {
+
+      boolean useMegaTag2 = true; // set to false to use MegaTag1
+      boolean doRejectUpdate = false;
+      
+
+      //Code to get distance from an apriltag (doesn't work)
+      
+      /*
+      LimelightResults lResults = LimelightHelpers.getLatestResults("limelight-front");
+
+      Pose3d targetPose = lResults.targets_Fiducials[0].getTargetPose_RobotSpace();
+      double distance = Math.abs(targetPose.getTranslation().getNorm());
+      
+      SmartDashboard.putNumber("apriltag distance", distance);
+      */
+
+      //Testing code: put apriltag distance data to dashboard (doesn't work)
+      /*LimelightResults frontResults = LimelightHelpers.getLatestResults("limelight-front");
+      LimelightResults backResults = LimelightHelpers.getLatestResults("limelight-back");
+
+      ArrayList<Double> frontDistances = new ArrayList<Double>();
+      ArrayList<Double> backDistances = new ArrayList<Double>();
+
+      for(LimelightTarget_Fiducial i : frontResults.targets_Fiducials) {
+        frontDistances.add(Math.abs(i.getTargetPose_RobotSpace().getTranslation().getNorm()));
+      }
+
+      for(LimelightTarget_Fiducial i : backResults.targets_Fiducials) {
+        backDistances.add(Math.abs(i.getTargetPose_RobotSpace().getTranslation().getNorm()));
+      }
+
+      SmartDashboard.putString("frontResults", frontDistances.toString());
+      SmartDashboard.putString("backResults", backDistances.toString());
+      */
+      //Select the limelight with more visible tags (there is probably a better solution than this)
+      String limelightUsed;
+        
+      if(LimelightHelpers.getTargetCount("limelight-front") < LimelightHelpers.getTargetCount("limelight-back")){
+        limelightUsed = "limelight-back";
+      }else{
+        limelightUsed = "limelight-front";
+      }
+
+      SmartDashboard.putString("Limelight Used", limelightUsed); //Output to SmartDashboard
+
+      if (useMegaTag2 == false) {
+        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightUsed);
+
+        if (mt1.tagCount == 1 && mt1.rawFiducials.length == 1) {
+          if (mt1.rawFiducials[0].ambiguity > .7) {
+            doRejectUpdate = true;
+          }
+          if (mt1.rawFiducials[0].distToCamera > 3) {
+            doRejectUpdate = true;
+          }
+        }
+        if (mt1.tagCount == 0) {
+          doRejectUpdate = true;
+        }
+
+        if (!doRejectUpdate) {
+              addVisionMeasurement(mt1.pose, mt1.timestampSeconds);
+        }
+      } else if (useMegaTag2 == true) {
+        
+
+        LimelightHelpers.SetRobotOrientation("limelight-front", getState().Pose.getRotation().getDegrees(),
+          0, 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-back", getState().Pose.getRotation().getDegrees(),
+          0, 0, 0, 0, 0);
+        LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightUsed);
+        if (mt2 == null) { // in case mt2 returns a nullptr, need to figure out why this is happening
+          doRejectUpdate = true;
+        } else {
+          if (Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720) // if our angular velocity is greater than 720 degrees per second,
+                                                   // ignore vision updates
+          {
+            doRejectUpdate = true;
+          }
+          if (mt2.tagCount == 0) {
+            doRejectUpdate = true;
+          }
+        }
+
+        if (!doRejectUpdate) {
+          addVisionMeasurement(mt2.pose, mt2.timestampSeconds); 
+        }
+      }
+    }
+
 }
