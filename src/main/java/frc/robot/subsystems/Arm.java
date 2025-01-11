@@ -131,6 +131,7 @@ public class Arm extends SubsystemBase{
             update_controller_PID();
             PIDupdated = false;
         }
+
         SmartDashboard.putData(this);
     }
 
@@ -172,7 +173,7 @@ public class Arm extends SubsystemBase{
         builder.addBooleanProperty("Combined Limits", ()-> (abs_encoder.getPosition() > .4 && pivot_motor.getAppliedOutput() > 0) || (abs_encoder.getPosition() < .05 && pivot_motor.getAppliedOutput() < 0), null);
     }
 
-    // Is reference updated should be a trigger to schedule this command. Once the profile finishes, switch to hold_position
+    
     public Command go_to_reference(double reference){
         return startRun(
                 ()-> {
@@ -188,9 +189,27 @@ public class Arm extends SubsystemBase{
 
                     command_output(current_state.velocity);
                 })
-                .until(()->profile.isFinished(timer.get()));
+                .until(()->profile.isFinished(timer.get()))
+                .unless(()-> !is_reference_updated());
+    }
 
-        // return runOnce(()-> this.previous_reference = this.reference).andThen(()-> this.reference = adjusted_reference(reference));
+    public Command go_to_reference(){
+        return startRun(
+                ()-> {
+                    // Reset the timer for the motion profile
+                    timer.reset();
+                    // record the initial state
+                    start_state = new TrapezoidProfile.State(abs_encoder.getPosition(), abs_encoder.getVelocity());
+                    goal_state = new TrapezoidProfile.State(reference, 0);
+                }, 
+                ()->{
+                    // Calculates the position and velocity for the profile at a time t where the start state is at time t = 0.
+                    current_state = profile.calculate(timer.get(), start_state, new TrapezoidProfile.State(reference, 0));
+
+                    command_output(current_state.velocity);
+                })
+                .until(()->profile.isFinished(timer.get()))
+                .unless(()-> !is_reference_updated());
     }
 
     public Command stop_motor(){
@@ -241,7 +260,7 @@ public class Arm extends SubsystemBase{
      *
      * @return true if the setpoint has changed, false otherwise.
      */
-    private boolean is_reference_updated() {
+    public boolean is_reference_updated() {
         // Check if the setpoint has changed significantly
         if (hasSignificantChange(reference, previous_reference)) {
             previous_reference = reference;
