@@ -303,7 +303,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     double limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
     double limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
 
-    SmartDashboard.putNumber("Front Limelight Tag Area", limelightBackAvgTagArea);
+    SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
     SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);    
 
     if(limelightFrontAvgTagArea > 
