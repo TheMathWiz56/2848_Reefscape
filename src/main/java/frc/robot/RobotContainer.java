@@ -16,7 +16,7 @@ import frc.robot.subsystems.Arm;
 
 public class RobotContainer {
   private final Arm arm = new Arm();
-  private final Trigger updated_reference = new Trigger(()->arm.is_reference_updated());
+  // private final Trigger updated_reference = new Trigger(()->arm.is_reference_updated());
   private CommandGenericHID keypad = new CommandGenericHID(0);
   
   

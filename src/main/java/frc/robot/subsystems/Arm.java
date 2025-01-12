@@ -63,7 +63,7 @@ public class Arm extends SubsystemBase{
         goal_state = new TrapezoidProfile.State();
         start_state = new TrapezoidProfile.State();
         current_state = new TrapezoidProfile.State();
-        P = 7; // 8
+        P = 7;
         I = 0;
         IZone = 0;
         IMaxAccum = 0;
@@ -121,7 +121,7 @@ public class Arm extends SubsystemBase{
 
     public void voltageDrive(Voltage voltage){
         SmartDashboard.putNumber("SysID magnitude", voltage.magnitude()); // works
-        pivot_motor.setVoltage(voltage.magnitude());
+        pivot_motor.setVoltage(voltage.magnitude()); // .magnitude returns the signed double value
         // test to see what magnitude returns first
     }
 
@@ -166,7 +166,7 @@ public class Arm extends SubsystemBase{
         builder.addDoubleProperty("Error_Degrees", ()-> (goal_state.position - abs_encoder.getPosition())*360, null);
 
         builder.addDoubleProperty("SYSID_Voltage", ()->pivot_motor.getBusVoltage() * pivot_motor.getAppliedOutput(), null);
-        builder.addDoubleProperty("SYSID_Velocity", ()->abs_encoder.getVelocity()  * 2 * Math.PI, null); // radians
+        builder.addDoubleProperty("SYSID_Velocity", ()->abs_encoder.getVelocity()  * 2 * Math.PI, null); // radians/min
         builder.addDoubleProperty("SYSID_Position", ()->abs_encoder.getPosition() * 2 * Math.PI, null); // radians
         builder.addBooleanProperty("Reverse Soft Limit", () -> abs_encoder.getPosition() < .05 && pivot_motor.getAppliedOutput() < 0, null);
         builder.addBooleanProperty("Forward Soft Limit", () -> abs_encoder.getPosition() > .4 && pivot_motor.getAppliedOutput() > 0, null);
@@ -178,16 +178,16 @@ public class Arm extends SubsystemBase{
         return startRun(
                 ()-> {
                     // Adjust Reference for limits
-                    // because of local variable restrictions moved to wherever needed for now, not proper implementation
+                    this.reference = adjusted_reference(reference);
                     // Reset the timer for the motion profile
                     timer.reset();
-                    // record the initial state
+                    // update the start and goal states
                     start_state = new TrapezoidProfile.State(abs_encoder.getPosition(), abs_encoder.getVelocity());
-                    goal_state = new TrapezoidProfile.State(adjusted_reference(reference), 0);
+                    goal_state = new TrapezoidProfile.State(this.reference, 0);
                 }, 
                 ()->{
                     // Calculates the position and velocity for the profile at a time t where the start state is at time t = 0.
-                    current_state = profile.calculate(timer.get(), start_state, new TrapezoidProfile.State(adjusted_reference(reference), 0));
+                    current_state = profile.calculate(timer.get(), start_state, new TrapezoidProfile.State(this.reference, 0));
 
                     command_output(current_state.position, current_state.velocity);
                 })
@@ -271,31 +271,6 @@ public class Arm extends SubsystemBase{
         }
         return false; // No significant change
     }
+
+    
 }
-
-
-/*
- * ____________________________Feed forward Notes____________________________
- * 
- * The kG is too high from ReCalc, arm moves towards vertical
-    *  Could be a result from error in position sensor or recalc
-    *  Going to leave as is and let PID handle fine tuning
-    *  pivot stays at setpoint without any input (due to low mass and high stiction) so put kG to 0
- * 
- * How does IZone handle the accumulated I contribution when the arm goes outside of the IZone?
- *      
- * Lots of command loop overrun, should check to see how long this periodic loop is taking
- * might need to move motion profile generation to a different function
- * Issue stems from setting the IZone and maybe IMaxAccum periodically, these should be set infrequently
- * 
- * TO DO:
- * Look into shuffleboard alternatives
- * What is advantage scope? ^
- * 
- * SYSID
- * First, go through and figure out the units of all numbers and make sure they make sense
- * configure soft limits -- built in soft limits wont work because not using internal encoder
- * create sysID code
- * try running
- * 
- */
