@@ -93,7 +93,7 @@ public class Arm extends SubsystemBase {
             .iMaxAccum(IMaxAccum) // Set max accumulation for integral term
             .outputRange(-1, 1); // Set output range to [-1, 1]
 
-        // Absolute encoder configuration
+        // Absolute encoder configuratio
         pivot_config.absoluteEncoder
             .zeroOffset(0.12107807); // Zero offset for the encoder (calibration value)
 
