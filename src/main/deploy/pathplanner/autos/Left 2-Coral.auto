@@ -1,0 +1,55 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "1_I"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score_L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "I_HPLF"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LHPF_K"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score_L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "K_HPLF"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LHPF_K"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
