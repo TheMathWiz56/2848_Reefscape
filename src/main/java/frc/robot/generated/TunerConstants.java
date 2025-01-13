@@ -311,4 +311,8 @@ public class TunerConstants {
  * Module Positions - Above
  * Wheel Radius - Above
  * 
+ * Limelights
+ * robot position
+ * calibration board
+ * sensor gain
  */
