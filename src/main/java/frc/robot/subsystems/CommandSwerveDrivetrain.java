@@ -17,6 +17,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -47,8 +48,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static boolean doRejectUpdate = false;
     private static String limelightUsed;
     //Get average tag areas (percentage of image), Choose the limelight with the highest average tag area
-    private static double limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
-    private static double limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
+    private static double limelightFrontAvgTagArea = 0;
+    private static double limelightBackAvgTagArea = 0;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -289,8 +290,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-
-        SmartDashboard.putNumber("Motor Velocity", this.getModule(0).getDriveMotor().getRotorVelocity().getValueAsDouble()); // measuring max velocity
+        
+        updateOdometry();
     }
 
     private void startSimThread() {
@@ -310,6 +311,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     
 
      public void updateOdometry() {
+        doRejectUpdate = false;
+
+        limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
+        limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
         SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
         SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);    
 
@@ -341,8 +346,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 addVisionMeasurement(mt1.pose, mt1.timestampSeconds);
             }
         } else if (useMegaTag2 == true) {
-            
-
             LimelightHelpers.SetRobotOrientation("limelight-front", getState().Pose.getRotation().getDegrees(),
             0, 0, 0, 0, 0);
             LimelightHelpers.SetRobotOrientation("limelight-back", getState().Pose.getRotation().getDegrees(),
@@ -361,8 +364,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             }
             }
 
+            SmartDashboard.putBoolean("Rejected Update", doRejectUpdate);
             if (!doRejectUpdate) {
-            addVisionMeasurement(mt2.pose, mt2.timestampSeconds); 
+                addVisionMeasurement(mt2.pose, mt2.timestampSeconds, VecBuilder.fill(0,0,9999999)); // default .7
             }
         }
     }
