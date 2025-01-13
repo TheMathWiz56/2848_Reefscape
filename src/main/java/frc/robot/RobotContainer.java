@@ -9,9 +9,12 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
@@ -28,6 +31,8 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -35,7 +40,13 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
+    /* Path follower */
+    private final SendableChooser<Command> autoChooser;
+
     public RobotContainer() {
+        autoChooser = AutoBuilder.buildAutoChooser("TEST");
+        SmartDashboard.putData("Auto Mode", autoChooser);
+
         configureBindings();
     }
 
@@ -56,6 +67,13 @@ public class RobotContainer {
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
 
+        joystick.pov(0).whileTrue(drivetrain.applyRequest(() ->
+            forwardStraight.withVelocityX(0.5).withVelocityY(0))
+        );
+        joystick.pov(180).whileTrue(drivetrain.applyRequest(() ->
+            forwardStraight.withVelocityX(-0.5).withVelocityY(0))
+        );
+
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
@@ -70,6 +88,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+        /* Run the path selected from the auto chooser */
+        return autoChooser.getSelected();
     }
 }
