@@ -20,15 +20,17 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -39,6 +41,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+
+    // April tag variables
+    private static boolean useMegaTag2 = true; // set to false to use MegaTag1
+    private static boolean doRejectUpdate = false;
+    private static String limelightUsed;
+    //Get average tag areas (percentage of image), Choose the limelight with the highest average tag area
+    private static double limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
+    private static double limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -279,6 +289,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        SmartDashboard.putNumber("Motor Velocity", this.getModule(0).getDriveMotor().getRotorVelocity().getValueAsDouble()); // measuring max velocity
     }
 
     private void startSimThread() {
@@ -294,5 +306,64 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             updateSimState(deltaTime, RobotController.getBatteryVoltage());
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
+    }
+    
+
+     public void updateOdometry() {
+        SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
+        SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);    
+
+        if(limelightFrontAvgTagArea > 
+            limelightBackAvgTagArea){
+                limelightUsed = "limelight-front";
+            }else{
+                limelightUsed = "limelight-back";
+            }
+
+        SmartDashboard.putString("Limelight Used", limelightUsed); //Output to SmartDashboard
+
+        if (useMegaTag2 == false) {
+            LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightUsed);
+
+            if (mt1.tagCount == 1 && mt1.rawFiducials.length == 1) {
+            if (mt1.rawFiducials[0].ambiguity > .7) {
+                doRejectUpdate = true;
+            }
+            if (mt1.rawFiducials[0].distToCamera > 3) {
+                doRejectUpdate = true;
+            }
+            }
+            if (mt1.tagCount == 0) {
+            doRejectUpdate = true;
+            }
+
+            if (!doRejectUpdate) {
+                addVisionMeasurement(mt1.pose, mt1.timestampSeconds);
+            }
+        } else if (useMegaTag2 == true) {
+            
+
+            LimelightHelpers.SetRobotOrientation("limelight-front", getState().Pose.getRotation().getDegrees(),
+            0, 0, 0, 0, 0);
+            LimelightHelpers.SetRobotOrientation("limelight-back", getState().Pose.getRotation().getDegrees(),
+            0, 0, 0, 0, 0);
+            LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightUsed);
+            if (mt2 == null) { // in case mt2 returns a nullptr, need to figure out why this is happening
+            doRejectUpdate = true;
+            } else {
+            if (Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720) // if our angular velocity is greater than 720 degrees per second,
+                                                    // ignore vision updates
+            {
+                doRejectUpdate = true;
+            }
+            if (mt2.tagCount == 0) {
+                doRejectUpdate = true;
+            }
+            }
+
+            if (!doRejectUpdate) {
+            addVisionMeasurement(mt2.pose, mt2.timestampSeconds); 
+            }
+        }
     }
 }
