@@ -8,6 +8,7 @@ import com.ctre.phoenix6.hardware.*;
 import com.ctre.phoenix6.signals.*;
 import com.ctre.phoenix6.swerve.*;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.*;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -24,6 +25,7 @@ public class TunerConstants {
     public final static double odometryUpdateFrequency = 250;
     public static Matrix<N3, N1> odometryStandardDeviation = VecBuilder.fill(0.1,0.1,.1);
     public static Matrix<N3, N1> visionStandardDeviation  = VecBuilder.fill(0.3,0.3,9999999);
+    public static PathConstraints oTF_Constraints = new PathConstraints(5.3, 5, Math.toRadians(270), Math.toRadians(360));
 
     // Both sets of gains need to be tuned to your individual robot.
 
