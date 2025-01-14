@@ -13,18 +13,19 @@ import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ElevatorConstants;
 
 public class Elevator extends SubsystemBase {
   
-    SparkMax elevatorMotor1 = new SparkMax(0, MotorType.kBrushless);
-    SparkMax elevatorMotor2 = new SparkMax(0, MotorType.kBrushless);
+    SparkMax elevatorMotor1 = new SparkMax(ElevatorConstants.kElevatorMotor1Id, MotorType.kBrushless);
+    SparkMax elevatorMotor2 = new SparkMax(ElevatorConstants.kElevatorMotor2Id, MotorType.kBrushless);
 
     //Lidar sensor - could be a serial bus input instead
-    AnalogInput lidar = new AnalogInput(0);
+    AnalogInput lidar = new AnalogInput(ElevatorConstants.kElevatorLidarId);
     
     //Limit switches
-    DigitalInput limitSwitchTop = new DigitalInput(0);
-    DigitalInput limitSwitchBottom = new DigitalInput(0); 
+    DigitalInput limitSwitchTop = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchTopId);
+    DigitalInput limitSwitchBottom = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchBottomId); 
 
   public Elevator() {
 

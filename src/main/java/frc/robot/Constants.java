@@ -20,7 +20,11 @@ public final class Constants {
     }
 
     public static class ElevatorConstants {
-
+        public static final int kElevatorMotor1Id = 0;
+        public static final int kElevatorMotor2Id = 0;
+        public static final int kElevatorLidarId = 0;
+        public static final int kElevatorLimitSwitchTopId = 0;
+        public static final int kElevatorLimitSwitchBottomId = 0;
     }
 
     public static class GroundAlgaeConstants {
