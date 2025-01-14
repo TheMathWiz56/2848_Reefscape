@@ -89,7 +89,7 @@ public class TunerConstants {
     private static final double kCoupleRatio = 4.2;
 
     private static final double kDriveGearRatio = 6.102; // 6.720000000000001 // measured 6.102
-    private static final double kSteerGearRatio = 13.371428571428572; // 13.371428571428572 // not measured, assumed correct
+    private static final double kSteerGearRatio = 13.371428571428572; // 13.371428571428572 // not measured, assumed correct // can just look at gearing for this
     private static final Distance kWheelRadius = Inches.of(2);
 
     private static final boolean kInvertLeftSide = false;
@@ -299,10 +299,11 @@ public class TunerConstants {
  * Module Positions - use a tape measure to measure the distance between the drive axles
  * Couple Turns - Rotate azimuth and use Phoenix tuner for # of rotations
  * Wheel Radius - Drive known distance and use phoenix to find number of rotations
- * Standard Deviations - 
+ * Standard Deviations - ???
  * PIDF gains - SYSID
- * Slip Current - 
+ * Slip Current - ???
  * Speed at 12V - Print to Elastic Speed when commanded 12V
+ * PPHolonomicDriveController - P controller most likely
  * 
  * PathPlanner
  * Mass - scale

@@ -9,7 +9,7 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
+import com.ctre.phoenix6.swerve.jni.SwerveJNI;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
@@ -18,10 +18,15 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.PoseEstimator;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -291,7 +296,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-        
+
         updateOdometry();
     }
 
@@ -424,11 +429,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 doRejectUpdate = true;
             }
             }
-
+    
             SmartDashboard.putBoolean("Rejected Update", doRejectUpdate);
             if (!doRejectUpdate) {
-                addVisionMeasurement(mt2.pose, mt2.timestampSeconds, TunerConstants.visionStandardDeviation); // default .7
+                addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
             }
         }
+    }
+
+    /*
+     * 
+     */
+    public Command path_find_to(Pose2d pose, LinearVelocity endVelocity){
+        return AutoBuilder.pathfindToPose(pose, TunerConstants.oTF_Constraints, endVelocity);
     }
 }
