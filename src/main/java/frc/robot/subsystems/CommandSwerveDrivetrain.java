@@ -308,8 +308,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         updateOdometry();
         get_manual_LL_Estimate();
         SmartDashboard.putData("Field",m_field);
-        m_field.setRobotPose(getState().Pose); // Fused pose I think
-        SmartDashboard.putString("Fused Pose", getState().Pose.toString());
+
+        Pose2d currentPose = getState().Pose;
+        m_field.setRobotPose(currentPose); // Fused pose I think
+        Double[] fusedPose = {currentPose.getX(), currentPose.getY(), currentPose.getRotation().getRadians()};
+        SmartDashboard.putNumberArray("Fused PoseDBL", fusedPose);
     }
 
     private void startSimThread() {
@@ -339,9 +342,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public void resetToVision(){
         choose_LL();
         
-        LLposeEstimate = get_LL_Estimate(useMegaTag2);
+        LLposeEstimate = get_manual_LL_Estimate();
         if (LLposeEstimate != null) {
-            addVisionMeasurement(LLposeEstimate.pose, LLposeEstimate.timestampSeconds);
+            resetPose(LLposeEstimate.pose);
         }
     }
 
@@ -352,7 +355,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private void updateOdometry() {
         choose_LL();
 
-        LLposeEstimate = get_LL_Estimate(useMegaTag2);
+        LLposeEstimate = get_manual_LL_Estimate();
         if (LLposeEstimate != null) {
             addVisionMeasurement(LLposeEstimate.pose, LLposeEstimate.timestampSeconds);
         }
@@ -446,11 +449,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
         
         double[] botPose = LimelightHelpers.getBotPose(limelightUsed);
+        SmartDashboard.putNumberArray("Botpose", botPose);
         if (botPose.length != 0){
-            poseEstimate.pose = new Pose2d(new Translation2d(botPose[0] + 8.7736 ,botPose[0] + 4.0257), new Rotation2d(botPose[5]));
+            if (botPose[0] == 0){
+                return null;
+            }
+            poseEstimate.pose = new Pose2d(new Translation2d(botPose[0] + 8.7736 ,botPose[1] + 4.0257), new Rotation2d(Math.toRadians(botPose[5])));
         }
 
-        SmartDashboard.putString("Manual Pose", poseEstimate.pose.toString());
+        Double[] pose = {poseEstimate.pose.getX(), poseEstimate.pose.getY(), poseEstimate.pose.getRotation().getRadians()};
+        SmartDashboard.putNumberArray("Manual Pose", pose);
         return poseEstimate;
     }
 }

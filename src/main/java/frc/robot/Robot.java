@@ -10,14 +10,11 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Util.Elastic;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
-
-  private static boolean logging_enabled;
 
   public Robot() {
     m_robotContainer = new RobotContainer();
@@ -26,28 +23,15 @@ public class Robot extends TimedRobot {
     SignalLogger.setPath("/media/sda1/");
     DataLogManager.start(); // /logs folder in sda1   // Logs Network Table information
     SignalLogger.start();
-    logging_enabled = true;
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
-
-    // Restart logging if stopped
-    if (!logging_enabled){
-      DataLogManager.start(); // /logs folder in sda1   // Logs Network Table information
-      SignalLogger.start();
-      logging_enabled = true;
-    }
   }
 
   @Override
   public void disabledInit() {
-    // Explicitly stop logging
-    // If the user does not call stop(), then it's possible to lose the last few seconds of data
-    SignalLogger.stop();
-    DataLogManager.stop();
-    logging_enabled = false;
   }
 
   @Override
@@ -64,7 +48,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.schedule();
     }
 
-    Elastic.selectTab("Autonomous");
+    // Elastic.selectTab("Autonomous");
   }
 
   @Override
@@ -79,7 +63,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    Elastic.selectTab("Teleoperated");
+    // Elastic.selectTab("Teleoperated");
   }
 
   @Override
