@@ -339,12 +339,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * Resets the robot's Odometry pose estimate to the best current mt1 pose estimate.
      * Can also use a known reference like a wall to zero the Pigeon (most important thing for mt2)
      */
-    public void resetToVision(){
+    public void resetToVision(boolean forceUpdate){
         choose_LL();
         
         LLposeEstimate = get_manual_LL_Estimate();
         if (LLposeEstimate != null) {
-            resetPose(LLposeEstimate.pose);
+            if (forceUpdate || limelightBackAvgTagArea > 3){
+                resetPose(LLposeEstimate.pose);
+            }          
         }
     }
 
@@ -356,7 +358,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         choose_LL();
 
         LLposeEstimate = get_manual_LL_Estimate();
+
+
         if (LLposeEstimate != null) {
+            // Reset to vision if tag area is large enough
+            resetToVision(false);
+
             addVisionMeasurement(LLposeEstimate.pose, LLposeEstimate.timestampSeconds);
         }
     }
