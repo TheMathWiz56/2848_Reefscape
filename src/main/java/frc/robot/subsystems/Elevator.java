@@ -35,7 +35,7 @@ public class Elevator extends SubsystemBase {
       ElevatorConstants.kElevatorD);
 
   public Elevator() {
-    elevatorPid.setSetpoint(ElevatorConstants.kElevatorSetpointStowed);
+    elevatorPid.setSetpoint(ElevatorConstants.kElevatorSetpointStow);
   }
 
   public void setMotors(double motor1, double motor2) {
@@ -50,7 +50,6 @@ public class Elevator extends SubsystemBase {
   public void setSetpoint(double setpoint) {
     elevatorPid.setSetpoint(setpoint);
   }
-
   
   // Set motor speeds based on PID calculation
   public void motorsPeriodic() {

@@ -45,7 +45,7 @@ public final class Constants {
         public static final double kElevatorSetpointL2 = 0.0;
         public static final double kElevatorSetpointL3 = 0.0;
         public static final double kElevatorSetpointL4 = 0.0;
-        public static final double kElevatorSetpointStowed = 0.0;
+        public static final double kElevatorSetpointStow = 0.0;
     }
 
     public static class GroundAlgaeConstants {
