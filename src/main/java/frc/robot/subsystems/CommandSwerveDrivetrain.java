@@ -16,6 +16,8 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.PoseEstimator;
@@ -29,6 +31,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
@@ -49,6 +52,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
+    // Field Widget
+    private static final Field2d m_field = new Field2d();
+
     // April tag variables
     private static boolean useMegaTag2 = true; // set to false to use MegaTag1
     private static boolean doRejectUpdate = false;
@@ -57,6 +63,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     //Get average tag areas (percentage of image), Choose the limelight with the highest average tag area
     private static double limelightFrontAvgTagArea = 0;
     private static double limelightBackAvgTagArea = 0;
+    // Manual apriltag 
+    public static AprilTagFieldLayout aprilTagFieldLayout;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -154,6 +162,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         configureAutoBuilder();
+        try {
+            aprilTagFieldLayout = new AprilTagFieldLayout("");
+        } catch (Exception ex) {
+            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
+        }
     }
 
     /**
@@ -299,6 +312,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         updateOdometry();
+        SmartDashboard.putData("Field",m_field);
+        m_field.setRobotPose(getState().Pose);
     }
 
     private void startSimThread() {
@@ -315,6 +330,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
+
+
+
+
+    // ___________________________________________________ Vision Code ___________________________________________________
     
     /**
      * Resets the robot's Odometry pose estimate to the best current mt1 pose estimate.
@@ -333,7 +353,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * Polls the limelights for a pose estimate and uses the pose estimator Kalman filter to fuse the best Limelight pose estimate
      * with the odometry pose estimate
      */
-    public void updateOdometry() {
+    private void updateOdometry() {
         choose_LL();
 
         LLposeEstimate = get_LL_Estimate(useMegaTag2);
@@ -422,5 +442,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
         
         SmartDashboard.putString("Limelight Used", limelightUsed);
+    }
+
+    private LimelightHelpers.PoseEstimate get_manual_LL_Estimate(){
+        
     }
 }
