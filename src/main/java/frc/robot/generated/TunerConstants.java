@@ -23,7 +23,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class TunerConstants {
     // Pose Estimation Configs
     public final static double odometryUpdateFrequency = 250;
-    public static Matrix<N3, N1> odometryStandardDeviation = VecBuilder.fill(0.7,0.7,.1);
+    public static Matrix<N3, N1> odometryStandardDeviation = VecBuilder.fill(0.7,0.7,.3);
     public static Matrix<N3, N1> visionStandardDeviation  = VecBuilder.fill(.9,0.9,9999999);
     public static PathConstraints oTF_Constraints = new PathConstraints(5.3, 5, Math.toRadians(270), Math.toRadians(360));
 
