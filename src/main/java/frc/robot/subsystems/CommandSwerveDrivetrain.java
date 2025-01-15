@@ -24,6 +24,7 @@ import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -63,8 +64,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     //Get average tag areas (percentage of image), Choose the limelight with the highest average tag area
     private static double limelightFrontAvgTagArea = 0;
     private static double limelightBackAvgTagArea = 0;
-    // Manual apriltag 
-    public static AprilTagFieldLayout aprilTagFieldLayout;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -162,11 +161,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             startSimThread();
         }
         configureAutoBuilder();
-        try {
-            aprilTagFieldLayout = new AprilTagFieldLayout("");
-        } catch (Exception ex) {
-            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
-        }
     }
 
     /**
@@ -312,8 +306,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         updateOdometry();
+        get_manual_LL_Estimate();
         SmartDashboard.putData("Field",m_field);
-        m_field.setRobotPose(getState().Pose);
+        m_field.setRobotPose(getState().Pose); // Fused pose I think
+        SmartDashboard.putString("Fused Pose", getState().Pose.toString());
     }
 
     private void startSimThread() {
@@ -424,6 +420,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             return null;
         }
         else{
+            SmartDashboard.putString("LL Pose", poseEstimate.pose.toString());
             return poseEstimate;
         }
     }
@@ -445,6 +442,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     private LimelightHelpers.PoseEstimate get_manual_LL_Estimate(){
+        choose_LL();
+        LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
         
+        double[] botPose = LimelightHelpers.getBotPose(limelightUsed);
+        if (botPose.length != 0){
+            poseEstimate.pose = new Pose2d(new Translation2d(botPose[0] + 8.7736 ,botPose[0] + 4.0257), new Rotation2d(botPose[5]));
+        }
+
+        SmartDashboard.putString("Manual Pose", poseEstimate.pose.toString());
+        return poseEstimate;
     }
 }
