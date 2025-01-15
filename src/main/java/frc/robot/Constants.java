@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DutyCycle;
+
 public final class Constants {
 
     //Constants relating to the drivetrain are probably in TunerConstants
@@ -19,7 +21,8 @@ public final class Constants {
     }
 
     public static class AscenderConstants {
-
+        public static final int kAscenderMotorId = 0;
+        public static final int kAscenderAbsEncoderId = 0;
     }
 
     public static class ElevatorConstants {

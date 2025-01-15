@@ -22,8 +22,7 @@ public class Elevator extends SubsystemBase {
 
     //Lidar sensor - could be a serial bus input instead
     AnalogInput lidar = new AnalogInput(ElevatorConstants.kElevatorLidarId);
-    
-    
+
     //Limit switches
     DigitalInput limitSwitchTop = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchTopId);
     DigitalInput limitSwitchBottom = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchBottomId); 
