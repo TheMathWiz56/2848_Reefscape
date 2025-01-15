@@ -53,7 +53,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static boolean useMegaTag2 = true; // set to false to use MegaTag1
     private static boolean doRejectUpdate = false;
     private static String limelightUsed;
-    private static LimelightHelpers.PoseEstimate poseEstimate;
+    private static LimelightHelpers.PoseEstimate LLposeEstimate;
     //Get average tag areas (percentage of image), Choose the limelight with the highest average tag area
     private static double limelightFrontAvgTagArea = 0;
     private static double limelightBackAvgTagArea = 0;
@@ -323,9 +323,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public void resetToVision(){
         choose_LL();
         
-        poseEstimate = get_LLEstimate(useMegaTag2);
-        if (poseEstimate != null) {
-            addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds);
+        LLposeEstimate = get_LL_Estimate(useMegaTag2);
+        if (LLposeEstimate != null) {
+            addVisionMeasurement(LLposeEstimate.pose, LLposeEstimate.timestampSeconds);
         }
     }
 
@@ -336,9 +336,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public void updateOdometry() {
         choose_LL();
 
-        poseEstimate = get_LLEstimate(useMegaTag2);
-        if (poseEstimate != null) {
-            addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds);
+        LLposeEstimate = get_LL_Estimate(useMegaTag2);
+        if (LLposeEstimate != null) {
+            addVisionMeasurement(LLposeEstimate.pose, LLposeEstimate.timestampSeconds);
         }
     }
 
@@ -356,7 +356,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param useMegaTag2 Boolean to use mt2 or mt1
      * @return Valid pose estimate or null
      */
-    private LimelightHelpers.PoseEstimate get_LLEstimate(boolean useMegaTag2){
+    private LimelightHelpers.PoseEstimate get_LL_Estimate(boolean useMegaTag2){
         doRejectUpdate = false;
         LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
 
