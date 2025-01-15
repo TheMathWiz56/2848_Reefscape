@@ -18,8 +18,8 @@ import frc.robot.Constants.ArmConstants;
 
 public class Arm extends SubsystemBase {
 
-    private final SparkMax armMotor1 = new SparkMax(ArmConstants.kArmMotor1Id, MotorType.kBrushless);
-    private final SparkMax armMotor2 = new SparkMax(ArmConstants.kArmMotor2Id, MotorType.kBrushless);
+    private final SparkMax armPivotMotor = new SparkMax(ArmConstants.kArmPivotMotorId, MotorType.kBrushless);
+    private final SparkMax armIntakeMotor = new SparkMax(ArmConstants.kArmWheelsMotorId, MotorType.kBrushless);
 
     // Photogate (beam break)
     private final DigitalInput photogate = new DigitalInput(ArmConstants.kArmPhotogateId);
