@@ -20,9 +20,9 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
 
     // Set the logger to log to the first flashdrive plugged in
-    SignalLogger.setPath("/media/sda1/");
-    DataLogManager.start(); // /logs folder in sda1   // Logs Network Table information
-    SignalLogger.start();
+    //SignalLogger.setPath("/media/sda1/");
+    //DataLogManager.start(); // /logs folder in sda1   // Logs Network Table information
+    //SignalLogger.start();
   }
 
   @Override
