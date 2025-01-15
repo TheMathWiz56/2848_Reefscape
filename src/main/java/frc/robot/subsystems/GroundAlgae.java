@@ -6,21 +6,38 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.GroundAlgaeConstants;
 
 public class GroundAlgae extends SubsystemBase {
-  public GroundAlgae() {
+    
+    SparkMax groundAlgaeMotor1 = new SparkMax(GroundAlgaeConstants.kGroundAlgaeMotor1Id, MotorType.kBrushless);
+    SparkMax groundAlgaeMotor2 = new SparkMax(GroundAlgaeConstants.kGroundAlgaeMotor2Id, MotorType.kBrushless);
+    
+    //Photogate (beam break)
+    DigitalInput photogate = new DigitalInput(GroundAlgaeConstants.kGroundAlgaePhotogateId);
 
-  }
+    //ABS Encoder - could be an AnalogInput instead
+    DutyCycleEncoder absEncoder = new DutyCycleEncoder(GroundAlgaeConstants.kGroundAlgaeAbsEncoderId);    
 
-  @Override
-  public void periodic() {
+    public GroundAlgae() {
 
-  }
+    }
 
-  @Override
-  public void simulationPeriodic() {
+    @Override
+    public void periodic() {
 
-  }
+    }
+
+    @Override
+    public void simulationPeriodic() {
+
+    }
 }

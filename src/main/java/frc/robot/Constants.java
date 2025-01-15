@@ -34,7 +34,10 @@ public final class Constants {
     }
 
     public static class GroundAlgaeConstants {
-
+        public static final int kGroundAlgaeMotor1Id = 0;
+        public static final int kGroundAlgaeMotor2Id = 0;
+        public static final int kGroundAlgaeAbsEncoderId = 0;
+        public static final int kGroundAlgaePhotogateId = 0;
     }
 
 }
