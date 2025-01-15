@@ -29,10 +29,20 @@ public class Elevator extends SubsystemBase {
   DigitalInput limitSwitchTop = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchTopId);
   DigitalInput limitSwitchBottom = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchBottomId);
 
-  PIDController elevatorPid = new PIDController(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI, ElevatorConstants.kElevatorD);
+  PIDController elevatorPid = new PIDController(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
+      ElevatorConstants.kElevatorD);
 
   public Elevator() {
 
+  }
+
+  public void setMotors(double motor1, double motor2) {
+    elevatorMotor1.set(motor1);
+    elevatorMotor2.set(motor2);
+  }
+
+  public void setMotors(double motors) {
+    setMotors(motors, motors);
   }
 
   @Override
