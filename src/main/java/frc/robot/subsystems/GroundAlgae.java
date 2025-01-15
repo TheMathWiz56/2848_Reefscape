@@ -18,14 +18,14 @@ import frc.robot.Constants.GroundAlgaeConstants;
 
 public class GroundAlgae extends SubsystemBase {
 
-    SparkMax groundAlgaeMotor1 = new SparkMax(GroundAlgaeConstants.kGroundAlgaeMotor1Id, MotorType.kBrushless);
-    SparkMax groundAlgaeMotor2 = new SparkMax(GroundAlgaeConstants.kGroundAlgaeMotor2Id, MotorType.kBrushless);
+    private final SparkMax groundAlgaeMotor1 = new SparkMax(GroundAlgaeConstants.kGroundAlgaeMotor1Id, MotorType.kBrushless);
+    private final SparkMax groundAlgaeMotor2 = new SparkMax(GroundAlgaeConstants.kGroundAlgaeMotor2Id, MotorType.kBrushless);
 
     // Photogate (beam break)
-    DigitalInput photogate = new DigitalInput(GroundAlgaeConstants.kGroundAlgaePhotogateId);
+    private final DigitalInput photogate = new DigitalInput(GroundAlgaeConstants.kGroundAlgaePhotogateId);
 
     // ABS Encoder - could be an AnalogInput instead
-    DutyCycleEncoder absEncoder = new DutyCycleEncoder(GroundAlgaeConstants.kGroundAlgaeAbsEncoderId);
+    private final DutyCycleEncoder absEncoder = new DutyCycleEncoder(GroundAlgaeConstants.kGroundAlgaeAbsEncoderId);
 
     public GroundAlgae() {
 

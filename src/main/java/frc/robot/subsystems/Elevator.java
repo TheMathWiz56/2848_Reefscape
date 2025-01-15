@@ -19,17 +19,17 @@ import frc.robot.Constants.ElevatorConstants;
 
 public class Elevator extends SubsystemBase {
 
-  SparkMax elevatorMotor1 = new SparkMax(ElevatorConstants.kElevatorMotor1Id, MotorType.kBrushless);
-  SparkMax elevatorMotor2 = new SparkMax(ElevatorConstants.kElevatorMotor2Id, MotorType.kBrushless);
+  private final SparkMax elevatorMotor1 = new SparkMax(ElevatorConstants.kElevatorMotor1Id, MotorType.kBrushless);
+  private final SparkMax elevatorMotor2 = new SparkMax(ElevatorConstants.kElevatorMotor2Id, MotorType.kBrushless);
 
   // Lidar sensor - could be a serial bus input instead
-  AnalogInput lidar = new AnalogInput(ElevatorConstants.kElevatorLidarId);
+  private final AnalogInput lidar = new AnalogInput(ElevatorConstants.kElevatorLidarId);
 
   // Limit switches
-  DigitalInput limitSwitchTop = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchTopId);
-  DigitalInput limitSwitchBottom = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchBottomId);
+  private final DigitalInput limitSwitchTop = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchTopId);
+  private final DigitalInput limitSwitchBottom = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchBottomId);
 
-  PIDController elevatorPid = new PIDController(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
+  private PIDController elevatorPid = new PIDController(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
       ElevatorConstants.kElevatorD);
 
   public Elevator() {
@@ -44,6 +44,8 @@ public class Elevator extends SubsystemBase {
   public void setMotors(double motors) {
     setMotors(motors, motors);
   }
+
+  
 
   @Override
   public void periodic() {

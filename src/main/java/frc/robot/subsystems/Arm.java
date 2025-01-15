@@ -18,16 +18,16 @@ import frc.robot.Constants.ArmConstants;
 
 public class Arm extends SubsystemBase {
 
-    SparkMax armMotor1 = new SparkMax(ArmConstants.kArmMotor1Id, MotorType.kBrushless);
-    SparkMax armMotor2 = new SparkMax(ArmConstants.kArmMotor2Id, MotorType.kBrushless);
+    private final SparkMax armMotor1 = new SparkMax(ArmConstants.kArmMotor1Id, MotorType.kBrushless);
+    private final SparkMax armMotor2 = new SparkMax(ArmConstants.kArmMotor2Id, MotorType.kBrushless);
 
     // Photogate (beam break)
-    DigitalInput photogate = new DigitalInput(ArmConstants.kArmPhotogateId);
+    private final DigitalInput photogate = new DigitalInput(ArmConstants.kArmPhotogateId);
 
     // ABS Encoder - could be an AnalogInput instead
-    DutyCycleEncoder absEncoder = new DutyCycleEncoder(ArmConstants.kArmAbsEncoderId);
+    private final DutyCycleEncoder absEncoder = new DutyCycleEncoder(ArmConstants.kArmAbsEncoderId);
 
-    PIDController armPid = new PIDController(ArmConstants.kArmP, ArmConstants.kArmI, ArmConstants.kArmD);
+    private PIDController armPid = new PIDController(ArmConstants.kArmP, ArmConstants.kArmI, ArmConstants.kArmD);
 
     // Potentially also 2 limit switches - DigitalInput class
     // There will also be a USB camera that I don't think will be represented here

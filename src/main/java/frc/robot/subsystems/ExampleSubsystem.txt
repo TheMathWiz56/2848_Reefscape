@@ -23,4 +23,11 @@ public class ExampleSubsystem extends SubsystemBase {
   public void simulationPeriodic() {
 
   }
+
+  public Command exampleMethodCommand() {
+    return runOnce(
+        () -> {
+          /* one-time action goes here */
+        });
+  }
 }
