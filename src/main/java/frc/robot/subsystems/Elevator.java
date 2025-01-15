@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import au.grapplerobotics.LaserCan;
+import au.grapplerobotics.LaserCan.Measurement;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -33,10 +34,8 @@ public class Elevator extends SubsystemBase {
   private PIDController elevatorPid = new PIDController(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
       ElevatorConstants.kElevatorD);
 
-  private double setpoint = ElevatorConstants.kElevatorSetpointStowed;
-
   public Elevator() {
-
+    elevatorPid.setSetpoint(ElevatorConstants.kElevatorSetpointStowed);
   }
 
   public void setMotors(double motor1, double motor2) {
@@ -49,11 +48,26 @@ public class Elevator extends SubsystemBase {
   }
 
   public void setSetpoint(double setpoint) {
-    this.setpoint = setpoint;
+    elevatorPid.setSetpoint(setpoint);
   }
 
+  // Set motor speeds based on PID calculation
   public void motorsPeriodic() {
-    elevatorPid.calculate(0, 0);
+    double distance = getLaserDistance();
+    if(distance != -1.0) 
+      setMotors(elevatorPid.calculate(distance));
+    else
+      setMotors(0.0); //Failsafe if getMeasurement() in getLaserDistance() returns null
+  }
+
+  // Returns milimeters
+  // According to the documentation getMeasurement() can return null. May need a better way to handle that
+  public double getLaserDistance() {
+    Measurement measurement = laserCan.getMeasurement();
+    if (measurement != null)
+      return measurement.distance_mm;
+    else
+      return -1.0;
   }
 
   @Override
