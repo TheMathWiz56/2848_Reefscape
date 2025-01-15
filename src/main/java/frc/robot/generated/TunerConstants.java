@@ -320,4 +320,23 @@ public class TunerConstants {
  * sensor gain
  * tag size
  * tag positions
+ * 
+ * 
+ * 
+ * SYSID process:
+ * in CommandSwerveDrivetrain, edit m_sysIdRoutineToApply to the selected SYSID routine
+ * to run.
+ * 
+ * Enable Teleop and go through all 4 routines 1 time each, should stop after 10 seconds.
+ * Can end early by releasing the buttons.
+ * 
+ * Pull the log off of the roborio user Tuner X
+ * 
+ * Use Owlet command-line tool to convert the hoot file into a wpilog file
+ * 
+ * Open SYSID, open correct log file
+ * 
+ * Find SYSID____State and drag to data selector.
+ * Repeat for MotorVoltage, Position, Velocity
+ * Analyze, helpful tips for analyzation on wpilib
  */

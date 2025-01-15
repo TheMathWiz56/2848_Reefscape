@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -15,17 +16,38 @@ public class Robot extends TimedRobot {
 
   private final RobotContainer m_robotContainer;
 
+  private static boolean logging_enabled;
+
   public Robot() {
     m_robotContainer = new RobotContainer();
+
+    // Set the logger to log to the first flashdrive plugged in
+    SignalLogger.setPath("/media/sda1/");
+    DataLogManager.start(); // /logs folder in sda1   // Logs Network Table information
+    SignalLogger.start();
+    logging_enabled = true;
   }
 
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
+
+    // Restart logging if stopped
+    if (!logging_enabled){
+      DataLogManager.start(); // /logs folder in sda1   // Logs Network Table information
+      SignalLogger.start();
+      logging_enabled = true;
+    }
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    // Explicitly stop logging
+    // If the user does not call stop(), then it's possible to lose the last few seconds of data
+    SignalLogger.stop();
+    DataLogManager.stop();
+    logging_enabled = false;
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -53,14 +75,6 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-
-    // logging
-    // Set the logger to log to the first flashdrive plugged in
-    SignalLogger.setPath("/media/sda1/");
-
-    // Explicitly start the logger
-    SignalLogger.start();
-
   }
 
   @Override
@@ -68,9 +82,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopExit() {
-    // Explicitly stop logging
-    // If the user does not call stop(), then it's possible to lose the last few seconds of data
-    SignalLogger.stop();
+
   }
 
   @Override
