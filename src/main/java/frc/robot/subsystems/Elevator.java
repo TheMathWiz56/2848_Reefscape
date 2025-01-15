@@ -51,6 +51,7 @@ public class Elevator extends SubsystemBase {
     elevatorPid.setSetpoint(setpoint);
   }
 
+  
   // Set motor speeds based on PID calculation
   public void motorsPeriodic() {
     double distance = getLaserDistance();
@@ -72,7 +73,7 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
-
+    motorsPeriodic();
   }
 
   @Override
