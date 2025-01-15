@@ -16,13 +16,13 @@ import frc.robot.Constants.AscenderConstants;
 
 public class Ascender extends SubsystemBase {
 
-    SparkMax ascenderMotor = new SparkMax(AscenderConstants.kAscenderMotorId, SparkMax.MotorType.kBrushless);      
+    SparkMax ascenderMotor = new SparkMax(AscenderConstants.kAscenderMotorId, SparkMax.MotorType.kBrushless);
 
-    //ABS Encoder - could be an AnalogInput instead
+    // ABS Encoder - could be an AnalogInput instead
     DutyCycleEncoder absEncoder = new DutyCycleEncoder(AscenderConstants.kAscenderAbsEncoderId);
 
-    //Potentially also 2 limit switches - DigitalInput class
-    //Additionally there will be a camera
+    // Potentially also 2 limit switches - DigitalInput class
+    // Additionally there will be a camera
 
     public Ascender() {
 

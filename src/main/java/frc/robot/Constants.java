@@ -18,6 +18,10 @@ public final class Constants {
         public static final int kArmMotor2Id = 0;     
         public static final int kArmPhotogateId = 0;   
         public static final int kArmAbsEncoderId = 0;
+
+        public static final double kArmP = 0.0;
+        public static final double kArmI = 0.0;
+        public static final double kArmD = 0.0;
     }
 
     public static class AscenderConstants {
@@ -31,6 +35,10 @@ public final class Constants {
         public static final int kElevatorLidarId = 0;
         public static final int kElevatorLimitSwitchTopId = 0;
         public static final int kElevatorLimitSwitchBottomId = 0;
+
+        public static final double kElevatorP = 0.0;
+        public static final double kElevatorI = 0.0;
+        public static final double kElevatorD = 0.0;
     }
 
     public static class GroundAlgaeConstants {
