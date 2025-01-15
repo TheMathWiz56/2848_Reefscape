@@ -9,6 +9,7 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import au.grapplerobotics.LaserCan;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -22,8 +23,8 @@ public class Elevator extends SubsystemBase {
   private final SparkMax elevatorMotor1 = new SparkMax(ElevatorConstants.kElevatorMotor1Id, MotorType.kBrushless);
   private final SparkMax elevatorMotor2 = new SparkMax(ElevatorConstants.kElevatorMotor2Id, MotorType.kBrushless);
 
-  // Lidar sensor - could be a serial bus input instead
-  private final AnalogInput lidar = new AnalogInput(ElevatorConstants.kElevatorLidarId);
+  // LaserCAN
+  LaserCan laserCan = new LaserCan(ElevatorConstants.kElevatorLaserCanId);
 
   // Limit switches
   private final DigitalInput limitSwitchTop = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchTopId);
@@ -31,6 +32,8 @@ public class Elevator extends SubsystemBase {
 
   private PIDController elevatorPid = new PIDController(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
       ElevatorConstants.kElevatorD);
+
+  private double setpoint = ElevatorConstants.kElevatorSetpointStowed;
 
   public Elevator() {
 
@@ -45,7 +48,13 @@ public class Elevator extends SubsystemBase {
     setMotors(motors, motors);
   }
 
-  
+  public void setSetpoint(double setpoint) {
+    this.setpoint = setpoint;
+  }
+
+  public void motorsPeriodic() {
+    elevatorPid.calculate(0, 0);
+  }
 
   @Override
   public void periodic() {
