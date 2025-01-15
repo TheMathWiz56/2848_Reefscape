@@ -53,6 +53,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static boolean useMegaTag2 = true; // set to false to use MegaTag1
     private static boolean doRejectUpdate = false;
     private static String limelightUsed;
+    private static LimelightHelpers.PoseEstimate poseEstimate;
     //Get average tag areas (percentage of image), Choose the limelight with the highest average tag area
     private static double limelightFrontAvgTagArea = 0;
     private static double limelightBackAvgTagArea = 0;
@@ -315,134 +316,111 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
     
+    /**
+     * Resets the robot's Odometry pose estimate to the best current mt1 pose estimate.
+     * Can also use a known reference like a wall to zero the Pigeon (most important thing for mt2)
+     */
     public void resetToVision(){
-        doRejectUpdate = false;
-
-        limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
-        limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
-        SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
-        SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);    
-
-        if(limelightFrontAvgTagArea > 
-            limelightBackAvgTagArea){
-                limelightUsed = "limelight-front";
-            }else{
-                limelightUsed = "limelight-back";
-            }
-
-        SmartDashboard.putString("Limelight Used", limelightUsed); //Output to SmartDashboard
-
-        if (useMegaTag2 == true) { // for testing
-            LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightUsed);
-
-            if (mt1.tagCount == 1 && mt1.rawFiducials.length == 1) {
-            if (mt1.rawFiducials[0].ambiguity > .7) {
-                doRejectUpdate = true;
-            }
-            if (mt1.rawFiducials[0].distToCamera > 3) {
-                doRejectUpdate = true;
-            }
-            }
-            if (mt1.tagCount == 0) {
-            doRejectUpdate = true;
-            }
-
-            SmartDashboard.putBoolean("Rejected Update", doRejectUpdate);
-            if (!doRejectUpdate) {
-                resetPose(mt1.pose);
-            }
-        } else if (useMegaTag2 == true) {
-            LimelightHelpers.SetRobotOrientation("limelight-front", getState().Pose.getRotation().getDegrees(),
-            0, 0, 0, 0, 0);
-            LimelightHelpers.SetRobotOrientation("limelight-back", getState().Pose.getRotation().getDegrees(),
-            0, 0, 0, 0, 0);
-            LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightUsed);
-            if (mt2 == null) { // in case mt2 returns a nullptr, need to figure out why this is happening
-            doRejectUpdate = true;
-            } else {
-            if (Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720) // if our angular velocity is greater than 720 degrees per second,
-                                                    // ignore vision updates
-            {
-                doRejectUpdate = true;
-            }
-            if (mt2.tagCount == 0) {
-                doRejectUpdate = true;
-            }
-            }
-
-            SmartDashboard.putBoolean("Rejected Update", doRejectUpdate);
-            if (!doRejectUpdate) {
-                resetPose(mt2.pose);
-            }
+        choose_LL();
+        
+        poseEstimate = get_LLEstimate(useMegaTag2);
+        if (poseEstimate != null) {
+            addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds);
         }
     }
 
-     public void updateOdometry() {
-        doRejectUpdate = false;
+    /**
+     * Polls the limelights for a pose estimate and uses the pose estimator Kalman filter to fuse the best Limelight pose estimate
+     * with the odometry pose estimate
+     */
+    public void updateOdometry() {
+        choose_LL();
 
-        limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
-        limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
-        SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
-        SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);    
-
-        if(limelightFrontAvgTagArea > 
-            limelightBackAvgTagArea){
-                limelightUsed = "limelight-front";
-            }else{
-                limelightUsed = "limelight-back";
-            }
-
-        SmartDashboard.putString("Limelight Used", limelightUsed); //Output to SmartDashboard
-
-        if (useMegaTag2 == false) {
-            LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightUsed);
-
-            if (mt1.tagCount == 1 && mt1.rawFiducials.length == 1) {
-            if (mt1.rawFiducials[0].ambiguity > .7) {
-                doRejectUpdate = true;
-            }
-            if (mt1.rawFiducials[0].distToCamera > 3) {
-                doRejectUpdate = true;
-            }
-            }
-            if (mt1.tagCount == 0) {
-            doRejectUpdate = true;
-            }
-
-            if (!doRejectUpdate) {
-                addVisionMeasurement(mt1.pose, mt1.timestampSeconds);
-            }
-        } else if (useMegaTag2 == true) {
-            LimelightHelpers.SetRobotOrientation("limelight-front", getState().Pose.getRotation().getDegrees(),
-            0, 0, 0, 0, 0);
-            LimelightHelpers.SetRobotOrientation("limelight-back", getState().Pose.getRotation().getDegrees(),
-            0, 0, 0, 0, 0);
-            LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightUsed);
-            if (mt2 == null) { // in case mt2 returns a nullptr, need to figure out why this is happening
-            doRejectUpdate = true;
-            } else {
-            if (Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720) // if our angular velocity is greater than 720 degrees per second,
-                                                    // ignore vision updates. Might need to reduce to ~180
-            {
-                doRejectUpdate = true;
-            }
-            if (mt2.tagCount == 0) {
-                doRejectUpdate = true;
-            }
-            }
-    
-            SmartDashboard.putBoolean("Rejected Update", doRejectUpdate);
-
-            if (!doRejectUpdate) {
-                addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
-            }
+        poseEstimate = get_LLEstimate(useMegaTag2);
+        if (poseEstimate != null) {
+            addVisionMeasurement(poseEstimate.pose, poseEstimate.timestampSeconds);
         }
     }
 
-    /*
+    /**
+     * Uses the autobuilder and PathPlanner's navigation grid to pathfind to a pose in real time
      * 
+     * @param pose Pose to pathfind to
+     * @param endVelocity Velocity at pose
      */
     public Command path_find_to(Pose2d pose, LinearVelocity endVelocity){
         return AutoBuilder.pathfindToPose(pose, TunerConstants.oTF_Constraints, endVelocity);
+    }
+
+    /**
+     * @param useMegaTag2 Boolean to use mt2 or mt1
+     * @return Valid pose estimate or null
+     */
+    private LimelightHelpers.PoseEstimate get_LLEstimate(boolean useMegaTag2){
+        doRejectUpdate = false;
+        LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
+
+        if (useMegaTag2 == false) {
+            poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightUsed);
+
+            if (poseEstimate == null){
+                doRejectUpdate = true;
+            }
+            else{
+                if (poseEstimate.tagCount == 1 && poseEstimate.rawFiducials.length == 1) {
+                    if (poseEstimate.rawFiducials[0].ambiguity > .7) {
+                        doRejectUpdate = true;
+                    }
+                    if (poseEstimate.rawFiducials[0].distToCamera > 3) {
+                        doRejectUpdate = true;
+                    }
+                    }
+                    if (poseEstimate.tagCount == 0) {
+                    doRejectUpdate = true;
+                    }
+            }
+        } else if (useMegaTag2 == true) {
+            LimelightHelpers.SetRobotOrientation("limelight-front", getState().Pose.getRotation().getDegrees(),
+            0, 0, 0, 0, 0);
+            LimelightHelpers.SetRobotOrientation("limelight-back", getState().Pose.getRotation().getDegrees(),
+            0, 0, 0, 0, 0);
+            poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightUsed);
+
+            if (poseEstimate == null) {
+                doRejectUpdate = true;
+            } else {
+                if (Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720) // if our angular velocity is greater than 720 degrees per second,
+                                                        // ignore vision updates. Might need to reduce to ~180
+                {
+                    doRejectUpdate = true;
+                }
+                if (poseEstimate.tagCount == 0) {
+                    doRejectUpdate = true;
+                }
+            }
+        }
+
+        if (doRejectUpdate){
+            return null;
+        }
+        else{
+            return poseEstimate;
+        }
+    }
+
+    private static void choose_LL(){
+        limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
+        limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
+        SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
+        SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);    
+
+        if(limelightFrontAvgTagArea > 
+            limelightBackAvgTagArea){
+                limelightUsed = "limelight-front";
+            }else{
+                limelightUsed = "limelight-back";
+        }
+        
+        SmartDashboard.putString("Limelight Used", limelightUsed);
     }
 }
