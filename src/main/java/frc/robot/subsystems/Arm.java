@@ -6,21 +6,40 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ArmConstants;
 
 public class Arm extends SubsystemBase {
-  public Arm() {
 
-  }
+    SparkMax armMotor1 = new SparkMax(ArmConstants.kArmMotor1Id, MotorType.kBrushless);
+    SparkMax armMotor2 = new SparkMax(ArmConstants.kArmMotor2Id, MotorType.kBrushless);
 
-  @Override
-  public void periodic() {
+    //Photogate (beam break)
+    DigitalInput photogate = new DigitalInput(ArmConstants.kArmPhotogateId);
 
-  }
+    //ABS Encoder - could be an AnalogInput instead
+    DutyCycleEncoder absEncoder = new DutyCycleEncoder(ArmConstants.kArmAbsEncoderId);
 
-  @Override
-  public void simulationPeriodic() {
+    //Potentially also 2 limit switches - DigitalInput class
+    //There will also be a USB camera that I don't think will be represented here
 
-  }
+    public Arm() {
+        
+    }
+
+    @Override
+    public void periodic() {
+
+    }
+
+    @Override
+    public void simulationPeriodic() {
+
+    }
 }

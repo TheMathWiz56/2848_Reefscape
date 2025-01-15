@@ -12,7 +12,10 @@ public final class Constants {
     }
 
     public static class ArmConstants {
-
+        public static final int kArmMotor1Id = 0;
+        public static final int kArmMotor2Id = 0;     
+        public static final int kArmPhotogateId = 0;   
+        public static final int kArmAbsEncoderId = 0;
     }
 
     public static class AscenderConstants {
