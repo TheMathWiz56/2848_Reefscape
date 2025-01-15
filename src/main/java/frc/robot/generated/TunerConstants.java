@@ -23,8 +23,8 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class TunerConstants {
     // Pose Estimation Configs
     public final static double odometryUpdateFrequency = 250;
-    public static Matrix<N3, N1> odometryStandardDeviation = VecBuilder.fill(0.1,0.1,.1);
-    public static Matrix<N3, N1> visionStandardDeviation  = VecBuilder.fill(0.3,0.3,9999999);
+    public static Matrix<N3, N1> odometryStandardDeviation = VecBuilder.fill(0.7,0.7,.1);
+    public static Matrix<N3, N1> visionStandardDeviation  = VecBuilder.fill(.9,0.9,9999999);
     public static PathConstraints oTF_Constraints = new PathConstraints(5.3, 5, Math.toRadians(270), Math.toRadians(360));
 
     // Both sets of gains need to be tuned to your individual robot.
@@ -32,8 +32,8 @@ public class TunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
     // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     private static final Slot0Configs steerGains = new Slot0Configs()
-        .withKP(1).withKI(0).withKD(0)
-        .withKS(0.027381).withKV(1.6604).withKA(0.057151)
+        .withKP(100).withKI(0).withKD(0.5)
+        .withKS(0.027381).withKV(1.6604).withKA(0)
         .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput

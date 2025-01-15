@@ -332,7 +332,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         SmartDashboard.putString("Limelight Used", limelightUsed); //Output to SmartDashboard
 
-        if (useMegaTag2 == false) {
+        if (useMegaTag2 == true) { // for testing
             LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightUsed);
 
             if (mt1.tagCount == 1 && mt1.rawFiducials.length == 1) {
@@ -347,8 +347,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             doRejectUpdate = true;
             }
 
+            SmartDashboard.putBoolean("Rejected Update", doRejectUpdate);
             if (!doRejectUpdate) {
-                addVisionMeasurement(mt1.pose, mt1.timestampSeconds);
+                resetPose(mt1.pose);
             }
         } else if (useMegaTag2 == true) {
             LimelightHelpers.SetRobotOrientation("limelight-front", getState().Pose.getRotation().getDegrees(),
@@ -431,6 +432,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             }
     
             SmartDashboard.putBoolean("Rejected Update", doRejectUpdate);
+
             if (!doRejectUpdate) {
                 addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
             }
