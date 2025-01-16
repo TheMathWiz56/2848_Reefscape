@@ -304,13 +304,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-
+        
+        choose_LL();
         updateOdometry();
-        get_manual_LL_Estimate();
-        SmartDashboard.putData("Field",m_field);
 
+        SmartDashboard.putData("Field",m_field);
         Pose2d currentPose = getState().Pose;
-        m_field.setRobotPose(currentPose); // Fused pose I think
+        m_field.setRobotPose(currentPose);
         Double[] fusedPose = {currentPose.getX(), currentPose.getY(), currentPose.getRotation().getRadians()};
         SmartDashboard.putNumberArray("Fused PoseDBL", fusedPose);
     }
@@ -355,16 +355,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * with the odometry pose estimate
      */
     private void updateOdometry() {
-        choose_LL();
-
         LLposeEstimate = get_manual_LL_Estimate();
 
-
         if (LLposeEstimate != null) {
-            // Reset to vision if tag area is large enough
-            resetToVision(false);
-
-            addVisionMeasurement(LLposeEstimate.pose, LLposeEstimate.timestampSeconds);
+            SmartDashboard.putNumber("Timestamp", Utils.fpgaToCurrentTime(LLposeEstimate.timestampSeconds));
+            addVisionMeasurement(LLposeEstimate.pose, Utils.fpgaToCurrentTime(LLposeEstimate.timestampSeconds), TunerConstants.visionStandardDeviation);
         }
     }
 
@@ -452,7 +447,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     private LimelightHelpers.PoseEstimate get_manual_LL_Estimate(){
-        choose_LL();
         LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
         
         double[] botPose = LimelightHelpers.getBotPose(limelightUsed);
