@@ -28,8 +28,8 @@ import frc.robot.Constants.ElevatorConstants;
 
 /*
  * Joseph Notes
- * - one of the elevator motors should be configured to follow the other, not just setting them both to the same output
- * - If we decide to use the internal encoder or an absolute encoder to measure the elevator's position we can use the internal
+ * - [Done] one of the elevator motors should be configured to follow the other, not just setting them both to the same output
+ * - [Done] If we decide to use the internal encoder or an absolute encoder to measure the elevator's position we can use the internal
  * pid controller on the elevator. 
  * - Should also have a feedforward controller for the elevator, results in smoothing motion since it allows you to create a motion
  * profile. Look at the arm branch for some ideas of how to imlpement feedforward, I can also help.
@@ -120,11 +120,6 @@ public class Elevator extends SubsystemBase {
 
   public void setMotors(double motor1, double motor2) {
     elevatorMotor1.set(motor1);
-    elevatorMotor2.set(motor2);
-  }
-
-  public void setMotors(double motors) {
-    setMotors(motors, motors);
   }
 
   /*
