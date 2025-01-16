@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -307,17 +308,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
-
+        
+        choose_LL();
         updateOdometry();
+
         SmartDashboard.putData("Field",m_field);
-
-        Pose2d currentPoseEst = getState().Pose;
-        poseEstimator.update(currentPoseEst.getRotation(), getModulePositions());
-
-        // Print out Estimated Pose
-        currentPoseEst = poseEstimator.getEstimatedPosition();
-        m_field.setRobotPose(currentPoseEst.getX(), currentPoseEst.getY(), currentPoseEst.getRotation()); // Doesn't work in advantage scope
-        SmartDashboard.putNumberArray("ADV Fused Pose", Pose2dToDoubleArray(currentPoseEst));
+        Pose2d currentPose = getState().Pose;
+        m_field.setRobotPose(currentPose);
+        Double[] fusedPose = {currentPose.getX(), currentPose.getY(), currentPose.getRotation().getRadians()};
+        SmartDashboard.putNumberArray("Fused PoseDBL", fusedPose);
     }
 
     private void startSimThread() {
@@ -381,12 +380,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * with the odometry pose estimate
      */
     private void updateOdometry() {
-        choose_LL();
         LLposeEstimate = get_manual_LL_Estimate();
 
-        SmartDashboard.putBoolean("Updated LimeLight Pose Estimate ", LLposeEstimate != null);
         if (LLposeEstimate != null) {
-            poseEstimator.addVisionMeasurement(LLposeEstimate.pose, Utils.fpgaToCurrentTime(LLposeEstimate.timestampSeconds), TunerConstants.visionStandardDeviation);
+            SmartDashboard.putNumber("Timestamp", Utils.fpgaToCurrentTime(LLposeEstimate.timestampSeconds));
+            addVisionMeasurement(LLposeEstimate.pose, Utils.fpgaToCurrentTime(LLposeEstimate.timestampSeconds), TunerConstants.visionStandardDeviation);
         }
     }
 
@@ -485,7 +483,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     private LimelightHelpers.PoseEstimate get_manual_LL_Estimate(){
-        choose_LL();
         LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
         
         double[] botPose = LimelightHelpers.getBotPose(limelightUsed);
@@ -499,6 +496,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         Double[] pose = {poseEstimate.pose.getX(), poseEstimate.pose.getY(), poseEstimate.pose.getRotation().getRadians()};
         SmartDashboard.putNumberArray("Manual Pose", pose);
+        poseEstimate.timestampSeconds = Timer.getFPGATimestamp();
         return poseEstimate;
     }
 }
