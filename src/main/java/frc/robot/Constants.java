@@ -40,6 +40,13 @@ public final class Constants {
         public static final double kElevatorI = 0.0;
         public static final double kElevatorD = 0.0;
 
+        //Feedforward constants
+        public static final double kElevatorKs = 0.0;
+        public static final double kElevatorKg = 0.0;
+        public static final double kElevatorKv = 0.0;
+        public static final double kElevatorKa = 0.0;
+        public static final double kElevatorDtSeconds = 0.0;
+
         //Setpoints for targeting different levels, some other situations
         public static final double kElevatorSetpointL1 = 0.0;
         public static final double kElevatorSetpointL2 = 0.0;

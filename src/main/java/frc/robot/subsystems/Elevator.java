@@ -7,13 +7,20 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.LaserCan.Measurement;
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
@@ -41,19 +48,74 @@ public class Elevator extends SubsystemBase {
   LaserCan laserCan = new LaserCan(ElevatorConstants.kElevatorLaserCanId);
 
   // Limit switches
-  /*Should be bound to a trigger in robotcontainer that calls something like public Command atHardLimit()
-  Which 0's the motor output if it is trying to drive the elevator into an unsafe state or allows the elevator to move
-  if the motors are trying to move it to a safe state. 
-  ie. we are at the Bottom limit switch and trying to drive the elevator down more, don't allow motor output
-  if we are at the bottom limit switch and tring to drive the elevator up, allow motor output */
+  /*
+   * Should be bound to a trigger in robotcontainer that calls something like
+   * public Command atHardLimit()
+   * Which 0's the motor output if it is trying to drive the elevator into an
+   * unsafe state or allows the elevator to move
+   * if the motors are trying to move it to a safe state.
+   * ie. we are at the Bottom limit switch and trying to drive the elevator down
+   * more, don't allow motor output
+   * if we are at the bottom limit switch and tring to drive the elevator up,
+   * allow motor output
+   */
   private final DigitalInput limitSwitchTop = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchTopId);
   private final DigitalInput limitSwitchBottom = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchBottomId);
 
-  private PIDController elevatorPid = new PIDController(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
-      ElevatorConstants.kElevatorD);
+  /*
+   * private PIDController elevatorPid = new
+   * PIDController(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
+   * ElevatorConstants.kElevatorD);
+   */
+  private final ElevatorFeedforward feedforward = new ElevatorFeedforward(ElevatorConstants.kElevatorKs,
+      ElevatorConstants.kElevatorKg, ElevatorConstants.kElevatorKv, ElevatorConstants.kElevatorKa,
+      ElevatorConstants.kElevatorDtSeconds);
+
+  //Motor configurations
+  private final SparkMaxConfig elevatorMotor1Config = new SparkMaxConfig();
+  private final SparkMaxConfig elevatorMotor2Config = new SparkMaxConfig();
 
   public Elevator() {
-    elevatorPid.setSetpoint(ElevatorConstants.kElevatorSetpointStow);
+    // Set motor configurations
+    elevatorMotor1Config
+        .inverted(false)
+        .idleMode(IdleMode.kCoast)
+        .smartCurrentLimit(40);
+
+    elevatorMotor1Config.closedLoop
+        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+        .pid(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
+            ElevatorConstants.kElevatorD)
+        .iZone(0)
+        .iMaxAccum(0)
+        .outputRange(-1, 1);
+
+    elevatorMotor1Config.absoluteEncoder
+        .zeroOffset(0);
+
+    elevatorMotor2Config
+        .inverted(false)
+        .idleMode(IdleMode.kCoast)
+        .smartCurrentLimit(40);
+    
+    elevatorMotor2Config.closedLoop
+        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+        .pid(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
+            ElevatorConstants.kElevatorD)
+        .iZone(0)
+        .iMaxAccum(0)
+        .outputRange(-1, 1);
+
+    elevatorMotor2Config.absoluteEncoder
+        .zeroOffset(0);
+
+    elevatorMotor2Config.follow(ElevatorConstants.kElevatorMotor1Id, false);
+
+    // Apply the motor configurations
+    elevatorMotor1.configure(elevatorMotor1Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    elevatorMotor2.configure(elevatorMotor2Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    Timer.delay(2.0); // Allow the configs to be burned in
   }
 
   public void setMotors(double motor1, double motor2) {
@@ -65,22 +127,26 @@ public class Elevator extends SubsystemBase {
     setMotors(motors, motors);
   }
 
-  public void setSetpoint(double setpoint) {
-    elevatorPid.setSetpoint(setpoint);
-  }
-  
+  /*
+   * public void setSetpoint(double setpoint) {
+   * elevatorPid.setSetpoint(setpoint);
+   * }
+   */
+
   // Set motor speeds based on PID calculation
   // Better named might be holdPosition
   public void holdPosition() {
     double distance = getLaserDistance();
-    if(distance != -1.0) // good idea, may have some weird effects though
-      setMotors(elevatorPid.calculate(distance));
-    else
-      setMotors(0.0); //Failsafe if getMeasurement() in getLaserDistance() returns null
+    // if(distance != -1.0) // good idea, may have some weird effects though
+    // setMotors(elevatorPid.calculate(distance));
+    // else
+    // setMotors(0.0); //Failsafe if getMeasurement() in getLaserDistance() returns
+    // null
   }
 
   // Returns milimeters
-  // According to the documentation getMeasurement() can return null. May need a better way to handle that
+  // According to the documentation getMeasurement() can return null. May need a
+  // better way to handle that
   public double getLaserDistance() {
     Measurement measurement = laserCan.getMeasurement();
     if (measurement != null)
