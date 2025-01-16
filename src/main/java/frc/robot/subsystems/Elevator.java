@@ -19,6 +19,18 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
 
+/*
+ * Joseph Notes
+ * - one of the elevator motors should be configured to follow the other, not just setting them both to the same output
+ * - If we decide to use the internal encoder or an absolute encoder to measure the elevator's position we can use the internal
+ * pid controller on the elevator. 
+ * - Should also have a feedforward controller for the elevator, results in smoothing motion since it allows you to create a motion
+ * profile. Look at the arm branch for some ideas of how to imlpement feedforward, I can also help.
+ * - You can either use methods like public void setMotors ()... or you can use public Command setMotors() with command
+ * factories to simplify code and remove boiler plate code
+ * - 
+ */
+
 public class Elevator extends SubsystemBase {
 
   private final SparkMax elevatorMotor1 = new SparkMax(ElevatorConstants.kElevatorMotor1Id, MotorType.kBrushless);
@@ -52,9 +64,10 @@ public class Elevator extends SubsystemBase {
   }
   
   // Set motor speeds based on PID calculation
+  // Better named might be holdPosition
   public void motorsPeriodic() {
     double distance = getLaserDistance();
-    if(distance != -1.0) 
+    if(distance != -1.0) // good idea, may have some weird effects though
       setMotors(elevatorPid.calculate(distance));
     else
       setMotors(0.0); //Failsafe if getMeasurement() in getLaserDistance() returns null
