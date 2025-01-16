@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.*;
 
 import java.util.function.Supplier;
 
+import javax.print.attribute.standard.DialogOwner;
+
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -25,6 +27,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -79,6 +82,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+
+    // Custom pose estimator
+    private static SwerveDrivePoseEstimator poseEstimator;
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -225,8 +231,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         try {
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
-                () -> getState().Pose,   // Supplier of current robot pose
-                this::resetPose,         // Consumer for seeding pose against auto
+                () -> poseEstimator.getEstimatedPosition(),   // Supplier of current robot pose
+                this::resetAllPoses,         // Consumer for seeding pose against auto
                 () -> getState().Speeds, // Supplier of current robot speeds
                 // Consumer of ChassisSpeeds and feedforwards to drive the robot
                 (speeds, feedforwards) -> setControl(
@@ -236,9 +242,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 ),
                 new PPHolonomicDriveController(
                     // PID constants for translation
-                    new PIDConstants(10, 0, 0),
+                    new PIDConstants(10, 0, 0), // kP:10
                     // PID constants for rotation
-                    new PIDConstants(7, 0, 0)
+                    new PIDConstants(7, 0, 0) // kP:7
                 ),
                 config,
                 // Assume the path needs to be flipped for Red vs Blue, this is normally the case
@@ -251,6 +257,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         
         NamedCommands.registerCommand("Score_L2", new WaitCommand(2));
         NamedCommands.registerCommand("Score_L4", new WaitCommand(2));
+
+        
+        
+        poseEstimator =  new SwerveDrivePoseEstimator(getKinematics(), getState().Pose.getRotation(), getModulePositions(), getState().Pose, TunerConstants.odometryStandardDeviation, TunerConstants.visionStandardDeviation);
     }
 
     /**
@@ -306,13 +316,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         updateOdometry();
-        get_manual_LL_Estimate();
         SmartDashboard.putData("Field",m_field);
 
-        Pose2d currentPose = getState().Pose;
-        m_field.setRobotPose(currentPose); // Fused pose I think
-        Double[] fusedPose = {currentPose.getX(), currentPose.getY(), currentPose.getRotation().getRadians()};
-        SmartDashboard.putNumberArray("Fused PoseDBL", fusedPose);
+        Pose2d currentPoseEst = getState().Pose;
+        poseEstimator.update(currentPoseEst.getRotation(), getModulePositions());
+
+        // Print out Estimated Pose
+        currentPoseEst = poseEstimator.getEstimatedPosition();
+        m_field.setRobotPose(currentPoseEst.getX(), currentPoseEst.getY(), currentPoseEst.getRotation()); // Doesn't work in advantage scope
+        SmartDashboard.putNumberArray("ADV Fused Pose", Pose2dToDoubleArray(currentPoseEst));
     }
 
     private void startSimThread() {
@@ -330,10 +342,29 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 
+    public SwerveModulePosition[] getModulePositions(){
+        SwerveModulePosition[] modulePositions = {this.getModule(0).getPosition(false), this.getModule(1).getPosition(false),
+                                                 this.getModule(2).getPosition(false), this.getModule(3).getPosition(false)};
+                                                 
+        return modulePositions;
+    }
+
+    private Double[] Pose2dToDoubleArray(Pose2d pose){
+        return new Double[] {pose.getX(), pose.getY(), pose.getRotation().getRadians()};
+    }
+
 
 
 
     // ___________________________________________________ Vision Code ___________________________________________________
+    
+    /**
+     * Resets both swerve odometry and Swerve Pose Estimator
+     */
+    public void resetAllPoses(Pose2d pose){
+        resetPose(pose);
+        poseEstimator.resetPose(pose);
+    }
     
     /**
      * Resets the robot's Odometry pose estimate to the best current mt1 pose estimate.
@@ -344,8 +375,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         
         LLposeEstimate = get_manual_LL_Estimate();
         if (LLposeEstimate != null) {
-            if (forceUpdate || limelightBackAvgTagArea > 3){
-                resetPose(LLposeEstimate.pose);
+            if (forceUpdate){
+                resetAllPoses(LLposeEstimate.pose);
+                
+                SmartDashboard.putNumberArray("Reset Pose", Pose2dToDoubleArray(LLposeEstimate.pose));
             }          
         }
     }
@@ -356,15 +389,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     private void updateOdometry() {
         choose_LL();
-
         LLposeEstimate = get_manual_LL_Estimate();
 
-
+        SmartDashboard.putBoolean("Updated LimeLight Pose Estimate ", LLposeEstimate != null);
         if (LLposeEstimate != null) {
-            // Reset to vision if tag area is large enough
-            resetToVision(false);
-
-            addVisionMeasurement(LLposeEstimate.pose, LLposeEstimate.timestampSeconds);
+            poseEstimator.addVisionMeasurement(LLposeEstimate.pose, Utils.fpgaToCurrentTime(LLposeEstimate.timestampSeconds), TunerConstants.visionStandardDeviation);
         }
     }
 
@@ -435,19 +464,30 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
     }
 
+    /**
+     * Chooses limelight with the largest tag area
+     */
     private static void choose_LL(){
         limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
         limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
         SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
         SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);    
-
+        double translationSTD = TunerConstants.std02;
         if(limelightFrontAvgTagArea > 
             limelightBackAvgTagArea){
                 limelightUsed = "limelight-front";
+                translationSTD = TunerConstants.getVisionStd(limelightFrontAvgTagArea);
             }else{
                 limelightUsed = "limelight-back";
+                translationSTD = TunerConstants.getVisionStd(limelightBackAvgTagArea);
+                
         }
-        
+
+        TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 9999999);
+
+        SmartDashboard.putNumber("STDSlope", TunerConstants.visionStdSlope);
+        SmartDashboard.putNumber("STDC", TunerConstants.visionStdConstant);
+        SmartDashboard.putNumberArray("StdMeterArea", TunerConstants.visionStandardDeviation.getData());
         SmartDashboard.putString("Limelight Used", limelightUsed);
     }
 
