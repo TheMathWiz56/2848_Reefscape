@@ -78,7 +78,7 @@ public class Elevator extends SubsystemBase {
   public Elevator() {
     // Set motor configurations
     elevatorMotor1Config
-        .inverted(false)
+        .inverted(ElevatorConstants.kElevatorMotor1Inverted)
         .idleMode(IdleMode.kCoast)
         .smartCurrentLimit(40);
 
@@ -86,15 +86,14 @@ public class Elevator extends SubsystemBase {
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .pid(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
             ElevatorConstants.kElevatorD)
-        .iZone(0)
-        .iMaxAccum(0)
+        .iZone(ElevatorConstants.kElevatorIZone)
+        .iMaxAccum(ElevatorConstants.kElevatorIMaxAccum)
         .outputRange(-1, 1);
 
     elevatorMotor1Config.absoluteEncoder
         .zeroOffset(0);
 
     elevatorMotor2Config
-        .inverted(false)
         .idleMode(IdleMode.kCoast)
         .smartCurrentLimit(40);
     
@@ -102,20 +101,20 @@ public class Elevator extends SubsystemBase {
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .pid(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
             ElevatorConstants.kElevatorD)
-        .iZone(0)
-        .iMaxAccum(0)
+        .iZone(ElevatorConstants.kElevatorIZone)
+        .iMaxAccum(ElevatorConstants.kElevatorIMaxAccum)
         .outputRange(-1, 1);
 
     elevatorMotor2Config.absoluteEncoder
         .zeroOffset(0);
 
-    elevatorMotor2Config.follow(ElevatorConstants.kElevatorMotor1Id, false);
+    elevatorMotor2Config.follow(ElevatorConstants.kElevatorMotor1Id, ElevatorConstants.kElevatorMotor2Inverted);
 
     // Apply the motor configurations
     elevatorMotor1.configure(elevatorMotor1Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     elevatorMotor2.configure(elevatorMotor2Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    Timer.delay(2.0); // Allow the configs to be burned in
+    Timer.delay(0.25); // Allow the configs to be burned in
   }
 
   public void setMotors(double motor1, double motor2) {

@@ -36,9 +36,14 @@ public final class Constants {
         public static final int kElevatorLimitSwitchTopId = 0;
         public static final int kElevatorLimitSwitchBottomId = 0;
 
+        public static final boolean kElevatorMotor1Inverted = false;
+        public static final boolean kElevatorMotor2Inverted = false;
+
         public static final double kElevatorP = 0.0;
         public static final double kElevatorI = 0.0;
         public static final double kElevatorD = 0.0;
+        public static final double kElevatorIZone = 0.0;
+        public static final double kElevatorIMaxAccum = 0.0;
 
         //Feedforward constants
         public static final double kElevatorKs = 0.0;
