@@ -71,7 +71,7 @@ public class Elevator extends SubsystemBase {
   
   // Set motor speeds based on PID calculation
   // Better named might be holdPosition
-  public void motorsPeriodic() {
+  public void holdPosition() {
     double distance = getLaserDistance();
     if(distance != -1.0) // good idea, may have some weird effects though
       setMotors(elevatorPid.calculate(distance));
@@ -91,7 +91,7 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
-    motorsPeriodic();
+    holdPosition();
   }
 
   @Override

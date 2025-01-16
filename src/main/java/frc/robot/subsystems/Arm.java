@@ -9,6 +9,7 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -31,6 +32,8 @@ public class Arm extends SubsystemBase {
 
     // Potentially also 2 limit switches - DigitalInput class
     // There will also be a USB camera that I don't think will be represented here
+
+    
 
     public Arm() {
 
