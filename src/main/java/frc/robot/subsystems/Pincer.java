@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 import frc.robot.Constants;
 import frc.robot.Constants.PincerConstants;
 
-import static frc.robot.Constants.ArmConstants.kArmPhotogateId;
 import static frc.robot.Constants.PincerConstants.*;
 
 import com.revrobotics.spark.SparkMax;
@@ -22,15 +21,19 @@ public class Pincer extends SubsystemBase{
     private final SparkMax pincerMotor = new SparkMax(kPincerMotorId, MotorType.kBrushless);
     private final SparkMaxConfig pincerConfig  = new SparkMaxConfig();
     private final SparkClosedLoopController pincerController;
+    private final AbsoluteEncoder pincerAbsEncoder;
 
-    private final SparkMax armIntakeMotor = new SparkMax(kIntakeMotorId, MotorType.kBrushless);
-    private final SparkMaxConfig armIntakeConfig  = new SparkMaxConfig();
+    private final SparkMax intakeMotor = new SparkMax(kIntakeMotorId, MotorType.kBrushless);
+    private final SparkMaxConfig intakeConfig  = new SparkMaxConfig();
 
     // Photogate (beam break)
-    private final DigitalInput armPhotogate = new DigitalInput(kArmPhotogateId);
+    private final DigitalInput intakePhotogate = new DigitalInput(kIntakePhotogateId);
+
+    // Will probably also have a time of flight sensor for algae sensing
 
     public Pincer(){
         // Grab objects from spark maxs
+        pincerAbsEncoder = pincerMotor.getAbsoluteEncoder();
         pincerController = pincerMotor.getClosedLoopController();
 
         pincerConfig
@@ -46,11 +49,11 @@ public class Pincer extends SubsystemBase{
             .absoluteEncoder
                 .zeroOffset(PincerConstants.kPincerMotorAbsoluteEncoderOffset);
 
-        armIntakeConfig
+        intakeConfig
             .inverted(kIntakeMotorInverted)
             .idleMode(kIntakeMotorIdleMode)
             .smartCurrentLimit(kIntakeMotorSmartCurrentLimit);
-        armIntakeConfig
+        intakeConfig
             .closedLoop
                 .pid(kIntakeP, kIntakeI, kIntakeD)
                 .outputRange(kIntakeMotorMinOutput, kIntakeMotorMaxOutput);
@@ -58,7 +61,7 @@ public class Pincer extends SubsystemBase{
 
         pincerMotor.configure(pincerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         Constants.kMotorBurnDelay();
-        armIntakeMotor.configure(armIntakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        intakeMotor.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         Constants.kMotorBurnDelay();
 
     }
