@@ -3,7 +3,10 @@ package frc.robot;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import static edu.wpi.first.units.Units.*;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.util.Color;
 
 public final class Constants {
 
@@ -191,6 +194,14 @@ public final class Constants {
     public static class LEDConstants{
         public static final int kPwmPort = 0;
         public static final int kNumberOfLEDs = 40;
+
+        // LED Patterns
+        public static final LEDPattern kOrange = LEDPattern.solid(Color.kOrangeRed);
+        public static final LEDPattern kGreen = LEDPattern.solid(Color.kGreen);
+        public static final LEDPattern kGreenBlink = kGreen.blink(Milliseconds.of(100));
+        public static final LEDPattern kJesuit = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kGold, Color.kBlue);
+        public static final LEDPattern kFastScrollingJesuit = kJesuit.scrollAtRelativeSpeed(Percent.per(Second).of(75));
+        public static final LEDPattern kSlowScrollingJesuit = kJesuit.scrollAtRelativeSpeed(Percent.per(Second).of(25));
     }
 
 }
