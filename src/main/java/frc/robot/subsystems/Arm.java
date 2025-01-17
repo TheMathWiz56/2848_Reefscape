@@ -57,7 +57,7 @@ public class Arm extends SubsystemBase {
     */
 
     // Motion profiling and state tracking
-    private final TrapezoidProfile armProfile; // Profile for trapezoidal motion
+    private final TrapezoidProfile armPivotProfile; // Profile for trapezoidal motion
     private TrapezoidProfile.State armGoalState, armStartState, armCurrentState; // States used for motion control
     private final Timer armTimer = new Timer();
 
@@ -120,7 +120,7 @@ public class Arm extends SubsystemBase {
 
         armPivotFeedforward = new ArmFeedforward(kArmPivotMotorks, kArmPivotMotorkg, kArmPivotMotorkv, kArmPivotMotorka);
         
-        armProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(kArmPivotMotorMaxVelocity, kArmPivotMotorMaxAcceleration));
+        armPivotProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(kArmPivotMotorMaxVelocity, kArmPivotMotorMaxAcceleration));
 
         armTimer.start();
 
@@ -155,10 +155,10 @@ public class Arm extends SubsystemBase {
                 armGoalState = new TrapezoidProfile.State(this.armPivotReference, 0);
             },
             ()->{
-                armCurrentState = armProfile.calculate(armTimer.get(), armStartState, armGoalState);
+                armCurrentState = armPivotProfile.calculate(armTimer.get(), armStartState, armGoalState);
                 setPivotOutput(armCurrentState.position, armCurrentState.velocity);
             })
-            .until(null)
+            .until(()->armPivotProfile.isFinished(armTimer.get()))
             .withName("Go To Reference");
     }
 
