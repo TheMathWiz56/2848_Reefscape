@@ -188,4 +188,9 @@ public final class Constants {
         public static final int kGroundAlgaePhotogateId = 0;
     }
 
+    public static class LEDConstants{
+        public static final int kPwmPort = 0;
+        public static final int kNumberOfLEDs = 40;
+    }
+
 }

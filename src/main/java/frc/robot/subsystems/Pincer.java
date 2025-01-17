@@ -2,15 +2,11 @@ package frc.robot.subsystems;
 import frc.robot.Constants;
 import frc.robot.Constants.PincerConstants;
 
-import static frc.robot.Constants.ArmConstants.kPivotD;
-import static frc.robot.Constants.ArmConstants.kPivotI;
-import static frc.robot.Constants.ArmConstants.kPivotP;
 import static frc.robot.Constants.PincerConstants.*;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
