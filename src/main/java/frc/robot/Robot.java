@@ -19,7 +19,7 @@ public class Robot extends TimedRobot {
   public Robot() {
     m_robotContainer = new RobotContainer();
 
-    // Set the logger to log to the first flashdrive plugged in
+    // Set the logger to log to the first flashdrive plugged in. This should be turned back on once a USB drive is plugged into the roboRIO. Good for debugging
     //SignalLogger.setPath("/media/sda1/");
     //DataLogManager.start(); // /logs folder in sda1   // Logs Network Table information
     //SignalLogger.start();
@@ -48,7 +48,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.schedule();
     }
 
-    // Elastic.selectTab("Autonomous");
+    // Elastic.selectTab("Autonomous"); // Causing lag, I think. If turned back on might cause commandSchedulerLoop issues
   }
 
   @Override
@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.cancel();
     }
 
-    // Elastic.selectTab("Teleoperated");
+    // Elastic.selectTab("Teleoperated"); // Causing lag, I think. If turned back on might cause commandSchedulerLoop issues
   }
 
   @Override
