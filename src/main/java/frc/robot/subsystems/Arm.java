@@ -42,13 +42,6 @@ public class Arm extends SubsystemBase {
     private final SparkClosedLoopController armPivotController;
     private final AbsoluteEncoder armPivotAbsEncoder;
 
-    private final SparkMax armPincerMotor = new SparkMax(kArmPincerMotorId, MotorType.kBrushless);
-    private final SparkMaxConfig armPincerConfig  = new SparkMaxConfig();
-    private final SparkClosedLoopController armPincerController;
-
-    private final SparkMax armIntakeMotor = new SparkMax(kArmIntakeMotorId, MotorType.kBrushless);
-    private final SparkMaxConfig armIntakeConfig  = new SparkMaxConfig();
-
     // Feedforward controller for arm motion (helps to predict required motor output)
     private final ArmFeedforward armPivotFeedforward;
     private double armPivotReference;
@@ -61,8 +54,7 @@ public class Arm extends SubsystemBase {
     private TrapezoidProfile.State armGoalState, armStartState, armCurrentState; // States used for motion control
     private final Timer armTimer = new Timer();
 
-    // Photogate (beam break)
-    private final DigitalInput armPhotogate = new DigitalInput(kArmPhotogateId);
+    
 
     // Potentially also 2 limit switches - DigitalInput class
     // There will also be a USB camera that I don't think will be represented here
@@ -72,8 +64,7 @@ public class Arm extends SubsystemBase {
     public Arm() {
         // Grab objects from spark maxs
         armPivotAbsEncoder = armPivotMotor.getAbsoluteEncoder();
-        armPivotController = armPincerMotor.getClosedLoopController();
-        armPincerController = armPincerMotor.getClosedLoopController();
+        armPivotController = armPivotMotor.getClosedLoopController();
 
         // Build motor configs
         armPivotConfig
@@ -87,30 +78,8 @@ public class Arm extends SubsystemBase {
                 .outputRange(kArmPivotMotorMinOutput, kArmPivotMotorMaxOutput);
         armPivotConfig
             .absoluteEncoder
-                .zeroOffset(kArmPivotMotorAbsoluteEncoderOffset);
+                .zeroOffset(kArmPivotMotorAbsoluteEncoderOffset);        
 
-        armPincerConfig
-            .inverted(kArmPincerMotorInverted)
-            .idleMode(kArmPincerMotorIdleMode)
-            .smartCurrentLimit(kArmPincerMotorSmartCurrentLimit);
-        armPincerConfig
-            .closedLoop
-                .feedbackSensor(kArmPincerMotorFeedbackSensor)
-                .pid(kArmPincerP, kArmPincerI, kArmPincerD)
-                .outputRange(kArmPincerMotorMinOutput, kArmPincerMotorMaxOutput);
-        armPincerConfig
-            .absoluteEncoder
-                .zeroOffset(kArmPincerMotorAbsoluteEncoderOffset);
-
-        armIntakeConfig
-            .inverted(kArmIntakeMotorInverted)
-            .idleMode(kArmIntakeMotorIdleMode)
-            .smartCurrentLimit(kArmAbsEncoderId);
-        armIntakeConfig
-            .closedLoop
-                .pid(kArmIntakeP, kArmIntakeI, kArmIntakeD)
-                .outputRange(kArmIntakeMotorMinOutput, kArmIntakeMotorMaxOutput);
-        
 
         // Initialize Feedforward 
         armPivotReference = 0.0;
@@ -126,11 +95,7 @@ public class Arm extends SubsystemBase {
 
 
         // Burn motor configurations
-        armPivotMotor.configure(armPincerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        Constants.kMotorBurnDelay();
-        armPincerMotor.configure(armPincerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        Constants.kMotorBurnDelay();
-        armIntakeMotor.configure(armIntakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        armPivotMotor.configure(armPivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         Constants.kMotorBurnDelay();
 
     }
@@ -166,18 +131,6 @@ public class Arm extends SubsystemBase {
         return run(()->{
             setPivotOutput(armPivotReference, 0);
         });
-    }
-
-    public Command intake(){
-        return null;
-    }
-
-    public Command exhaust(){
-        return null;
-    }
-
-    public Command stopRollers(){
-        return null;
     }
 
     private void setPivotOutput(double position, double velocity){
