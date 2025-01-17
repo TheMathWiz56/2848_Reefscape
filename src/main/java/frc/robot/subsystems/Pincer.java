@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 public class Pincer extends SubsystemBase{
 
@@ -111,55 +112,70 @@ public class Pincer extends SubsystemBase{
         SmartDashboard.putData(this);
     }
 
+    /**@return True if the current draw on the intake motor is over the algae threshold
+     */
+    public boolean hasAlgae(){
+        return intakeMotor.getOutputCurrent() > kIntakeAlgaeCurrentThreshold;
+    }
+
+    /**@return True if the intake photogate is tripped
+     */
+    public boolean hasCoral(){
+        return intakePhotogate.get();
+    }
+
     /** Moves the pincer to the specified setpoint
- * @param setpoint The desired position for the pincer
- * @return Command
- */
-private Command pincerToSetpoint(double setpoint) {
-    return runOnce(() -> pincerController.setReference(setpoint, SparkMax.ControlType.kPosition));
-}
+     * @param setpoint The desired position for the pincer
+     * @return Command
+     */
+    private Command pincerToSetpoint(double setpoint) {
+        return runOnce(() -> pincerController.setReference(setpoint, SparkMax.ControlType.kPosition));
+    }
 
-/** Moves the pincer to the algae-grabbing position
- * @return Command
- */
-public Command pincerAlgae() {
-    return pincerToSetpoint(kAlgaePosition);
-}
+    /** Moves the pincer to the algae-grabbing position
+     * @return Command
+     */
+    public Command pincerAlgae() {
+        return pincerToSetpoint(kAlgaePosition);
+    }
 
-/** Moves the pincer to the stowed position
- * @return Command
- */
-public Command stowPincer() {
-    return pincerToSetpoint(kStowPosition);
-}
+    /** Moves the pincer to the stowed position
+     * @return Command
+     */
+    public Command stowPincer() {
+        return pincerToSetpoint(kStowPosition);
+    }
 
-/** Moves the pincer to the funneling position
- * @return Command
- */
-public Command pincerFunnel() {
-    return pincerToSetpoint(kFunnelPosition);
-}
+    /** Moves the pincer to the funneling position
+     * @return Command
+     */
+    public Command pincerFunnel() {
+        return pincerToSetpoint(kFunnelPosition);
+    }
 
-/** Runs the intake motor at the intake speed
- * @return Command
- */
-public Command intake() {
-    return runOnce(() -> intakeMotor.set(kIntakeSpeed));
-}
+    /** Runs the intake motor at the intake speed
+     * @return Command
+     */
+    public Command intake() {
+        return runOnce(() -> intakeMotor.set(kIntakeSpeed));
+    }
 
-/** Runs the intake motor at the exhaust speed
- * @return Command
- */
-public Command exhaust() {
-    return runOnce(() -> intakeMotor.set(kExhaustSpeed));
-}
+    /** Runs the intake motor at the exhaust speed
+     * @return Command
+     */
+    public Command exhaust() {
+        return runOnce(() -> intakeMotor.set(kExhaustSpeed));
+    }
 
-/** Stops the intake motor
- * @return Command
- */
-public Command stopIntake() {
-    return runOnce(() -> intakeMotor.stopMotor());
-}
-
+    /** Stops the intake motor
+     * @return Command
+     */
+    public Command stopIntake() {
+        return runOnce(() -> intakeMotor.stopMotor());
+    }
+    
+    public Command holdState(){
+        return Commands.idle(this);
+    }
 
 }

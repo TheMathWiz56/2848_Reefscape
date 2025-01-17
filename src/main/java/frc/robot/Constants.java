@@ -90,6 +90,9 @@ public final class Constants {
         public static final boolean kIntakeMotorInverted = false;
         public static final IdleMode kIntakeMotorIdleMode = IdleMode.kCoast;
         public static final int kIntakeMotorSmartCurrentLimit = 40;
+
+        /** Current Threshold for determining if we have an algae */
+        public static final int kIntakeAlgaeCurrentThreshold = 20;
     
         // PID Settings
         public static double kPincerP = 0.0;
