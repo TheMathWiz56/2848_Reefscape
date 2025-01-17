@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Lights;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -47,7 +48,9 @@ public class RobotContainer {
     private CommandGenericHID operatorKeypad = new CommandGenericHID(1);
     private final CommandXboxController operatorJoystick = new CommandXboxController(2);
 
+    // Subsystem Instances
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public final Lights lights = new Lights();
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
@@ -105,6 +108,11 @@ public class RobotContainer {
         driverJoystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         // reset the pose 
         driverJoystick.rightBumper().onTrue(drivetrain.runOnce(()-> drivetrain.resetToVision(true)));
+
+        //testing
+        driverJoystick.x()
+            .onTrue(lights.inAction())
+            .onFalse(lights.actionComplete());
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
