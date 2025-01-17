@@ -20,6 +20,7 @@ import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.LaserCan.Measurement;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -32,13 +33,13 @@ import frc.robot.Constants.ElevatorConstants;
 /*
  * Joseph Notes
  * - [Done] one of the elevator motors should be configured to follow the other, not just setting them both to the same output
- * - [Done] If we decide to use the internal encoder or an absolute encoder to measure the elevator's position we can use the internal
+ * - [Half finished] If we decide to use the internal encoder or an absolute encoder to measure the elevator's position we can use the internal
  * pid controller on the elevator. 
- * - Should also have a feedforward controller for the elevator, results in smoothing motion since it allows you to create a motion
+ * - [Done for the LaserCan setup] Should also have a feedforward controller for the elevator, results in smoothing motion since it allows you to create a motion
  * profile. Look at the arm branch for some ideas of how to imlpement feedforward, I can also help.
  * - You can either use methods like public void setMotors ()... or you can use public Command setMotors() with command
  * factories to simplify code and remove boiler plate code
- * - Add a sendable builder and put all sensor information, motor outputs, setpoints, setpoints errors, PID outputs, Feedforward outputs etc.
+ * - [Not started - there might be a lazy way to do this here: https://docs.wpilib.org/en/stable/docs/software/telemetry/robot-telemetry-with-annotations.html] Add a sendable builder and put all sensor information, motor outputs, setpoints, setpoints errors, PID outputs, Feedforward outputs etc.
  * in periodic send the sendable object to the dashboard for debugging and logging
  */
 
@@ -73,11 +74,6 @@ public class Elevator extends SubsystemBase {
   private final SparkClosedLoopController elevatorMotor1Controller = elevatorMotor1.getClosedLoopController();
   private final SparkClosedLoopController elevatorMotor2Controller = elevatorMotor2.getClosedLoopController();
 
-  // LaserCan controller
-  private PIDController elevatorPIDLaserCan = new PIDController(ElevatorConstants.kElevatorP,
-      ElevatorConstants.kElevatorI,
-      ElevatorConstants.kElevatorD);
-
   // Motor configurations
   private final SparkMaxConfig elevatorMotor1Config = new SparkMaxConfig();
   private final SparkMaxConfig elevatorMotor2Config = new SparkMaxConfig();
@@ -85,16 +81,23 @@ public class Elevator extends SubsystemBase {
   // Trapezoid profile for feedforward
   private final TrapezoidProfile elevatorTrapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
       ElevatorConstants.kElevatorMaxVelocity, ElevatorConstants.kElevatorMaxAcceleration));
-  private final TrapezoidProfile.State elevatorStartState = new TrapezoidProfile.State();
-  private final TrapezoidProfile.State elevatorCurrentState = new TrapezoidProfile.State();
-  private final TrapezoidProfile.State elevatorGoalState = new TrapezoidProfile.State();
+
+  // LaserCan controller
+  // ProfiledPIDController reference - should handle the TrapezoidProfile
+  // functions automatically
+  // https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/profiled-pidcontroller.html
+  private ProfiledPIDController elevatorPIDLaserCan = new ProfiledPIDController(ElevatorConstants.kElevatorP,
+      ElevatorConstants.kElevatorI,
+      ElevatorConstants.kElevatorD,
+      new TrapezoidProfile.Constraints(
+          ElevatorConstants.kElevatorMaxVelocity, ElevatorConstants.kElevatorMaxAcceleration));
 
   // Encoder position setpoint for Spark PID
   private double elevatorSetpoint = ElevatorConstants.kElevatorSetpointStow;
 
   public Elevator() {
     // Set LaserCan PID intial position
-    elevatorPIDLaserCan.setSetpoint(ElevatorConstants.kElevatorSetpointStowLaserCan);
+    elevatorPIDLaserCan.setGoal(ElevatorConstants.kElevatorSetpointStow);
 
     // Set motor configurations
     elevatorMotor1Config
@@ -143,7 +146,7 @@ public class Elevator extends SubsystemBase {
 
   public void setElevatorSetpoint(double setpoint) {
     if (ElevatorConstants.kElevatorUseLaserCan) {
-      elevatorPIDLaserCan.setSetpoint(setpoint);
+      elevatorPIDLaserCan.setGoal(setpoint);
     } else {
       elevatorSetpoint = setpoint;
     }
@@ -152,24 +155,25 @@ public class Elevator extends SubsystemBase {
   // Set motor speeds based on PID calculation
   // Better named might be holdPosition
   public void holdPosition() {
-    double distance = getLaserDistance();
     if (ElevatorConstants.kElevatorUseLaserCan) {
+      double distance = getLaserDistance();
       if (distance != -1.0) // good idea, may have some weird effects though
-        setMotorVoltage(elevatorPIDLaserCan.calculate(distance) + feedforward.calculate(distance));
+        setMotorVoltage(elevatorPIDLaserCan.calculate(distance)
+            + feedforward.calculate(elevatorPIDLaserCan.getSetpoint().velocity));
       else
         setMotorVoltage(0.0);
     } else {
-      elevatorMotor1Controller.setReference(distance, ControlType.kPosition, null, distance);
+      // Would probably need to make a full TrapezoidalProfile here
     }
   }
 
-  // Returns milimeters
+  // Returns meters
   // According to the documentation getMeasurement() can return null. May need a
   // better way to handle that
   public double getLaserDistance() {
     Measurement measurement = laserCan.getMeasurement();
     if (measurement != null)
-      return measurement.distance_mm;
+      return measurement.distance_mm * 1000;
     else
       return -1.0;
   }
