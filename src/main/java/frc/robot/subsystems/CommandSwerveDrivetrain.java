@@ -55,7 +55,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static boolean useMegaTag2 = true; // set to false to use MegaTag1. Should test to see which one works better, 1 or 2? Or if they can be combined/we switch between them based on some conditions
     private static boolean doRejectUpdate = false;
     private static String limelightUsed;
-    private static LimelightHelpers.PoseEstimate LLposeEstimate;
+    private static LimelightHelpers.PoseEstimate LLPoseEstimate;
     //Get average tag areas (percentage of image), Choose the limelight with the highest average tag area
     private static double limelightFrontAvgTagArea = 0;
     private static double limelightBackAvgTagArea = 0;
@@ -347,13 +347,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param forceUpdate Override the tag area requirement
      */
     public void resetToVision(boolean forceUpdate){
-        choose_LL();
+        chooseLL();
         
-        LLposeEstimate = get_manual_LL_Estimate(); // Might be able to switch to mt1 or 2. Needs testing if want to change
+        LimelightHelpers.PoseEstimate poseEstimate = getManualLLEstimate(); // Might be able to switch to mt1 or 2. Needs testing if want to change
 
-        if (LLposeEstimate != null) {
+        if (poseEstimate != null) {
             if (forceUpdate || limelightBackAvgTagArea > 3){
-                resetPose(LLposeEstimate.pose);
+                resetPose(poseEstimate.pose);
             }          
         }
     }
@@ -363,14 +363,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * with the odometry pose estimate
      */
     private void updateOdometry() {
-        choose_LL();
+        chooseLL();
 
-        LLposeEstimate = get_manual_LL_Estimate(); // Use manual until Limelight updates their OS and the getBotPoseEstimate_wpiBlue function works properly
+        LLPoseEstimate = getManualLLEstimate(); // Use manual until Limelight updates their OS and the getBotPoseEstimate_wpiBlue function works properly
 
-        if (LLposeEstimate != null) {
+        if (LLPoseEstimate != null) {
             // needs to be converted to a current time timestamp for it to be combined properly with the odometry pose estimate
-            SmartDashboard.putNumber("Odometry Update Timestamp", Utils.fpgaToCurrentTime(LLposeEstimate.timestampSeconds)); 
-            addVisionMeasurement(LLposeEstimate.pose, Utils.fpgaToCurrentTime(LLposeEstimate.timestampSeconds), TunerConstants.visionStandardDeviation);
+            SmartDashboard.putNumber("Odometry Update Timestamp", Utils.fpgaToCurrentTime(LLPoseEstimate.timestampSeconds)); 
+            addVisionMeasurement(LLPoseEstimate.pose, Utils.fpgaToCurrentTime(LLPoseEstimate.timestampSeconds), TunerConstants.visionStandardDeviation);
         }
     }
 
@@ -380,7 +380,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param pose Pose to pathfind to
      * @param endVelocity Velocity at target pose
      */
-    public Command path_find_to(Pose2d pose, LinearVelocity endVelocity){
+    public Command pathFindTo(Pose2d pose, LinearVelocity endVelocity){
         return AutoBuilder.pathfindToPose(pose, TunerConstants.oTF_Constraints, endVelocity);
     }
 
@@ -388,7 +388,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param useMegaTag2 Boolean to use mt2 or mt1
      * @return Valid pose estimate or null
      */
-    private LimelightHelpers.PoseEstimate get_LL_Estimate(boolean useMegaTag2){
+    private LimelightHelpers.PoseEstimate getLLMegaTEstimate(boolean useMegaTag2){
         doRejectUpdate = false;
         LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
 
@@ -443,7 +443,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /**
      * Updates the currently used limelight based on which limelight has the largest average tag area.
      */
-    private static void choose_LL(){
+    private static void chooseLL(){
         limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
         limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
         SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
@@ -471,7 +471,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * Broke because the field is 3ft longer in 2025.
      * @return Estimated pose or null if no valid estimate
      */
-    private LimelightHelpers.PoseEstimate get_manual_LL_Estimate(){
+    private LimelightHelpers.PoseEstimate getManualLLEstimate(){
         LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
         
         double[] botPose = LimelightHelpers.getBotPose(limelightUsed);

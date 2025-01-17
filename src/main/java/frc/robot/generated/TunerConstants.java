@@ -32,6 +32,7 @@ public class TunerConstants {
     public static double std4 = 1; 
     public static double visionStdSlope = (std4-std02)/(4-.2); // from .2 to 4 // 2m to .5m
     public static double visionStdConstant = std02 - visionStdSlope * .2;
+    /** Linear and Angular Velocity/Acceleration contstraints for on the fly path following */
     public static PathConstraints oTF_Constraints = new PathConstraints(5.3, 5, Math.toRadians(270), Math.toRadians(360));
 
     public static double getVisionStd(double tagArea){
