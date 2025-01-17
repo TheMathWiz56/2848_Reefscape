@@ -39,7 +39,8 @@ import frc.robot.Constants.ElevatorConstants;
  * profile. Look at the arm branch for some ideas of how to imlpement feedforward, I can also help.
  * - You can either use methods like public void setMotors ()... or you can use public Command setMotors() with command
  * factories to simplify code and remove boiler plate code
- * - [Not started - there might be a lazy way to do this here: https://docs.wpilib.org/en/stable/docs/software/telemetry/robot-telemetry-with-annotations.html] Add a sendable builder and put all sensor information, motor outputs, setpoints, setpoints errors, PID outputs, Feedforward outputs etc.
+ * - [Not started - there might be a lazy way to do this here: https://docs.wpilib.org/en/stable/docs/software/telemetry/robot-telemetry-with-annotations.html]
+ * Add a sendable builder and put all sensor information, motor outputs, setpoints, setpoints errors, PID outputs, Feedforward outputs etc.
  * in periodic send the sendable object to the dashboard for debugging and logging
  */
 
