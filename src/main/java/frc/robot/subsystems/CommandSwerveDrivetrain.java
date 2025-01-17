@@ -9,19 +9,14 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.ctre.phoenix6.swerve.jni.SwerveJNI;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.estimator.PoseEstimator;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -29,7 +24,6 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -54,11 +48,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
-    // Field Widget
+    // Field Widget in Elastic
     private static final Field2d m_field = new Field2d();
 
     // April tag variables
-    private static boolean useMegaTag2 = true; // set to false to use MegaTag1
+    private static boolean useMegaTag2 = true; // set to false to use MegaTag1. Should test to see which one works better, 1 or 2? Or if they can be combined/we switch between them based on some conditions
     private static boolean doRejectUpdate = false;
     private static String limelightUsed;
     private static LimelightHelpers.PoseEstimate LLposeEstimate;
@@ -81,6 +75,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
+
+    
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
         new SysIdRoutine.Config(
@@ -222,38 +218,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         configureAutoBuilder();
     }
 
-    private void configureAutoBuilder() {
-        try {
-            var config = RobotConfig.fromGUISettings();
-            AutoBuilder.configure(
-                () -> getState().Pose,   // Supplier of current robot pose
-                this::resetPose,         // Consumer for seeding pose against auto
-                () -> getState().Speeds, // Supplier of current robot speeds
-                // Consumer of ChassisSpeeds and feedforwards to drive the robot
-                (speeds, feedforwards) -> setControl(
-                    m_pathApplyRobotSpeeds.withSpeeds(speeds)
-                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
-                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
-                ),
-                new PPHolonomicDriveController(
-                    // PID constants for translation
-                    new PIDConstants(10, 0, 0),
-                    // PID constants for rotation
-                    new PIDConstants(7, 0, 0)
-                ),
-                config,
-                // Assume the path needs to be flipped for Red vs Blue, this is normally the case
-                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-                this // Subsystem for requirements
-            );
-        } catch (Exception ex) {
-            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
-        }
-        
-        NamedCommands.registerCommand("Score_L2", new WaitCommand(2));
-        NamedCommands.registerCommand("Score_L4", new WaitCommand(2));
-    }
-
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
      *
@@ -286,6 +250,62 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
+    private void startSimThread() {
+        m_lastSimTime = Utils.getCurrentTimeSeconds();
+
+        /* Run simulation at a faster rate so PID gains behave more reasonably */
+        m_simNotifier = new Notifier(() -> {
+            final double currentTime = Utils.getCurrentTimeSeconds();
+            double deltaTime = currentTime - m_lastSimTime;
+            m_lastSimTime = currentTime;
+
+            /* use the measured time delta, get battery voltage from WPILib */
+            updateSimState(deltaTime, RobotController.getBatteryVoltage());
+        });
+        m_simNotifier.startPeriodic(kSimLoopPeriod);
+    }
+    
+
+    //___________________________________________________ Custom Code ___________________________________________________
+
+
+    private void configureAutoBuilder() {
+        try {
+            var config = RobotConfig.fromGUISettings();
+            AutoBuilder.configure(
+                () -> getState().Pose,   // Supplier of current robot pose
+                this::resetPose,         // Consumer for seeding pose against auto
+                () -> getState().Speeds, // Supplier of current robot speeds
+                // Consumer of ChassisSpeeds and feedforwards to drive the robot
+                (speeds, feedforwards) -> setControl(
+                    m_pathApplyRobotSpeeds.withSpeeds(speeds)
+                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+                ),
+                new PPHolonomicDriveController(
+                    // PID constants for translation
+                    new PIDConstants(10, 0, 0),
+                    // PID constants for rotation
+                    new PIDConstants(7, 0, 0)
+                ),
+                config,
+                // Assume the path needs to be flipped for Red vs Blue, this is normally the case
+                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+                this // Subsystem for requirements
+            );
+        } catch (Exception ex) {
+            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
+        }
+        
+        NamedCommands.registerCommand("Score_L2", new WaitCommand(2)); // Placeholder for now
+        NamedCommands.registerCommand("Score_L4", new WaitCommand(2)); // Placeholder for now
+    }
+
+    // Move to constants or another java file
+    private Double[] Pose2dToDoubleArray(Pose2d pose){
+        return new Double[] {pose.getX(), pose.getY(), pose.getRotation().getRadians()};
+    }
+
     @Override
     public void periodic() {
         /*
@@ -306,46 +326,31 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
         
-        choose_LL();
         updateOdometry();
 
-        SmartDashboard.putData("Field",m_field);
+        // Fused Pose Estimate Telemetry 
         Pose2d currentPose = getState().Pose;
         m_field.setRobotPose(currentPose);
-        Double[] fusedPose = {currentPose.getX(), currentPose.getY(), currentPose.getRotation().getRadians()};
+        Double[] fusedPose = Pose2dToDoubleArray(currentPose);
+        SmartDashboard.putData("Field",m_field);
         SmartDashboard.putNumberArray("Fused PoseDBL", fusedPose);
     }
 
-    private void startSimThread() {
-        m_lastSimTime = Utils.getCurrentTimeSeconds();
-
-        /* Run simulation at a faster rate so PID gains behave more reasonably */
-        m_simNotifier = new Notifier(() -> {
-            final double currentTime = Utils.getCurrentTimeSeconds();
-            double deltaTime = currentTime - m_lastSimTime;
-            m_lastSimTime = currentTime;
-
-            /* use the measured time delta, get battery voltage from WPILib */
-            updateSimState(deltaTime, RobotController.getBatteryVoltage());
-        });
-        m_simNotifier.startPeriodic(kSimLoopPeriod);
-    }
-
-    private Double[] Pose2dToDoubleArray(Pose2d pose){
-        return new Double[] {pose.getX(), pose.getY(), pose.getRotation().getRadians()};
-    }
+    
 
 
     // ___________________________________________________ Vision Code ___________________________________________________
     
     /**
      * Resets the robot's Odometry pose estimate to the best current mt1 pose estimate.
-     * Can also use a known reference like a wall to zero the Pigeon (most important thing for mt2)
+     * <p>Can also use a known reference like a wall to zero the Pigeon (most important thing for mt2 is having an accurate yaw reading)
+     * @param forceUpdate Override the tag area requirement
      */
     public void resetToVision(boolean forceUpdate){
         choose_LL();
         
-        LLposeEstimate = get_manual_LL_Estimate();
+        LLposeEstimate = get_manual_LL_Estimate(); // Might be able to switch to mt1 or 2. Needs testing if want to change
+
         if (LLposeEstimate != null) {
             if (forceUpdate || limelightBackAvgTagArea > 3){
                 resetPose(LLposeEstimate.pose);
@@ -358,10 +363,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * with the odometry pose estimate
      */
     private void updateOdometry() {
-        LLposeEstimate = get_manual_LL_Estimate();
+        choose_LL();
+
+        LLposeEstimate = get_manual_LL_Estimate(); // Use manual until Limelight updates their OS and the getBotPoseEstimate_wpiBlue function works properly
 
         if (LLposeEstimate != null) {
-            SmartDashboard.putNumber("Timestamp", Utils.fpgaToCurrentTime(LLposeEstimate.timestampSeconds));
+            // needs to be converted to a current time timestamp for it to be combined properly with the odometry pose estimate
+            SmartDashboard.putNumber("Odometry Update Timestamp", Utils.fpgaToCurrentTime(LLposeEstimate.timestampSeconds)); 
             addVisionMeasurement(LLposeEstimate.pose, Utils.fpgaToCurrentTime(LLposeEstimate.timestampSeconds), TunerConstants.visionStandardDeviation);
         }
     }
@@ -370,7 +378,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * Uses the autobuilder and PathPlanner's navigation grid to pathfind to a pose in real time
      * 
      * @param pose Pose to pathfind to
-     * @param endVelocity Velocity at pose
+     * @param endVelocity Velocity at target pose
      */
     public Command path_find_to(Pose2d pose, LinearVelocity endVelocity){
         return AutoBuilder.pathfindToPose(pose, TunerConstants.oTF_Constraints, endVelocity);
@@ -428,17 +436,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             return null;
         }
         else{
-            SmartDashboard.putString("LL Pose", poseEstimate.pose.toString());
             return poseEstimate;
         }
     }
 
+    /**
+     * Updates the currently used limelight based on which limelight has the largest average tag area.
+     */
     private static void choose_LL(){
         limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
         limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
         SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
-        SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);    
-        double translationSTD = TunerConstants.std02;
+        SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);   
+
+        double translationSTD = TunerConstants.std02; // safe value
         if(limelightFrontAvgTagArea > 
             limelightBackAvgTagArea){
                 limelightUsed = "limelight-front";
@@ -449,14 +460,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 
         }
         
-        TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 9999999);
+        TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 9999999); // Don't trust yaw, rely on Pigeon
 
-        SmartDashboard.putNumber("STDSlope", TunerConstants.visionStdSlope);
-        SmartDashboard.putNumber("STDC", TunerConstants.visionStdConstant);
-        SmartDashboard.putNumberArray("Vision Stdevs", TunerConstants.visionStandardDeviation.getData());
+        SmartDashboard.putNumberArray("Vision Standard Deviations", TunerConstants.visionStandardDeviation.getData());
         SmartDashboard.putString("Limelight Used", limelightUsed);
     }
 
+    /**
+     * "Manually" computes the Limelight pose estimate since MT1 and 2 are broken in LimeLight OS 2024.10.2. 
+     * Broke because the field is 3ft longer in 2025.
+     * @return Estimated pose or null if no valid estimate
+     */
     private LimelightHelpers.PoseEstimate get_manual_LL_Estimate(){
         LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
         
@@ -469,9 +483,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             poseEstimate.pose = new Pose2d(new Translation2d(botPose[0] + 8.7736 ,botPose[1] + 4.0257), new Rotation2d(Math.toRadians(botPose[5])));
         }
 
-        Double[] pose = {poseEstimate.pose.getX(), poseEstimate.pose.getY(), poseEstimate.pose.getRotation().getRadians()};
-        SmartDashboard.putNumberArray("Manual Pose", pose);
-        poseEstimate.timestampSeconds = Timer.getFPGATimestamp();
+        Double[] pose = Pose2dToDoubleArray(poseEstimate.pose);
+        SmartDashboard.putNumberArray("Manual Limelight Pose", pose);
+        poseEstimate.timestampSeconds = Timer.getFPGATimestamp(); // botpose doesn't give a timestamp so pull timestamp now. Not really how this should be done.
         return poseEstimate;
     }
 }

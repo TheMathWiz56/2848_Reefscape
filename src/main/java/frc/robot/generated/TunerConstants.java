@@ -26,8 +26,10 @@ public class TunerConstants {
     public final static double odometryUpdateFrequency = 250;
     public static Matrix<N3, N1> odometryStandardDeviation = VecBuilder.fill(.1,.1,.1); // increase with time?
     public static Matrix<N3, N1> visionStandardDeviation  = VecBuilder.fill(.7,0.7,9999999);
-    public static double std02 = 10; // Standard Deviation at .2 target area
-    public static double std4 = 1; // Standard Deviation at 4 target area
+    /** Standard Deviation at .2 target area */
+    public static double std02 = 10;
+    /** Standard Deviation at 4 target area */
+    public static double std4 = 1; 
     public static double visionStdSlope = (std4-std02)/(4-.2); // from .2 to 4 // 2m to .5m
     public static double visionStdConstant = std02 - visionStdSlope * .2;
     public static PathConstraints oTF_Constraints = new PathConstraints(5.3, 5, Math.toRadians(270), Math.toRadians(360));
