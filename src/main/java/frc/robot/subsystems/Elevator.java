@@ -6,7 +6,9 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -62,14 +64,12 @@ public class Elevator extends SubsystemBase {
   private final DigitalInput limitSwitchTop = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchTopId);
   private final DigitalInput limitSwitchBottom = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchBottomId);
 
-  /*
-   * private PIDController elevatorPid = new
-   * PIDController(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
-   * ElevatorConstants.kElevatorD);
-   */
   private final ElevatorFeedforward feedforward = new ElevatorFeedforward(ElevatorConstants.kElevatorKs,
       ElevatorConstants.kElevatorKg, ElevatorConstants.kElevatorKv, ElevatorConstants.kElevatorKa,
       ElevatorConstants.kElevatorDtSeconds);
+
+  private final SparkClosedLoopController elevatorMotor1Controller = elevatorMotor1.getClosedLoopController();
+  private final SparkClosedLoopController elevatorMotor2Controller = elevatorMotor2.getClosedLoopController();
 
   //Motor configurations
   private final SparkMaxConfig elevatorMotor1Config = new SparkMaxConfig();
@@ -117,8 +117,8 @@ public class Elevator extends SubsystemBase {
     Timer.delay(0.25); // Allow the configs to be burned in
   }
 
-  public void setMotors(double motor1, double motor2) {
-    elevatorMotor1.set(motor1);
+  public void setMotorVoltage(double voltage) {
+    elevatorMotor1.setVoltage(voltage);
   }
 
   /*
@@ -131,11 +131,7 @@ public class Elevator extends SubsystemBase {
   // Better named might be holdPosition
   public void holdPosition() {
     double distance = getLaserDistance();
-    // if(distance != -1.0) // good idea, may have some weird effects though
-    // setMotors(elevatorPid.calculate(distance));
-    // else
-    // setMotors(0.0); //Failsafe if getMeasurement() in getLaserDistance() returns
-    // null
+    elevatorMotor1Controller.setReference(distance, ControlType.kPosition, null, distance);
   }
 
   // Returns milimeters
