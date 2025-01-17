@@ -21,6 +21,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -45,9 +46,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
     private final SparkClosedLoopController pivotController;
     private final AbsoluteEncoder pivotAbsEncoder;
 
+    private boolean pivotPIDUpdated = false;
+
     // Feedforward controller for arm motion (helps to predict required motor output)
     private final ArmFeedforward pivotFeedforward;
-    private double pivotReference;
+    private double pivotReference, FF;
 
     // Motion profiling and state tracking
     private final TrapezoidProfile pivotProfile; // Profile for trapezoidal motion
@@ -83,6 +86,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
         // Initialize Feedforward 
         pivotReference = kStowPosition;
+        FF = 0;
         goalState = new TrapezoidProfile.State(); 
         startState = new TrapezoidProfile.State(); 
         currentState = new TrapezoidProfile.State(); 
@@ -100,11 +104,43 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        super.initSendable(builder); // Initialize the sendable builder
+        super.initSendable(builder);
+
+        // Motor
+        builder.addDoubleProperty("Pivot Absolute Position", () -> pivotAbsEncoder.getPosition(), null);
+        builder.addDoubleProperty("Pivot Absolute Velocity", () -> pivotAbsEncoder.getVelocity(), null);
+        builder.addDoubleProperty("Pivot Motor Output", () -> pivotMotor.getAppliedOutput(), null);
+        builder.addDoubleProperty("Pivot Motor Temperature", () -> pivotMotor.getMotorTemperature(), null);
+        builder.addDoubleProperty("Pivot Motor Output Current", () -> pivotMotor.getOutputCurrent(), null);
+        
+        // Motion Profile
+        builder.addDoubleProperty("Pivot Setpoint", () -> pivotReference, null);
+        builder.addDoubleProperty("Pivot Profile Timer", () -> timer.get(), null);
+        builder.addDoubleProperty("Pivot Profile Current Position", () -> currentState.position, null);
+        builder.addDoubleProperty("Pivot Profile Current Velocity", () -> currentState.velocity, null);
+        builder.addDoubleProperty("Pivot Profile Position Error Deg", () -> currentState.position - pivotAbsEncoder.getPosition(), null);
+        builder.addDoubleProperty("Pivot Profile Velocity Error Deg", () -> currentState.velocity - pivotAbsEncoder.getVelocity(), null);
+        builder.addDoubleProperty("Pivot Profile Goal Position", () -> goalState.position, null);
+        builder.addDoubleProperty("Pivot Profile Goal Velocity", () -> goalState.velocity, null);
+
+
+        // PID Tuning
+        builder.addDoubleProperty("Pivot kP", () -> kPivotP, value -> { kPivotP = value; pivotPIDUpdated = true;});
+        builder.addDoubleProperty("Pivot kI", () -> kPivotI, value -> { kPivotI = value; pivotPIDUpdated = true;});
+        builder.addDoubleProperty("Pivot kD", () -> kPivotD, value -> { kPivotD = value; pivotPIDUpdated = true;});
+
     }
 
     @Override
     public void periodic() {
+        if (pivotPIDUpdated){
+            pivotConfig
+                .closedLoop.pid(kPivotP, kPivotI, kPivotD);
+            pivotMotor.configure(pivotConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+            pivotPIDUpdated = false;
+        }
+
+        SmartDashboard.putData(this);
     }
 
     /**
@@ -143,13 +179,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
     /**
      * Sets the PID setpoint with the calculated feedforward to the pivot motor
      * 
-     * @param position position setpoint (feedforward / PID)
+     * @param position position setpoint (feedforward & PID)
      * @param velocity velocity setpoint (feedforward)
      */
     private void setPivotOutput(double position, double velocity) {
-        double FF = pivotFeedforward.calculate(position, velocity);
+        FF = pivotFeedforward.calculate(position, velocity);
         pivotController.setReference(position, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kPercentOut);
     }
-    
+
 }
 
