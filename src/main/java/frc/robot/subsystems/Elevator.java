@@ -85,6 +85,9 @@ public class Elevator extends SubsystemBase {
   // Trapezoid profile for feedforward
   private final TrapezoidProfile elevatorTrapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
       ElevatorConstants.kElevatorMaxVelocity, ElevatorConstants.kElevatorMaxAcceleration));
+  private final TrapezoidProfile.State elevatorStartState = new TrapezoidProfile.State();
+  private final TrapezoidProfile.State elevatorCurrentState = new TrapezoidProfile.State();
+  private final TrapezoidProfile.State elevatorGoalState = new TrapezoidProfile.State();
 
   // Encoder position setpoint for Spark PID
   private double elevatorSetpoint = ElevatorConstants.kElevatorSetpointStow;
