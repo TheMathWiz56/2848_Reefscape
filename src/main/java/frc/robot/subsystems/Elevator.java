@@ -68,19 +68,31 @@ public class Elevator extends SubsystemBase {
       ElevatorConstants.kElevatorKg, ElevatorConstants.kElevatorKv, ElevatorConstants.kElevatorKa,
       ElevatorConstants.kElevatorDtSeconds);
 
+  // Spark controllers
   private final SparkClosedLoopController elevatorMotor1Controller = elevatorMotor1.getClosedLoopController();
   private final SparkClosedLoopController elevatorMotor2Controller = elevatorMotor2.getClosedLoopController();
 
-  //Motor configurations
+  // LaserCan controller
+  private PIDController elevatorPIDLaserCan = new PIDController(ElevatorConstants.kElevatorP,
+      ElevatorConstants.kElevatorI,
+      ElevatorConstants.kElevatorD);
+
+  // Motor configurations
   private final SparkMaxConfig elevatorMotor1Config = new SparkMaxConfig();
   private final SparkMaxConfig elevatorMotor2Config = new SparkMaxConfig();
 
+  // Encoder position setpoint for Spark PID
+  private double setpoint = ElevatorConstants.kElevatorSetpointStow;
+
   public Elevator() {
+    // Set LaserCan PID intial position
+    elevatorPIDLaserCan.setSetpoint(ElevatorConstants.kElevatorSetpointStowLaserCan);
+
     // Set motor configurations
     elevatorMotor1Config
         .inverted(ElevatorConstants.kElevatorMotor1Inverted)
         .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(40);
+        .smartCurrentLimit(ElevatorConstants.kElevatorCurrentLimit);
 
     elevatorMotor1Config.closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
@@ -95,8 +107,8 @@ public class Elevator extends SubsystemBase {
 
     elevatorMotor2Config
         .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(40);
-    
+        .smartCurrentLimit(ElevatorConstants.kElevatorCurrentLimit);
+
     elevatorMotor2Config.closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .pid(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
@@ -121,17 +133,26 @@ public class Elevator extends SubsystemBase {
     elevatorMotor1.setVoltage(voltage);
   }
 
-  /*
-   * public void setSetpoint(double setpoint) {
-   * elevatorPid.setSetpoint(setpoint);
-   * }
-   */
+  public void setSetpoint(double setpoint) {
+    if (ElevatorConstants.kElevatorUseLaserCan) {
+      elevatorPIDLaserCan.setSetpoint(setpoint);
+    } else {
+
+    }
+  }
 
   // Set motor speeds based on PID calculation
   // Better named might be holdPosition
   public void holdPosition() {
     double distance = getLaserDistance();
-    elevatorMotor1Controller.setReference(distance, ControlType.kPosition, null, distance);
+    if (ElevatorConstants.kElevatorUseLaserCan) {
+      if (distance != -1.0) // good idea, may have some weird effects though
+        setMotorVoltage(elevatorPIDLaserCan.calculate(distance) + feedforward.calculate(distance));
+      else
+        setMotorVoltage(0.0);
+    } else {
+      elevatorMotor1Controller.setReference(distance, ControlType.kPosition, null, distance);
+    }
   }
 
   // Returns milimeters
