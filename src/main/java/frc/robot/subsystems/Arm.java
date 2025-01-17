@@ -50,7 +50,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
     // Feedforward controller for arm motion (helps to predict required motor output)
     private final ArmFeedforward pivotFeedforward;
-    private double pivotReference, FF;
+    private double pivotSetpoint, FF;
 
     // Motion profiling and state tracking
     private final TrapezoidProfile pivotProfile; // Profile for trapezoidal motion
@@ -85,7 +85,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
                 .reverseSoftLimit(kPivotMinAngle);        
 
         // Initialize Feedforward 
-        pivotReference = kStowPosition;
+        pivotSetpoint = kStowPosition;
         FF = 0;
         goalState = new TrapezoidProfile.State(); 
         startState = new TrapezoidProfile.State(); 
@@ -106,15 +106,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
 
-        // Motor
+        // Absolute Encoder
         builder.addDoubleProperty("Pivot Absolute Position", () -> pivotAbsEncoder.getPosition(), null);
         builder.addDoubleProperty("Pivot Absolute Velocity", () -> pivotAbsEncoder.getVelocity(), null);
+        // Pivot Motor
         builder.addDoubleProperty("Pivot Motor Output", () -> pivotMotor.getAppliedOutput(), null);
         builder.addDoubleProperty("Pivot Motor Temperature", () -> pivotMotor.getMotorTemperature(), null);
         builder.addDoubleProperty("Pivot Motor Output Current", () -> pivotMotor.getOutputCurrent(), null);
         
         // Motion Profile
-        builder.addDoubleProperty("Pivot Setpoint", () -> pivotReference, null);
+        builder.addDoubleProperty("Pivot Setpoint", () -> pivotSetpoint, null);
         builder.addDoubleProperty("Pivot Profile Timer", () -> timer.get(), null);
         builder.addDoubleProperty("Pivot Profile Current Position", () -> currentState.position, null);
         builder.addDoubleProperty("Pivot Profile Current Velocity", () -> currentState.velocity, null);
@@ -143,19 +144,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
         SmartDashboard.putData(this);
     }
 
-    /**
-     * Follows a motion profile to rotate the arm to the new setpoint
-     * 
-     * @param reference Setpoint for the arm pivot to go to
+    /**Follows a motion profile to rotate the arm to the new setpoint
+     * @param newSetpoint Setpoint for the arm pivot to go to
      * @return Command
      */
-    public Command pivotToReference(double reference) {
+    private Command pivotToSetpoint(double newSetpoint) {
         return startRun(
             () -> {
-                this.pivotReference = Constants.kClamp(reference, kPivotMinAngle, kPivotMaxAngle);
+                this.pivotSetpoint = Constants.kClamp(newSetpoint, kPivotMinAngle, kPivotMaxAngle);
                 timer.reset();
                 startState = new TrapezoidProfile.State(pivotAbsEncoder.getPosition(), pivotAbsEncoder.getVelocity());
-                goalState = new TrapezoidProfile.State(this.pivotReference, 0);
+                goalState = new TrapezoidProfile.State(this.pivotSetpoint, 0);
             },
             () -> {
                 currentState = pivotProfile.calculate(timer.get(), startState, goalState);
@@ -165,20 +164,51 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
             .withName("Go To Reference");
     }
 
-    /**
-     * Holds the arm pivot at the current angle setpoint
-     * 
+    /**Sets the pivot to the position for stowing
+     * @return Commmand
+     */
+    public Command stowPivot(){
+        return pivotToSetpoint(kStowPosition);
+    }
+
+    /**Sets the pivot to the position for intaking from the feeding station
+     * @return Commmand
+     */
+    public Command pivotToFeed(){
+        return pivotToSetpoint(kFeedPosition);
+    }
+
+    /**Sets the pivot to the position for scoring on L1
+     * @return Commmand
+     */
+    public Command pivotToL1(){
+        return pivotToSetpoint(kL1Position);
+    }
+
+    /**Sets the pivot to the position for scoring on L2 & L3
+     * @return Commmand
+     */
+    public Command pivotToL2L3(){
+        return pivotToSetpoint(kL2L3Position);
+    }
+
+    /**Sets the pivot to the position for scoring on L4
+     * @return Commmand
+     */
+    public Command pivotToL4(){
+        return pivotToSetpoint(kL4Position);
+    }
+
+    /**Holds the arm pivot at the current angle setpoint
      * @return Command
      */
     public Command holdState() {
         return run(() -> {
-            setPivotOutput(pivotReference, 0);
+            setPivotOutput(pivotSetpoint, 0);
         });
     }
 
-    /**
-     * Sets the PID setpoint with the calculated feedforward to the pivot motor
-     * 
+    /**Sets the PID setpoint with the calculated feedforward to the pivot motor
      * @param position position setpoint (feedforward & PID)
      * @param velocity velocity setpoint (feedforward)
      */

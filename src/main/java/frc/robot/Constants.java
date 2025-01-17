@@ -38,69 +38,84 @@ public final class Constants {
 
     public static class ArmConstants {
         // ID's
-        public static final int kArmPivotMotorId = 0;
-        public static final int kArmIntakeMotorId = 0;
-        public static final int kArmPincerMotorId = 0;
-        public static final int kArmPhotogateId = 0;
-        public static final int kArmAbsEncoderId = 0;
-
+        public static final int kPivotMotorId = 0;
+    
         // Pivot Motor Controller Settings
-        public static final boolean kArmPivotMotorInverted = false;
-        public static final IdleMode kArmPivotMotorIdleMode = IdleMode.kCoast;
-        public static final int kArmPivotMotorSmartCurrentLimit = 40;
-
-        // Pincer Motor Controller Settings
-        public static final boolean kArmPincerMotorInverted = false;
-        public static final IdleMode kArmPincerMotorIdleMode = IdleMode.kCoast;
-        public static final int kArmPincerMotorSmartCurrentLimit = 40;
-
-        // Intake Motor Controller Settings
-        public static final boolean kArmIntakeMotorInverted = false;
-        public static final IdleMode kArmIntakeMotorIdleMode = IdleMode.kCoast;
-        public static final int kArmIntakeMotorSmartCurrentLimit = 40;
-
+        public static final boolean kPivotMotorInverted = false;
+        public static final IdleMode kPivotMotorIdleMode = IdleMode.kCoast;
+        public static final int kPivotMotorSmartCurrentLimit = 40;
+    
         // Pivot PID/Feedforward Settings
-        // removed final to tune, once tuned put back
-        public static double kArmPivotP = 0.0;
-        public static double kArmPivotI = 0.0;
-        public static double kArmPivotD = 0.0;
-        public static final FeedbackSensor kArmPivotMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-        public static final double kArmPivotMotorMinOutput = -1;
-        public static final double kArmPivotMotorMaxOutput = 1;
-        public static final double kArmPivotMotorAbsoluteEncoderOffset = 0.0;
-        public static double kArmPivotMotorks = 0.0;
-        public static double kArmPivotMotorkg = 0.0;
-        public static double kArmPivotMotorkv = 0.0;
-        public static double kArmPivotMotorka = 0.0;
-        public static double kArmPivotMotorMaxVelocity = 0.0;
-        public static double kArmPivotMotorMaxAcceleration = 0.0;
-
-        // Pincer PID Settings
-        public static double kArmPincerP = 0.0;
-        public static double kArmPincerI = 0.0;
-        public static double kArmPincerD = 0.0;
-        public static final FeedbackSensor kArmPincerMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-        public static final double kArmPincerMotorMinOutput = -1;
-        public static final double kArmPincerMotorMaxOutput = 1;
-        public static final double kArmPincerMotorAbsoluteEncoderOffset = 0.0;
-
-        // Intake PID Settings
-        public static double kArmIntakeP = 0.0;
-        public static double kArmIntakeI = 0.0;
-        public static double kArmIntakeD = 0.0;
-        public static final FeedbackSensor kArmIntakeMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-        public static final double kArmIntakeMotorMinOutput = -1;
-        public static final double kArmIntakeMotorMaxOutput = 1;
-        public static final double kArmIntakeMotorAbsoluteEncoderOffset = 0.0;
-
+        public static double kPivotP = 0.0;
+        public static double kPivotI = 0.0;
+        public static double kPivotD = 0.0;
+        public static final FeedbackSensor kPivotMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
+        public static final double kPivotMotorMinOutput = -1;
+        public static final double kPivotMotorMaxOutput = 1;
+        public static final double kPivotMotorAbsoluteEncoderOffset = 0.0;
+        public static double kPivotMotorks = 0.0;
+        public static double kPivotMotorkg = 0.0;
+        public static double kPivotMotorkv = 0.0;
+        public static double kPivotMotorka = 0.0;
+        public static double kPivotMotorMaxVelocity = 0.0;
+        public static double kPivotMotorMaxAcceleration = 0.0;
+    
         // Soft Limits
-        public static final double kArmPivotMinAngle = 0.0;
-        public static final double kArmPivotMaxAngle = 0.0;
-        public static final double kArmPincerMinAngle = 0.0;
-        public static final double kArmPincerMaxAngle = 0.0;
-
+        public static final boolean kSoftLimitsEnabled = true;
+        public static final double kPivotMinAngle = 0.0;
+        public static final double kPivotMaxAngle = 0.0;
+        // Position Conversion Factor for soft limits. Should be in units of Arm rotations, ie. the gear ratio. 
+        // Periodically set the current position to the absolute position since it uses the internal encoder
+        public static final double kPositionConversionFactor = 0.0;
+    
         // Setpoints
-        public static final double kArmStowPosition = 0.0;
+        public static final double kStowPosition = 0.0;
+        public static final double kFeedPosition = 0.0;
+        public static final double kL1Position = 0.0;
+        public static final double kL2L3Position = 0.0;
+        public static final double kL4Position = 0.0;
+    }
+    
+    public static class PincerConstants {
+        // ID
+        public static final int kPincerMotorId = 0;
+        public static final int kIntakeMotorId = 0;
+        public static final int kIntakePhotogateId = 0;
+    
+        // Motor Controller Settings
+        public static final boolean kPincerMotorInverted = false;
+        public static final IdleMode kPincerMotorIdleMode = IdleMode.kCoast;
+        public static final int kPincerMotorSmartCurrentLimit = 40;
+
+        public static final boolean kIntakeMotorInverted = false;
+        public static final IdleMode kIntakeMotorIdleMode = IdleMode.kCoast;
+        public static final int kIntakeMotorSmartCurrentLimit = 40;
+    
+        // PID Settings
+        public static double kPincerP = 0.0;
+        public static double kPincerI = 0.0;
+        public static double kPincerD = 0.0;
+        public static final FeedbackSensor kPincerMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
+        public static final double kPincerMotorMinOutput = -1;
+        public static final double kPincerMotorMaxOutput = 1;
+        public static final double kPincerMotorAbsoluteEncoderOffset = 0.0;
+    
+        // Soft Limits
+        public static final boolean kSoftLimitsEnabled = true;
+        public static final double kPincerMinAngle = 0.0;
+        public static final double kPincerMaxAngle = 0.0;
+        // Position Conversion Factor for soft limits. Should be in units of Arm rotations, ie. the gear ratio. 
+        // Periodically set the current position to the absolute position since it uses the internal encoder
+        public static final double kPositionConversionFactor = 0.0;
+
+        // Pincer Setpoints
+        public static final double kStowPosition = 0.0;
+        public static final double kFunnelPosition = 0.0;
+        public static final double kAlgaePosition = 0.0;
+
+        // Intake Setpoints
+        public static final double kIntakeSpeed = 0.0;
+        public static final double kExhaustSpeed = 0.0;
     }
 
     public static class AscenderConstants {
