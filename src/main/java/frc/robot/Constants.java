@@ -46,6 +46,10 @@ public final class Constants {
 
         public static final boolean kElevatorUseLaserCan = true;
 
+        // Trapezoid Proflile parameters
+        public static final double kElevatorMaxVelocity = 0.0;
+        public static final double kElevatorMaxAcceleration = 0.0;
+
         // Spark built in encoder/controller PID constants
         public static final double kElevatorP = 0.0;
         public static final double kElevatorI = 0.0;

@@ -20,6 +20,7 @@ import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.LaserCan.Measurement;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
@@ -81,8 +82,12 @@ public class Elevator extends SubsystemBase {
   private final SparkMaxConfig elevatorMotor1Config = new SparkMaxConfig();
   private final SparkMaxConfig elevatorMotor2Config = new SparkMaxConfig();
 
+  // Trapezoid profile for feedforward
+  private final TrapezoidProfile elevatorTrapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+      ElevatorConstants.kElevatorMaxVelocity, ElevatorConstants.kElevatorMaxAcceleration));
+
   // Encoder position setpoint for Spark PID
-  private double setpoint = ElevatorConstants.kElevatorSetpointStow;
+  private double elevatorSetpoint = ElevatorConstants.kElevatorSetpointStow;
 
   public Elevator() {
     // Set LaserCan PID intial position
@@ -133,11 +138,11 @@ public class Elevator extends SubsystemBase {
     elevatorMotor1.setVoltage(voltage);
   }
 
-  public void setSetpoint(double setpoint) {
+  public void setElevatorSetpoint(double setpoint) {
     if (ElevatorConstants.kElevatorUseLaserCan) {
       elevatorPIDLaserCan.setSetpoint(setpoint);
     } else {
-
+      elevatorSetpoint = setpoint;
     }
   }
 
