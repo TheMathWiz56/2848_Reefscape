@@ -1,8 +1,30 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DutyCycle;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import edu.wpi.first.wpilibj.Timer;
 
 public final class Constants {
+
+    /**
+     * Delays the program to allow the motor controller to burn the configure to memory
+     */
+    public static void kMotorBurnDelay(){
+        Timer.delay(0.1);
+    }
+
+    /**
+     * Adjusts the input reference to ensure it stays within the specified range.
+     *
+     * @param input the desired reference value
+     * @param min the minimum allowable value
+     * @param max the maximum allowable value
+     * @return the adjusted reference value, clamped between min and max
+     */
+    public static double kClamp(double input, double min, double max) {
+        return Math.max(min, Math.min(input, max));
+    }
 
     // Constants relating to the drivetrain are probably in TunerConstants
 
@@ -15,14 +37,70 @@ public final class Constants {
     }
 
     public static class ArmConstants {
+        // ID's
         public static final int kArmPivotMotorId = 0;
-        public static final int kArmWheelsMotorId = 0;
+        public static final int kArmIntakeMotorId = 0;
+        public static final int kArmPincerMotorId = 0;
         public static final int kArmPhotogateId = 0;
         public static final int kArmAbsEncoderId = 0;
 
-        public static final double kArmP = 0.0;
-        public static final double kArmI = 0.0;
-        public static final double kArmD = 0.0;
+        // Pivot Motor Controller Settings
+        public static final boolean kArmPivotMotorInverted = false;
+        public static final IdleMode kArmPivotMotorIdleMode = IdleMode.kCoast;
+        public static final int kArmPivotMotorSmartCurrentLimit = 40;
+
+        // Pincer Motor Controller Settings
+        public static final boolean kArmPincerMotorInverted = false;
+        public static final IdleMode kArmPincerMotorIdleMode = IdleMode.kCoast;
+        public static final int kArmPincerMotorSmartCurrentLimit = 40;
+
+        // Intake Motor Controller Settings
+        public static final boolean kArmIntakeMotorInverted = false;
+        public static final IdleMode kArmIntakeMotorIdleMode = IdleMode.kCoast;
+        public static final int kArmIntakeMotorSmartCurrentLimit = 40;
+
+        // Pivot PID/Feedforward Settings
+        // removed final to tune, once tuned put back
+        public static double kArmPivotP = 0.0;
+        public static double kArmPivotI = 0.0;
+        public static double kArmPivotD = 0.0;
+        public static final FeedbackSensor kArmPivotMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
+        public static final double kArmPivotMotorMinOutput = -1;
+        public static final double kArmPivotMotorMaxOutput = 1;
+        public static final double kArmPivotMotorAbsoluteEncoderOffset = 0.0;
+        public static double kArmPivotMotorks = 0.0;
+        public static double kArmPivotMotorkg = 0.0;
+        public static double kArmPivotMotorkv = 0.0;
+        public static double kArmPivotMotorka = 0.0;
+        public static double kArmPivotMotorMaxVelocity = 0.0;
+        public static double kArmPivotMotorMaxAcceleration = 0.0;
+
+        // Pincer PID Settings
+        public static double kArmPincerP = 0.0;
+        public static double kArmPincerI = 0.0;
+        public static double kArmPincerD = 0.0;
+        public static final FeedbackSensor kArmPincerMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
+        public static final double kArmPincerMotorMinOutput = -1;
+        public static final double kArmPincerMotorMaxOutput = 1;
+        public static final double kArmPincerMotorAbsoluteEncoderOffset = 0.0;
+
+        // Intake PID Settings
+        public static double kArmIntakeP = 0.0;
+        public static double kArmIntakeI = 0.0;
+        public static double kArmIntakeD = 0.0;
+        public static final FeedbackSensor kArmIntakeMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
+        public static final double kArmIntakeMotorMinOutput = -1;
+        public static final double kArmIntakeMotorMaxOutput = 1;
+        public static final double kArmIntakeMotorAbsoluteEncoderOffset = 0.0;
+
+        // Soft Limits
+        public static final double kArmPivotMinAngle = 0.0;
+        public static final double kArmPivotMaxAngle = 0.0;
+        public static final double kArmPincerMinAngle = 0.0;
+        public static final double kArmPincerMaxAngle = 0.0;
+
+        // Setpoints
+        public static final double kArmStowPosition = 0.0;
     }
 
     public static class AscenderConstants {
