@@ -207,6 +207,15 @@ public class Elevator extends SubsystemBase {
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder); // Not sure why we need this
 
+    // Motor information
+    builder.addDoubleProperty("Elevator Motor 1 Temperature", () -> elevatorMotor1.getMotorTemperature(), null);
+    builder.addDoubleProperty("Elevator Motor 1 Output", () -> elevatorMotor1.getAppliedOutput(), null);
+    builder.addDoubleProperty("Elevator Motor 1 Output Current", () -> elevatorMotor1.getOutputCurrent(), null);
+
+    builder.addDoubleProperty("Elevator Motor 2 Temperature", () -> elevatorMotor2.getMotorTemperature(), null);
+    builder.addDoubleProperty("Elevator Motor 2 Output", () -> elevatorMotor2.getAppliedOutput(), null);
+    builder.addDoubleProperty("Elevator Motor 2 Output Current", () -> elevatorMotor2.getOutputCurrent(), null);
+
     if (ElevatorConstants.kElevatorUseLaserCan) {
       // Setpoint and goal positions, velocities
       builder.addDoubleProperty("Elevator Setpoint Position",
@@ -229,6 +238,10 @@ public class Elevator extends SubsystemBase {
           value -> elevatorPIDLaserCan.setI(value));
       builder.addDoubleProperty("Elevator kD", () -> elevatorPIDLaserCan.getD(),
           value -> elevatorPIDLaserCan.setD(value));
+
+      // Feedforward output
+      builder.addDoubleProperty("Elevator Feedforward Output",
+          () -> feedforward.calculate(elevatorPIDLaserCan.getSetpoint().velocity), null);
     } else {
       // Add SparkMax information (not done yet)
     }
@@ -247,8 +260,6 @@ public class Elevator extends SubsystemBase {
      * feedforward.getKa(), null);
      */
 
-     // Feedforward output
-     builder.addDoubleProperty("Elevator Feedforward Output", () -> feedforward.calculate(elevatorPIDLaserCan.getSetpoint().velocity), null);
   }
 
 }
