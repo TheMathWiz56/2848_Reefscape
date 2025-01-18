@@ -7,7 +7,10 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkClosedLoopController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -18,13 +21,48 @@ import frc.robot.Constants.GroundAlgaeWheelsConstants;
 
 public class GroundAlgaeWheels extends SubsystemBase {
 
-    private final SparkMax groundAlgaeWheelsMotor = new SparkMax(GroundAlgaeWheelsConstants.kMotorId, MotorType.kBrushless);
+    private final SparkMax wheelsMotor = new SparkMax(GroundAlgaeWheelsConstants.kMotorId, MotorType.kBrushless);
+    private final SparkMaxConfig wheelsMotorConfig = new SparkMaxConfig();
+    private final SparkClosedLoopController wheelsMotorContoller = wheelsMotor.getClosedLoopController();
 
     // Photogate (beam break)
-    private final DigitalInput groundAlgaeWheelsPhotogate = new DigitalInput(GroundAlgaeWheelsConstants.kPhotogateId);
+    private final DigitalInput wheelsPhotogate = new DigitalInput(GroundAlgaeWheelsConstants.kPhotogateId);
 
     public GroundAlgaeWheels() {
 
+        // Spark motor configuration
+        wheelsMotorConfig
+                .inverted(GroundAlgaeWheelsConstants.kMotorInverted)
+                .idleMode(GroundAlgaeWheelsConstants.kMotorIdleMode)
+                .smartCurrentLimit(GroundAlgaeWheelsConstants.kCurrentLimit);
+
+        //Probably don't need these
+        /*
+        wheelsMotorConfig.closedLoop
+                .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+                .pid(GroundAlgaeWheelsConstants.kP, GroundAlgaeWheelsConstants.kI, GroundAlgaeWheelsConstants.kD)
+                .outputRange(-1, 1);
+
+        wheelsMotorConfig.absoluteEncoder
+            .zeroOffset(GroundAlgaeWheelsConstants.kMotorEncoderOffset);
+         */
+        
+    }
+
+    public boolean hasAlgae() {
+        return !wheelsPhotogate.get();
+    }
+
+    public Command intake() {
+        return runOnce(() -> wheelsMotor.set(GroundAlgaeWheelsConstants.kIntakeSpeed));
+    }
+
+    public Command exhaust() {
+        return runOnce(() -> wheelsMotor.set(GroundAlgaeWheelsConstants.kExhaustSpeed));
+    }
+
+    public Command stop() {
+        return runOnce(() -> wheelsMotor.stopMotor());
     }
 
     @Override

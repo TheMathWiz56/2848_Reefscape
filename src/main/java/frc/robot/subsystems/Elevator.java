@@ -105,7 +105,7 @@ public class Elevator extends SubsystemBase {
     // Set motor configurations
     elevatorMotor1Config
         .inverted(ElevatorConstants.kMotor1Inverted)
-        .idleMode(IdleMode.kCoast)
+        .idleMode(ElevatorConstants.kMotorIdleMode)
         .smartCurrentLimit(ElevatorConstants.kCurrentLimit);
 
     elevatorMotor1Config.closedLoop
@@ -117,10 +117,10 @@ public class Elevator extends SubsystemBase {
         .outputRange(-1, 1);
 
     elevatorMotor1Config.absoluteEncoder
-        .zeroOffset(0);
+        .zeroOffset(ElevatorConstants.kMotor1EncoderOffset);
 
     elevatorMotor2Config
-        .idleMode(IdleMode.kCoast)
+        .idleMode(ElevatorConstants.kMotorIdleMode)
         .smartCurrentLimit(ElevatorConstants.kCurrentLimit);
 
     elevatorMotor2Config.closedLoop
@@ -132,7 +132,7 @@ public class Elevator extends SubsystemBase {
         .outputRange(-1, 1);
 
     elevatorMotor2Config.absoluteEncoder
-        .zeroOffset(0);
+        .zeroOffset(ElevatorConstants.kMotor2EncoderOffset);
 
     elevatorMotor2Config.follow(ElevatorConstants.kMotor1Id, ElevatorConstants.kMotor2Inverted);
 

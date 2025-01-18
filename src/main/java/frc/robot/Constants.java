@@ -138,8 +138,9 @@ public final class Constants {
 
         public static final boolean kMotor1Inverted = false;
         public static final boolean kMotor2Inverted = false;
-        public static final double kMotor1Offset = 0.0;
-        public static final double kMotor2Offset = 0.0;
+        public static final double kMotor1EncoderOffset = 0.0;
+        public static final double kMotor2EncoderOffset = 0.0;
+        public static final IdleMode kMotorIdleMode = IdleMode.kCoast;
 
         public static final int kCurrentLimit = 40;
 
@@ -193,6 +194,16 @@ public final class Constants {
     public static class GroundAlgaeWheelsConstants {
         public static final int kMotorId = 0;
         public static final int kPhotogateId = 0;
+
+        public static final boolean kMotorInverted = false;
+        public static final IdleMode kMotorIdleMode = IdleMode.kCoast;
+        public static final double kMotorEncoderOffset = 0.0;
+
+        public static final int kCurrentLimit = 40;
+
+        public static final double kIntakeSpeed = 0.0;
+        public static final double kExhaustSpeed = 0.0;
+
     }
 
     public static class LEDConstants{
