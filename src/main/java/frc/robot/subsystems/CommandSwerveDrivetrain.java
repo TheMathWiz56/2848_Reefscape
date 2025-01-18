@@ -9,21 +9,34 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.LimelightHelpers;
+import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -35,6 +48,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
 
+    // Field Widget in Elastic
+    private static final Field2d m_field = new Field2d();
+
+    // April tag variables
+    private static boolean useMegaTag2 = true; // set to false to use MegaTag1. Should test to see which one works better, 1 or 2? Or if they can be combined/we switch between them based on some conditions
+    private static boolean doRejectUpdate = false;
+    private static String limelightUsed;
+    private static LimelightHelpers.PoseEstimate LLPoseEstimate;
+    //Get average tag areas (percentage of image), Choose the limelight with the highest average tag area
+    private static double limelightFrontAvgTagArea = 0;
+    private static double limelightBackAvgTagArea = 0;
+
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
@@ -42,11 +67,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
 
+    /** Swerve request to apply during robot-centric path following */
+    private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
+
+    
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
         new SysIdRoutine.Config(
@@ -107,7 +137,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     );
 
     /* The SysId routine to test */
-    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+    private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineSteer;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -116,8 +146,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * the devices themselves. If they need the devices, they can access them through
      * getters in the classes.
      *
-     * @param drivetrainConstants   Drivetrain-wide constants for the swerve drive
-     * @param modules               Constants for each specific module
+     * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
+     * @param modules             Constants for each specific module
      */
     public CommandSwerveDrivetrain(
         SwerveDrivetrainConstants drivetrainConstants,
@@ -127,6 +157,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        configureAutoBuilder();
     }
 
     /**
@@ -136,11 +167,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * the devices themselves. If they need the devices, they can access them through
      * getters in the classes.
      *
-     * @param drivetrainConstants     Drivetrain-wide constants for the swerve drive
-     * @param odometryUpdateFrequency The frequency to run the odometry loop. If
-     *                                unspecified or set to 0 Hz, this is 250 Hz on
-     *                                CAN FD, and 100 Hz on CAN 2.0.
-     * @param modules                 Constants for each specific module
+     * @param drivetrainConstants        Drivetrain-wide constants for the swerve drive
+     * @param odometryUpdateFrequency    The frequency to run the odometry loop. If
+     *                                   unspecified or set to 0 Hz, this is 250 Hz on
+     *                                   CAN FD, and 100 Hz on CAN 2.0.
+     * @param modules                    Constants for each specific module
      */
     public CommandSwerveDrivetrain(
         SwerveDrivetrainConstants drivetrainConstants,
@@ -151,6 +182,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        configureAutoBuilder();
     }
 
     /**
@@ -160,17 +192,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * the devices themselves. If they need the devices, they can access them through
      * getters in the classes.
      *
-     * @param drivetrainConstants       Drivetrain-wide constants for the swerve drive
-     * @param odometryUpdateFrequency   The frequency to run the odometry loop. If
-     *                                  unspecified or set to 0 Hz, this is 250 Hz on
-     *                                  CAN FD, and 100 Hz on CAN 2.0.
-     * @param odometryStandardDeviation The standard deviation for odometry calculation
+     * @param drivetrainConstants        Drivetrain-wide constants for the swerve drive
+     * @param odometryUpdateFrequency    The frequency to run the odometry loop. If
+     *                                   unspecified or set to 0 Hz, this is 250 Hz on
+     *                                   CAN FD, and 100 Hz on CAN 2.0.
+     * @param odometryStandardDeviation  The standard deviation for odometry calculation
      *                                  in the form [x, y, theta]ᵀ, with units in meters
      *                                  and radians
      * @param visionStandardDeviation   The standard deviation for vision calculation
      *                                  in the form [x, y, theta]ᵀ, with units in meters
      *                                  and radians
-     * @param modules                   Constants for each specific module
+     * @param modules                    Constants for each specific module
      */
     public CommandSwerveDrivetrain(
         SwerveDrivetrainConstants drivetrainConstants,
@@ -183,6 +215,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        configureAutoBuilder();
     }
 
     /**
@@ -217,6 +250,62 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
+    private void startSimThread() {
+        m_lastSimTime = Utils.getCurrentTimeSeconds();
+
+        /* Run simulation at a faster rate so PID gains behave more reasonably */
+        m_simNotifier = new Notifier(() -> {
+            final double currentTime = Utils.getCurrentTimeSeconds();
+            double deltaTime = currentTime - m_lastSimTime;
+            m_lastSimTime = currentTime;
+
+            /* use the measured time delta, get battery voltage from WPILib */
+            updateSimState(deltaTime, RobotController.getBatteryVoltage());
+        });
+        m_simNotifier.startPeriodic(kSimLoopPeriod);
+    }
+    
+
+    //___________________________________________________ Custom Code ___________________________________________________
+
+
+    private void configureAutoBuilder() {
+        try {
+            var config = RobotConfig.fromGUISettings();
+            AutoBuilder.configure(
+                () -> getState().Pose,   // Supplier of current robot pose
+                this::resetPose,         // Consumer for seeding pose against auto
+                () -> getState().Speeds, // Supplier of current robot speeds
+                // Consumer of ChassisSpeeds and feedforwards to drive the robot
+                (speeds, feedforwards) -> setControl(
+                    m_pathApplyRobotSpeeds.withSpeeds(speeds)
+                        .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                        .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+                ),
+                new PPHolonomicDriveController(
+                    // PID constants for translation
+                    new PIDConstants(10, 0, 0),
+                    // PID constants for rotation
+                    new PIDConstants(7, 0, 0)
+                ),
+                config,
+                // Assume the path needs to be flipped for Red vs Blue, this is normally the case
+                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+                this // Subsystem for requirements
+            );
+        } catch (Exception ex) {
+            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
+        }
+        
+        NamedCommands.registerCommand("Score_L2", new WaitCommand(2)); // Placeholder for now
+        NamedCommands.registerCommand("Score_L4", new WaitCommand(2)); // Placeholder for now
+    }
+
+    // Move to constants or another java file
+    private Double[] Pose2dToDoubleArray(Pose2d pose){
+        return new Double[] {pose.getX(), pose.getY(), pose.getRotation().getRadians()};
+    }
+
     @Override
     public void periodic() {
         /*
@@ -236,22 +325,167 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+        
+        updateOdometry();
 
+        // Fused Pose Estimate Telemetry 
+        Pose2d currentPose = getState().Pose;
+        m_field.setRobotPose(currentPose);
+        Double[] fusedPose = Pose2dToDoubleArray(currentPose);
+        SmartDashboard.putData("Field",m_field);
+        SmartDashboard.putNumberArray("Fused PoseDBL", fusedPose);
     }
 
-    private void startSimThread() {
-        m_lastSimTime = Utils.getCurrentTimeSeconds();
+    
 
-        /* Run simulation at a faster rate so PID gains behave more reasonably */
-        m_simNotifier = new Notifier(() -> {
-            final double currentTime = Utils.getCurrentTimeSeconds();
-            double deltaTime = currentTime - m_lastSimTime;
-            m_lastSimTime = currentTime;
 
-            /* use the measured time delta, get battery voltage from WPILib */
-            updateSimState(deltaTime, RobotController.getBatteryVoltage());
-        });
-        m_simNotifier.startPeriodic(kSimLoopPeriod);
+    // ___________________________________________________ Vision Code ___________________________________________________
+    
+    /**
+     * Resets the robot's Odometry pose estimate to the best current mt1 pose estimate.
+     * <p>Can also use a known reference like a wall to zero the Pigeon (most important thing for mt2 is having an accurate yaw reading)
+     * @param forceUpdate Override the tag area requirement
+     */
+    public void resetToVision(boolean forceUpdate){
+        chooseLL();
+        
+        LimelightHelpers.PoseEstimate poseEstimate = getManualLLEstimate(); // Might be able to switch to mt1 or 2. Needs testing if want to change
+
+        if (poseEstimate != null) {
+            if (forceUpdate || limelightBackAvgTagArea > 3){
+                resetPose(poseEstimate.pose);
+            }          
+        }
     }
 
+    /**
+     * Polls the limelights for a pose estimate and uses the pose estimator Kalman filter to fuse the best Limelight pose estimate
+     * with the odometry pose estimate
+     */
+    private void updateOdometry() {
+        chooseLL();
+
+        LLPoseEstimate = getManualLLEstimate(); // Use manual until Limelight updates their OS and the getBotPoseEstimate_wpiBlue function works properly
+
+        if (LLPoseEstimate != null) {
+            // needs to be converted to a current time timestamp for it to be combined properly with the odometry pose estimate
+            SmartDashboard.putNumber("Odometry Update Timestamp", Utils.fpgaToCurrentTime(LLPoseEstimate.timestampSeconds)); 
+            addVisionMeasurement(LLPoseEstimate.pose, Utils.fpgaToCurrentTime(LLPoseEstimate.timestampSeconds), TunerConstants.visionStandardDeviation);
+        }
+    }
+
+    /**
+     * Uses the autobuilder and PathPlanner's navigation grid to pathfind to a pose in real time
+     * 
+     * @param pose Pose to pathfind to
+     * @param endVelocity Velocity at target pose
+     */
+    public Command pathFindTo(Pose2d pose, LinearVelocity endVelocity){
+        return AutoBuilder.pathfindToPose(pose, TunerConstants.oTF_Constraints, endVelocity);
+    }
+
+    /**
+     * @param useMegaTag2 Boolean to use mt2 or mt1
+     * @return Valid pose estimate or null
+     */
+    private LimelightHelpers.PoseEstimate getLLMegaTEstimate(boolean useMegaTag2){
+        doRejectUpdate = false;
+        LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
+
+        if (useMegaTag2 == false) {
+            poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightUsed);
+
+            if (poseEstimate == null){
+                doRejectUpdate = true;
+            }
+            else{
+                if (poseEstimate.tagCount == 1 && poseEstimate.rawFiducials.length == 1) {
+                    if (poseEstimate.rawFiducials[0].ambiguity > .7) {
+                        doRejectUpdate = true;
+                    }
+                    if (poseEstimate.rawFiducials[0].distToCamera > 3) {
+                        doRejectUpdate = true;
+                    }
+                    }
+                    if (poseEstimate.tagCount == 0) {
+                    doRejectUpdate = true;
+                    }
+            }
+        } else if (useMegaTag2 == true) {
+            LimelightHelpers.SetRobotOrientation("limelight-front", getState().Pose.getRotation().getDegrees(),
+            0, 0, 0, 0, 0);
+            LimelightHelpers.SetRobotOrientation("limelight-back", getState().Pose.getRotation().getDegrees(),
+            0, 0, 0, 0, 0);
+            poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightUsed);
+
+            if (poseEstimate == null) {
+                doRejectUpdate = true;
+            } else {
+                if (Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720) // if our angular velocity is greater than 720 degrees per second,
+                                                        // ignore vision updates. Might need to reduce to ~180
+                {
+                    doRejectUpdate = true;
+                }
+                if (poseEstimate.tagCount == 0) {
+                    doRejectUpdate = true;
+                }
+            }
+        }
+
+        if (doRejectUpdate){
+            return null;
+        }
+        else{
+            return poseEstimate;
+        }
+    }
+
+    /**
+     * Updates the currently used limelight based on which limelight has the largest average tag area.
+     */
+    private static void chooseLL(){
+        limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
+        limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
+        SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
+        SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);   
+
+        double translationSTD = TunerConstants.std02; // safe value
+        if(limelightFrontAvgTagArea > 
+            limelightBackAvgTagArea){
+                limelightUsed = "limelight-front";
+                translationSTD = TunerConstants.getVisionStd(limelightFrontAvgTagArea);
+            }else{
+                limelightUsed = "limelight-back";
+                translationSTD = TunerConstants.getVisionStd(limelightBackAvgTagArea);
+                
+        }
+        
+        TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 9999999); // Don't trust yaw, rely on Pigeon
+
+        SmartDashboard.putNumberArray("Vision Standard Deviations", TunerConstants.visionStandardDeviation.getData());
+        SmartDashboard.putString("Limelight Used", limelightUsed);
+    }
+
+    /**
+     * "Manually" computes the Limelight pose estimate since MT1 and 2 are broken in LimeLight OS 2024.10.2. 
+     * Broke because the field is 3ft longer in 2025.
+     * @return Estimated pose or null if no valid estimate
+     */
+    private LimelightHelpers.PoseEstimate getManualLLEstimate(){
+        LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
+        
+        double[] botPose = LimelightHelpers.getBotPose(limelightUsed);
+        SmartDashboard.putNumberArray("Botpose", botPose);
+        if (botPose.length != 0){
+            if (botPose[0] == 0){
+                return null;
+            }
+            poseEstimate.pose = new Pose2d(new Translation2d(botPose[0] + 8.7736 ,botPose[1] + 4.0257), new Rotation2d(Math.toRadians(botPose[5])));
+        }
+
+        Double[] pose = Pose2dToDoubleArray(poseEstimate.pose);
+        SmartDashboard.putNumberArray("Manual Limelight Pose", pose);
+        poseEstimate.timestampSeconds = Timer.getFPGATimestamp(); // botpose doesn't give a timestamp so pull timestamp now. Not really how this should be done.
+        return poseEstimate;
+    }
 }
