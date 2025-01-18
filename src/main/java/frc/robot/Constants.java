@@ -130,60 +130,60 @@ public final class Constants {
     }
 
     public static class ElevatorConstants {
-        public static final int kElevatorMotor1Id = 0;
-        public static final int kElevatorMotor2Id = 0;
-        public static final int kElevatorLaserCanId = 0;
-        public static final int kElevatorLimitSwitchTopId = 0;
-        public static final int kElevatorLimitSwitchBottomId = 0;
+        public static final int kMotor1Id = 0;
+        public static final int kMotor2Id = 0;
+        public static final int kLaserCanId = 0;
+        public static final int kLimitSwitchTopId = 0;
+        public static final int kLimitSwitchBottomId = 0;
 
-        public static final boolean kElevatorMotor1Inverted = false;
-        public static final boolean kElevatorMotor2Inverted = false;
-        public static final double kElevatorMotor1Offset = 0.0;
-        public static final double kElevatorMotor2Offset = 0.0;
+        public static final boolean kMotor1Inverted = false;
+        public static final boolean kMotor2Inverted = false;
+        public static final double kMotor1Offset = 0.0;
+        public static final double kMotor2Offset = 0.0;
 
-        public static final int kElevatorCurrentLimit = 40;
+        public static final int kCurrentLimit = 40;
 
-        public static final boolean kElevatorUseLaserCan = true;
+        public static final boolean kUseLaserCan = true;
 
         // Trapezoid Proflile parameters
-        public static final double kElevatorMaxVelocity = 0.0;
-        public static final double kElevatorMaxAcceleration = 0.0;
+        public static final double kMaxVelocity = 0.0;
+        public static final double kMaxAcceleration = 0.0;
 
         // Spark built in encoder/controller PID constants
-        public static final double kElevatorP = 0.0;
-        public static final double kElevatorI = 0.0;
-        public static final double kElevatorD = 0.0;
-        public static final double kElevatorIZone = 0.0;
-        public static final double kElevatorIMaxAccum = 0.0;
+        public static final double kP = 0.0;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+        public static final double kIZone = 0.0;
+        public static final double kIMaxAccum = 0.0;
 
         // LaserCan PID constants
-        public static final double kElevatorPLaserCan = 0.0;
-        public static final double kElevatorILaserCan = 0.0;
-        public static final double kElevatorDLaserCan = 0.0;
+        public static final double kPLaserCan = 0.0;
+        public static final double kILaserCan = 0.0;
+        public static final double kDLaserCan = 0.0;
 
         // Feedforward constants
-        public static final double kElevatorKs = 0.0;
-        public static final double kElevatorKg = 0.0;
-        public static final double kElevatorKv = 0.0;
-        public static final double kElevatorKa = 0.0;
-        public static final double kElevatorDtSeconds = 0.0;
+        public static final double kFeedforwardKs = 0.0;
+        public static final double kFeedforwardKg = 0.0;
+        public static final double kFeedforwardKv = 0.0;
+        public static final double kFeedforwardKa = 0.0;
+        public static final double kFeedforwardDtSeconds = 0.0;
 
         // Setpoints for targeting different levels, some other situations
         // For Spark built in encoder
-        public static final double kElevatorSetpointL1 = 0.0;
-        public static final double kElevatorSetpointL2 = 0.0;
-        public static final double kElevatorSetpointL3 = 0.0;
-        public static final double kElevatorSetpointL4 = 0.0;
-        public static final double kElevatorSetpointFeed = 0.0;
-        public static final double kElevatorSetpointStow = 0.0;
+        public static final double kSetpointL1 = 0.0;
+        public static final double kSetpointL2 = 0.0;
+        public static final double kSetpointL3 = 0.0;
+        public static final double kSetpointL4 = 0.0;
+        public static final double kSetpointFeed = 0.0;
+        public static final double kSetpointStow = 0.0;
 
         // For LaserCan, meters
-        public static final double kElevatorSetpointL1LaserCan = 0.0;
-        public static final double kElevatorSetpointL2LaserCan = 0.0;
-        public static final double kElevatorSetpointL3LaserCan = 0.0;
-        public static final double kElevatorSetpointL4LaserCan = 0.0;
-        public static final double kElevatorSetpointFeedLaserCan = 0.0; 
-        public static final double kElevatorSetpointStowLaserCan = 0.0;
+        public static final double kSetpointL1LaserCan = 0.0;
+        public static final double kSetpointL2LaserCan = 0.0;
+        public static final double kSetpointL3LaserCan = 0.0;
+        public static final double kSetpointL4LaserCan = 0.0;
+        public static final double kSetpointFeedLaserCan = 0.0; 
+        public static final double kSetpointStowLaserCan = 0.0;
     }
 
     public static class GroundAlgaeConstants {

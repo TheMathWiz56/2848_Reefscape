@@ -46,11 +46,11 @@ import frc.robot.Constants.ElevatorConstants;
 
 public class Elevator extends SubsystemBase {
 
-  private final SparkMax elevatorMotor1 = new SparkMax(ElevatorConstants.kElevatorMotor1Id, MotorType.kBrushless);
-  private final SparkMax elevatorMotor2 = new SparkMax(ElevatorConstants.kElevatorMotor2Id, MotorType.kBrushless);
+  private final SparkMax elevatorMotor1 = new SparkMax(ElevatorConstants.kMotor1Id, MotorType.kBrushless);
+  private final SparkMax elevatorMotor2 = new SparkMax(ElevatorConstants.kMotor2Id, MotorType.kBrushless);
 
   // LaserCAN
-  LaserCan laserCan = new LaserCan(ElevatorConstants.kElevatorLaserCanId);
+  LaserCan laserCan = new LaserCan(ElevatorConstants.kLaserCanId);
 
   // Limit switches
   /*
@@ -65,13 +65,13 @@ public class Elevator extends SubsystemBase {
    * if we are at the bottom limit switch and tring to drive the elevator up,
    * allow motor output
    */
-  private final DigitalInput elevatorLimitSwitchTop = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchTopId);
+  private final DigitalInput elevatorLimitSwitchTop = new DigitalInput(ElevatorConstants.kLimitSwitchTopId);
   private final DigitalInput elevatorLimitSwitchBottom = new DigitalInput(
-      ElevatorConstants.kElevatorLimitSwitchBottomId);
+      ElevatorConstants.kLimitSwitchBottomId);
 
-  private final ElevatorFeedforward feedforward = new ElevatorFeedforward(ElevatorConstants.kElevatorKs,
-      ElevatorConstants.kElevatorKg, ElevatorConstants.kElevatorKv, ElevatorConstants.kElevatorKa,
-      ElevatorConstants.kElevatorDtSeconds);
+  private final ElevatorFeedforward feedforward = new ElevatorFeedforward(ElevatorConstants.kFeedforwardKs,
+      ElevatorConstants.kFeedforwardKg, ElevatorConstants.kFeedforwardKv, ElevatorConstants.kFeedforwardKa,
+      ElevatorConstants.kFeedforwardDtSeconds);
 
   // Spark controllers
   private final SparkClosedLoopController elevatorMotor1Controller = elevatorMotor1.getClosedLoopController();
@@ -83,37 +83,37 @@ public class Elevator extends SubsystemBase {
 
   // Trapezoid profile for feedforward
   private final TrapezoidProfile elevatorTrapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
-      ElevatorConstants.kElevatorMaxVelocity, ElevatorConstants.kElevatorMaxAcceleration));
+      ElevatorConstants.kMaxVelocity, ElevatorConstants.kMaxAcceleration));
 
   // LaserCan controller
   // ProfiledPIDController reference - should handle the TrapezoidProfile
   // functions automatically
   // https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/profiled-pidcontroller.html
-  private ProfiledPIDController elevatorPIDLaserCan = new ProfiledPIDController(ElevatorConstants.kElevatorP,
-      ElevatorConstants.kElevatorI,
-      ElevatorConstants.kElevatorD,
+  private ProfiledPIDController elevatorPIDLaserCan = new ProfiledPIDController(ElevatorConstants.kP,
+      ElevatorConstants.kI,
+      ElevatorConstants.kD,
       new TrapezoidProfile.Constraints(
-          ElevatorConstants.kElevatorMaxVelocity, ElevatorConstants.kElevatorMaxAcceleration));
+          ElevatorConstants.kMaxVelocity, ElevatorConstants.kMaxAcceleration));
 
   // Encoder position setpoint for Spark PID
-  private double elevatorSetpoint = ElevatorConstants.kElevatorSetpointStow;
+  private double elevatorSetpoint = ElevatorConstants.kSetpointStow;
 
   public Elevator() {
     // Set LaserCan PID intial position
-    elevatorPIDLaserCan.setGoal(ElevatorConstants.kElevatorSetpointStow);
+    elevatorPIDLaserCan.setGoal(ElevatorConstants.kSetpointStow);
 
     // Set motor configurations
     elevatorMotor1Config
-        .inverted(ElevatorConstants.kElevatorMotor1Inverted)
+        .inverted(ElevatorConstants.kMotor1Inverted)
         .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(ElevatorConstants.kElevatorCurrentLimit);
+        .smartCurrentLimit(ElevatorConstants.kCurrentLimit);
 
     elevatorMotor1Config.closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-        .pid(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
-            ElevatorConstants.kElevatorD)
-        .iZone(ElevatorConstants.kElevatorIZone)
-        .iMaxAccum(ElevatorConstants.kElevatorIMaxAccum)
+        .pid(ElevatorConstants.kP, ElevatorConstants.kI,
+            ElevatorConstants.kD)
+        .iZone(ElevatorConstants.kIZone)
+        .iMaxAccum(ElevatorConstants.kIMaxAccum)
         .outputRange(-1, 1);
 
     elevatorMotor1Config.absoluteEncoder
@@ -121,20 +121,20 @@ public class Elevator extends SubsystemBase {
 
     elevatorMotor2Config
         .idleMode(IdleMode.kCoast)
-        .smartCurrentLimit(ElevatorConstants.kElevatorCurrentLimit);
+        .smartCurrentLimit(ElevatorConstants.kCurrentLimit);
 
     elevatorMotor2Config.closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-        .pid(ElevatorConstants.kElevatorP, ElevatorConstants.kElevatorI,
-            ElevatorConstants.kElevatorD)
-        .iZone(ElevatorConstants.kElevatorIZone)
-        .iMaxAccum(ElevatorConstants.kElevatorIMaxAccum)
+        .pid(ElevatorConstants.kP, ElevatorConstants.kI,
+            ElevatorConstants.kD)
+        .iZone(ElevatorConstants.kIZone)
+        .iMaxAccum(ElevatorConstants.kIMaxAccum)
         .outputRange(-1, 1);
 
     elevatorMotor2Config.absoluteEncoder
         .zeroOffset(0);
 
-    elevatorMotor2Config.follow(ElevatorConstants.kElevatorMotor1Id, ElevatorConstants.kElevatorMotor2Inverted);
+    elevatorMotor2Config.follow(ElevatorConstants.kMotor1Id, ElevatorConstants.kMotor2Inverted);
 
     // Apply the motor configurations
     elevatorMotor1.configure(elevatorMotor1Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -148,7 +148,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void setElevatorSetpoint(double setpoint) {
-    if (ElevatorConstants.kElevatorUseLaserCan) {
+    if (ElevatorConstants.kUseLaserCan) {
       elevatorPIDLaserCan.setGoal(setpoint);
     } else {
       elevatorSetpoint = setpoint;
@@ -157,7 +157,7 @@ public class Elevator extends SubsystemBase {
 
   // Set motor speeds based on PID calculation
   public void holdPosition() {
-    if (ElevatorConstants.kElevatorUseLaserCan) {
+    if (ElevatorConstants.kUseLaserCan) {
       double distance = getLaserDistance();
       if (distance != -1.0) // good idea, may have some weird effects though
         setMotorVoltage(elevatorPIDLaserCan.calculate(distance)
@@ -201,33 +201,33 @@ public class Elevator extends SubsystemBase {
       setElevatorSetpoint(position);
     }, () -> {
       holdPosition();
-    }).until(() -> ElevatorConstants.kElevatorUseLaserCan ? elevatorPIDLaserCan.atGoal() : false)
+    }).until(() -> ElevatorConstants.kUseLaserCan ? elevatorPIDLaserCan.atGoal() : false)
         .withName("Go to " + positionName);
   }
 
   // Commands to go to various pre-defined positions
   public Command goToL1() {
-    return goToPosition(ElevatorConstants.kElevatorSetpointL1, "L1");
+    return goToPosition(ElevatorConstants.kSetpointL1, "L1");
   }
 
   public Command goToL2() {
-    return goToPosition(ElevatorConstants.kElevatorSetpointL2, "L2");
+    return goToPosition(ElevatorConstants.kSetpointL2, "L2");
   }
 
   public Command goToL3() {
-    return goToPosition(ElevatorConstants.kElevatorSetpointL3, "L3");
+    return goToPosition(ElevatorConstants.kSetpointL3, "L3");
   }
 
   public Command goToL4() {
-    return goToPosition(ElevatorConstants.kElevatorSetpointL4, "L4");
+    return goToPosition(ElevatorConstants.kSetpointL4, "L4");
   }
 
   public Command goToFeed() {
-    return goToPosition(ElevatorConstants.kElevatorSetpointFeed, "Feed");
+    return goToPosition(ElevatorConstants.kSetpointFeed, "Feed");
   }
 
   public Command goToStow() {
-    return goToPosition(ElevatorConstants.kElevatorSetpointStow, "Stow");
+    return goToPosition(ElevatorConstants.kSetpointStow, "Stow");
   }
 
   @Override
@@ -253,7 +253,7 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty("Elevator Motor 2 Output", () -> elevatorMotor2.getAppliedOutput(), null);
     builder.addDoubleProperty("Elevator Motor 2 Output Current", () -> elevatorMotor2.getOutputCurrent(), null);
 
-    if (ElevatorConstants.kElevatorUseLaserCan) {
+    if (ElevatorConstants.kUseLaserCan) {
       // LaserCan distance
       double distance = getLaserDistance();
       builder.addDoubleProperty("Elevator LaserCan Distance", () -> distance, null);
