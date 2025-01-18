@@ -77,7 +77,7 @@ public final class Constants {
         public static final double kElevatorSetpointL4 = 0.0;
         public static final double kElevatorSetpointStow = 0.0;
 
-        // For LaserCan
+        // For LaserCan, meters
         public static final double kElevatorSetpointL1LaserCan = 0.0;
         public static final double kElevatorSetpointL2LaserCan = 0.0;
         public static final double kElevatorSetpointL3LaserCan = 0.0;

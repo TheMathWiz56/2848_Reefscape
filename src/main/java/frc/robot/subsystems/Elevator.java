@@ -64,8 +64,8 @@ public class Elevator extends SubsystemBase {
    * if we are at the bottom limit switch and tring to drive the elevator up,
    * allow motor output
    */
-  private final DigitalInput limitSwitchTop = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchTopId);
-  private final DigitalInput limitSwitchBottom = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchBottomId);
+  private final DigitalInput elevatorLimitSwitchTop = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchTopId);
+  private final DigitalInput elevatorLimitSwitchBottom = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchBottomId);
 
   private final ElevatorFeedforward feedforward = new ElevatorFeedforward(ElevatorConstants.kElevatorKs,
       ElevatorConstants.kElevatorKg, ElevatorConstants.kElevatorKv, ElevatorConstants.kElevatorKa,
@@ -179,9 +179,25 @@ public class Elevator extends SubsystemBase {
       return -1.0;
   }
 
+  public boolean getLimitSwitches() {
+    return elevatorLimitSwitchBottom.get() || elevatorLimitSwitchBottom.get();
+  }
+
+  public Command elevatorDefaultCommand() {
+    return this.run(() ->
+      holdPosition() 
+    );
+  }
+
+  public Command elevatorAtHardLimit() {
+    return this.run(() -> 
+      setMotorVoltage(0.0)
+    );
+  }
+
   @Override
   public void periodic() {
-    holdPosition();
+
   }
 
   @Override
