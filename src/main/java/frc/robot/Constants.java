@@ -186,11 +186,13 @@ public final class Constants {
         public static final double kSetpointStowLaserCan = 0.0;
     }
 
-    public static class GroundAlgaeConstants {
-        public static final int kGroundAlgaeMotor1Id = 0;
-        public static final int kGroundAlgaeMotor2Id = 0;
-        public static final int kGroundAlgaeAbsEncoderId = 0;
-        public static final int kGroundAlgaePhotogateId = 0;
+    public static class GroundAlgaePivotConstants {
+        public static final int kMotorId = 0;
+    }
+
+    public static class GroundAlgaeWheelsConstants {
+        public static final int kMotorId = 0;
+        public static final int kPhotogateId = 0;
     }
 
     public static class LEDConstants{

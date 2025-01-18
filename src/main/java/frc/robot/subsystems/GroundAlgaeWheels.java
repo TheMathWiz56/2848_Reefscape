@@ -14,17 +14,14 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.GroundAlgaeConstants;
+import frc.robot.Constants.GroundAlgaeWheelsConstants;
 
 public class GroundAlgaeWheels extends SubsystemBase {
 
-    // Plan: Split into pivot and wheels. Make wheels have simple commands.
-    // Use triggers (i.e. when wheels detect algae, lift pivot)
-
-    private final SparkMax groundAlgaeWheelsMotor = new SparkMax(GroundAlgaeConstants.kGroundAlgaeMotor1Id, MotorType.kBrushless);
+    private final SparkMax groundAlgaeWheelsMotor = new SparkMax(GroundAlgaeWheelsConstants.kMotorId, MotorType.kBrushless);
 
     // Photogate (beam break)
-    private final DigitalInput photogate = new DigitalInput(GroundAlgaeConstants.kGroundAlgaePhotogateId);
+    private final DigitalInput groundAlgaeWheelsPhotogate = new DigitalInput(GroundAlgaeWheelsConstants.kPhotogateId);
 
     public GroundAlgaeWheels() {
 
