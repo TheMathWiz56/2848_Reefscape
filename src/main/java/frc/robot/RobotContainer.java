@@ -129,7 +129,7 @@ public class RobotContainer {
         // Trigger to zero motor voltage on elevator if limit switches trip
         // I think this will cause a problem where if the elevator goes too far down, it
         // will not be able to go back up again?
-        Trigger elevatorLimitTrigger = new Trigger(elevator::getLimitSwitches).onTrue(elevator.elevatorAtHardLimit());
+        Trigger elevatorLimitTrigger = new Trigger(elevator::getLimitSwitches).whileTrue(elevator.elevatorAtHardLimit());
 
     }
 

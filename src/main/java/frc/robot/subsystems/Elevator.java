@@ -22,6 +22,7 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
@@ -37,10 +38,9 @@ import frc.robot.Constants.ElevatorConstants;
  * pid controller on the elevator. 
  * - [Done for the LaserCan setup] Should also have a feedforward controller for the elevator, results in smoothing motion since it allows you to create a motion
  * profile. Look at the arm branch for some ideas of how to imlpement feedforward, I can also help.
- * - You can either use methods like public void setMotors ()... or you can use public Command setMotors() with command
+ * - [Added 2 commands] You can either use methods like public void setMotors ()... or you can use public Command setMotors() with command
  * factories to simplify code and remove boiler plate code
- * - [Not started - there might be a lazy way to do this here: https://docs.wpilib.org/en/stable/docs/software/telemetry/robot-telemetry-with-annotations.html]
- * Add a sendable builder and put all sensor information, motor outputs, setpoints, setpoints errors, PID outputs, Feedforward outputs etc.
+ * - Add a sendable builder and put all sensor information, motor outputs, setpoints, setpoints errors, PID outputs, Feedforward outputs etc.
  * in periodic send the sendable object to the dashboard for debugging and logging
  */
 
@@ -54,7 +54,8 @@ public class Elevator extends SubsystemBase {
 
   // Limit switches
   /*
-   * Should be bound to a trigger in robotcontainer that calls something like
+   * [Done] Should be bound to a trigger in robotcontainer that calls something
+   * like
    * public Command atHardLimit()
    * Which 0's the motor output if it is trying to drive the elevator into an
    * unsafe state or allows the elevator to move
@@ -65,7 +66,8 @@ public class Elevator extends SubsystemBase {
    * allow motor output
    */
   private final DigitalInput elevatorLimitSwitchTop = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchTopId);
-  private final DigitalInput elevatorLimitSwitchBottom = new DigitalInput(ElevatorConstants.kElevatorLimitSwitchBottomId);
+  private final DigitalInput elevatorLimitSwitchBottom = new DigitalInput(
+      ElevatorConstants.kElevatorLimitSwitchBottomId);
 
   private final ElevatorFeedforward feedforward = new ElevatorFeedforward(ElevatorConstants.kElevatorKs,
       ElevatorConstants.kElevatorKg, ElevatorConstants.kElevatorKv, ElevatorConstants.kElevatorKa,
@@ -184,15 +186,11 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command elevatorDefaultCommand() {
-    return this.run(() ->
-      holdPosition() 
-    );
+    return this.run(() -> holdPosition());
   }
 
   public Command elevatorAtHardLimit() {
-    return this.run(() -> 
-      setMotorVoltage(0.0)
-    );
+    return this.run(() -> setMotorVoltage(0.0));
   }
 
   @Override
@@ -204,4 +202,21 @@ public class Elevator extends SubsystemBase {
   public void simulationPeriodic() {
 
   }
+
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    super.initSendable(builder); // Not sure why we need this
+
+    builder.addDoubleProperty("Elevator Setpoint Position",
+        () -> ElevatorConstants.kElevatorUseLaserCan ? elevatorPIDLaserCan.getSetpoint().position : elevatorSetpoint,
+        null);
+    builder.addDoubleProperty("Elevator Setpoint Velocity",
+        () -> ElevatorConstants.kElevatorUseLaserCan ? elevatorPIDLaserCan.getSetpoint().velocity : elevatorSetpoint,
+        null);
+    builder.addDoubleProperty("Elevator Goal Position",
+        () -> ElevatorConstants.kElevatorUseLaserCan ? elevatorPIDLaserCan.getGoal().position : elevatorSetpoint, null);
+    builder.addDoubleProperty("Elevator Goal Position",
+        () -> ElevatorConstants.kElevatorUseLaserCan ? elevatorPIDLaserCan.getGoal().velocity : elevatorSetpoint, null);
+  }
+
 }
