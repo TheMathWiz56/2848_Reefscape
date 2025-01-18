@@ -13,6 +13,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.GroundAlgaePivotConstants;
+import frc.robot.Constants.GroundAlgaeWheelsConstants;
 import frc.robot.Constants.GroundAlgaePivotConstants;
 
 public class GroundAlgaePivot extends SubsystemBase {
@@ -44,8 +45,8 @@ public class GroundAlgaePivot extends SubsystemBase {
                 .smartCurrentLimit(GroundAlgaePivotConstants.kCurrentLimit);
 
         pivotMotorConfig.encoder
-                .positionConversionFactor(0.0)
-                .velocityConversionFactor(0.0);
+                .positionConversionFactor(GroundAlgaePivotConstants.kMotorPositionConversionFactor)
+                .velocityConversionFactor(GroundAlgaePivotConstants.kMotorVelocityConversionFactor);
 
         pivotMotorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
@@ -56,10 +57,10 @@ public class GroundAlgaePivot extends SubsystemBase {
                 .zeroOffset(GroundAlgaePivotConstants.kMotorEncoderOffset);
 
         pivotMotorConfig.softLimit
-                .reverseSoftLimitEnabled(false)
-                .forwardSoftLimitEnabled(false)
-                .forwardSoftLimit(0.0)
-                .reverseSoftLimit(0.0);
+                .forwardSoftLimitEnabled(GroundAlgaeWheelsConstants.kForwardSoftLimitEnabled)
+                .forwardSoftLimit(GroundAlgaeWheelsConstants.kForwardSoftLimit)
+                .reverseSoftLimitEnabled(GroundAlgaeWheelsConstants.kReverseSoftLimitEnabled)
+                .reverseSoftLimit(GroundAlgaeWheelsConstants.kReverseSoftLimit);
 
         pivotMotor.configure(pivotMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 

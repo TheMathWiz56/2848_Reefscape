@@ -152,6 +152,9 @@ public final class Constants {
 
         public static final int kCurrentLimit = 40;
 
+        public static final double kMotorPositionConversionFactor = 0.0;
+        public static final double kMotorVelocityConversionFactor = 0.0;
+
         public static final boolean kUseLaserCan = true;
 
         // Trapezoid Proflile parameters
@@ -204,6 +207,9 @@ public final class Constants {
 
         public static final int kCurrentLimit = 40;
 
+        public static final double kMotorPositionConversionFactor = 0.0;
+        public static final double kMotorVelocityConversionFactor = 0.0;
+
         // Trapezoid Proflile parameters
         public static final double kMaxVelocity = 0.0;
         public static final double kMaxAcceleration = 0.0;
@@ -233,6 +239,11 @@ public final class Constants {
 
         public static final double kIntakeSpeed = 0.0;
         public static final double kExhaustSpeed = 0.0;
+
+        public static final boolean kForwardSoftLimitEnabled = true;
+        public static final double kForwardSoftLimit = 0.0;
+        public static final boolean kReverseSoftLimitEnabled = true;
+        public static final double kReverseSoftLimit = 0.0;
 
     }
 

@@ -116,6 +116,10 @@ public class Elevator extends SubsystemBase {
         .iMaxAccum(ElevatorConstants.kIMaxAccum)
         .outputRange(-1, 1);
 
+    elevatorMotor1Config.encoder
+        .positionConversionFactor(ElevatorConstants.kMotorPositionConversionFactor)
+        .velocityConversionFactor(ElevatorConstants.kMotorVelocityConversionFactor);
+
     elevatorMotor1Config.absoluteEncoder
         .zeroOffset(ElevatorConstants.kMotor1EncoderOffset);
 
@@ -130,6 +134,10 @@ public class Elevator extends SubsystemBase {
         .iZone(ElevatorConstants.kIZone)
         .iMaxAccum(ElevatorConstants.kIMaxAccum)
         .outputRange(-1, 1);
+
+    elevatorMotor2Config.encoder
+        .positionConversionFactor(ElevatorConstants.kMotorPositionConversionFactor)
+        .velocityConversionFactor(ElevatorConstants.kMotorVelocityConversionFactor);
 
     elevatorMotor2Config.absoluteEncoder
         .zeroOffset(ElevatorConstants.kMotor2EncoderOffset);
