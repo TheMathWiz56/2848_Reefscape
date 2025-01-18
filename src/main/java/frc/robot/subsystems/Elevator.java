@@ -195,7 +195,7 @@ public class Elevator extends SubsystemBase {
     return this.run(() -> setMotorVoltage(0.0)).withName("Elevator At Hard Limit");
   }
 
-  // Commands to go to position
+  // Command to go to position
   public Command goToPosition(double position, String positionName) {
     return this.startRun(() -> {
       setElevatorSetpoint(position);
