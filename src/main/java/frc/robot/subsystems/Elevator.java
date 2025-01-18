@@ -40,7 +40,7 @@ import frc.robot.Constants.ElevatorConstants;
  * profile. Look at the arm branch for some ideas of how to imlpement feedforward, I can also help.
  * - [Added 2 commands] You can either use methods like public void setMotors ()... or you can use public Command setMotors() with command
  * factories to simplify code and remove boiler plate code
- * - Add a sendable builder and put all sensor information, motor outputs, setpoints, setpoints errors, PID outputs, Feedforward outputs etc.
+ * - [Done for LaserCan] Add a sendable builder and put all sensor information, motor outputs, setpoints, setpoints errors, PID outputs, Feedforward outputs etc.
  * in periodic send the sendable object to the dashboard for debugging and logging
  */
 
@@ -217,6 +217,10 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty("Elevator Motor 2 Output Current", () -> elevatorMotor2.getOutputCurrent(), null);
 
     if (ElevatorConstants.kElevatorUseLaserCan) {
+      // LaserCan distance
+      double distance = getLaserDistance();
+      builder.addDoubleProperty("Elevator LaserCan Distance", () -> distance, null);
+
       // Setpoint and goal positions, velocities
       builder.addDoubleProperty("Elevator Setpoint Position",
           () -> elevatorPIDLaserCan.getSetpoint().position,
@@ -238,6 +242,11 @@ public class Elevator extends SubsystemBase {
           value -> elevatorPIDLaserCan.setI(value));
       builder.addDoubleProperty("Elevator kD", () -> elevatorPIDLaserCan.getD(),
           value -> elevatorPIDLaserCan.setD(value));
+
+      // PID output
+      builder.addDoubleProperty("Elevator PID Output",
+          () -> distance != -1 ? elevatorPIDLaserCan.calculate(getLaserDistance()) : -1,
+          null);
 
       // Feedforward output
       builder.addDoubleProperty("Elevator Feedforward Output",
