@@ -11,9 +11,13 @@ import edu.wpi.first.wpilibj.util.Color;
 public final class Constants {
 
     /**
-     * Delays the program to allow the motor controller to burn the configure to memory
+     * I don't think we need this - the description of the function configureAsync()
+     * says it will configure without waiting for a response, so the regular
+     * config() should wait automatically
+     * Delays the program to allow the motor controller to burn the configure to
+     * memory
      */
-    public static void kMotorBurnDelay(){
+    public static void kMotorBurnDelay() {
         Timer.delay(0.1);
     }
 
@@ -21,8 +25,8 @@ public final class Constants {
      * Adjusts the input reference to ensure it stays within the specified range.
      *
      * @param input the desired reference value
-     * @param min the minimum allowable value
-     * @param max the maximum allowable value
+     * @param min   the minimum allowable value
+     * @param max   the maximum allowable value
      * @return the adjusted reference value, clamped between min and max
      */
     public static double kClamp(double input, double min, double max) {
@@ -42,12 +46,12 @@ public final class Constants {
     public static class ArmConstants {
         // ID's
         public static final int kPivotMotorId = 0;
-    
+
         // Pivot Motor Controller Settings
         public static final boolean kPivotMotorInverted = false;
         public static final IdleMode kPivotMotorIdleMode = IdleMode.kCoast;
         public static final int kPivotMotorSmartCurrentLimit = 40;
-    
+
         // Pivot PID/Feedforward Settings
         public static double kPivotP = 0.0;
         public static double kPivotI = 0.0;
@@ -62,15 +66,17 @@ public final class Constants {
         public static double kPivotMotorka = 0.0;
         public static double kPivotMotorMaxVelocity = 0.0;
         public static double kPivotMotorMaxAcceleration = 0.0;
-    
+
         // Soft Limits
         public static final boolean kSoftLimitsEnabled = true;
         public static final double kPivotMinAngle = 0.0;
         public static final double kPivotMaxAngle = 0.0;
-        // Position Conversion Factor for soft limits. Should be in units of Arm rotations, ie. the gear ratio. 
-        // Periodically set the current position to the absolute position since it uses the internal encoder
+        // Position Conversion Factor for soft limits. Should be in units of Arm
+        // rotations, ie. the gear ratio.
+        // Periodically set the current position to the absolute position since it uses
+        // the internal encoder
         public static final double kPositionConversionFactor = 0.0;
-    
+
         // Setpoints
         public static final double kStowPosition = 0.0;
         public static final double kFeedPosition = 0.0;
@@ -78,13 +84,13 @@ public final class Constants {
         public static final double kL2L3Position = 0.0;
         public static final double kL4Position = 0.0;
     }
-    
+
     public static class PincerConstants {
         // ID
         public static final int kPincerMotorId = 0;
         public static final int kIntakeMotorId = 0;
         public static final int kIntakePhotogateId = 0;
-    
+
         // Motor Controller Settings
         public static final boolean kPincerMotorInverted = false;
         public static final IdleMode kPincerMotorIdleMode = IdleMode.kCoast;
@@ -96,7 +102,7 @@ public final class Constants {
 
         /** Current Threshold for determining if we have an algae */
         public static final int kIntakeAlgaeCurrentThreshold = 20;
-    
+
         // PID Settings
         public static double kPincerP = 0.0;
         public static double kPincerI = 0.0;
@@ -105,13 +111,15 @@ public final class Constants {
         public static final double kPincerMotorMinOutput = -1;
         public static final double kPincerMotorMaxOutput = 1;
         public static final double kPincerMotorAbsoluteEncoderOffset = 0.0;
-    
+
         // Soft Limits
         public static final boolean kSoftLimitsEnabled = true;
         public static final double kPincerMinAngle = 0.0;
         public static final double kPincerMaxAngle = 0.0;
-        // Position Conversion Factor for soft limits. Should be in units of Arm rotations, ie. the gear ratio. 
-        // Periodically set the current position to the absolute position since it uses the internal encoder
+        // Position Conversion Factor for soft limits. Should be in units of Arm
+        // rotations, ie. the gear ratio.
+        // Periodically set the current position to the absolute position since it uses
+        // the internal encoder
         public static final double kPositionConversionFactor = 0.0;
 
         // Pincer Setpoints
@@ -183,12 +191,34 @@ public final class Constants {
         public static final double kSetpointL2LaserCan = 0.0;
         public static final double kSetpointL3LaserCan = 0.0;
         public static final double kSetpointL4LaserCan = 0.0;
-        public static final double kSetpointFeedLaserCan = 0.0; 
+        public static final double kSetpointFeedLaserCan = 0.0;
         public static final double kSetpointStowLaserCan = 0.0;
     }
 
     public static class GroundAlgaePivotConstants {
         public static final int kMotorId = 0;
+
+        public static final boolean kMotorInverted = false;
+        public static final IdleMode kMotorIdleMode = IdleMode.kCoast;
+        public static final double kMotorEncoderOffset = 0.0;
+
+        public static final int kCurrentLimit = 40;
+
+        // Trapezoid Proflile parameters
+        public static final double kMaxVelocity = 0.0;
+        public static final double kMaxAcceleration = 0.0;
+
+        // PID for spark controller
+        public static final double kP = 0.0;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        // Feedforward constants
+        public static final double kFeedforwardKs = 0.0;
+        public static final double kFeedforwardKg = 0.0;
+        public static final double kFeedforwardKv = 0.0;
+        public static final double kFeedforwardKa = 0.0;
+        public static final double kFeedforwardDtSeconds = 0.0;
     }
 
     public static class GroundAlgaeWheelsConstants {
@@ -206,7 +236,7 @@ public final class Constants {
 
     }
 
-    public static class LEDConstants{
+    public static class LEDConstants {
         public static final int kPwmPort = 0;
         public static final int kNumberOfLEDs = 40;
 
@@ -214,7 +244,8 @@ public final class Constants {
         public static final LEDPattern kOrange = LEDPattern.solid(Color.kOrangeRed);
         public static final LEDPattern kGreen = LEDPattern.solid(Color.kGreen);
         public static final LEDPattern kGreenBlink = kGreen.blink(Milliseconds.of(100));
-        public static final LEDPattern kJesuit = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kGold, Color.kBlue);
+        public static final LEDPattern kJesuit = LEDPattern.gradient(LEDPattern.GradientType.kContinuous, Color.kGold,
+                Color.kBlue);
         public static final LEDPattern kFastScrollingJesuit = kJesuit.scrollAtRelativeSpeed(Percent.per(Second).of(75));
         public static final LEDPattern kSlowScrollingJesuit = kJesuit.scrollAtRelativeSpeed(Percent.per(Second).of(25));
     }

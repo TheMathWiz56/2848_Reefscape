@@ -89,9 +89,9 @@ public class Elevator extends SubsystemBase {
   // ProfiledPIDController reference - should handle the TrapezoidProfile
   // functions automatically
   // https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/profiled-pidcontroller.html
-  private ProfiledPIDController elevatorPIDLaserCan = new ProfiledPIDController(ElevatorConstants.kP,
-      ElevatorConstants.kI,
-      ElevatorConstants.kD,
+  private ProfiledPIDController elevatorPIDLaserCan = new ProfiledPIDController(ElevatorConstants.kPLaserCan,
+      ElevatorConstants.kILaserCan,
+      ElevatorConstants.kDLaserCan,
       new TrapezoidProfile.Constraints(
           ElevatorConstants.kMaxVelocity, ElevatorConstants.kMaxAcceleration));
 
@@ -136,11 +136,11 @@ public class Elevator extends SubsystemBase {
 
     elevatorMotor2Config.follow(ElevatorConstants.kMotor1Id, ElevatorConstants.kMotor2Inverted);
 
+    // Soft limit?
+
     // Apply the motor configurations
     elevatorMotor1.configure(elevatorMotor1Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     elevatorMotor2.configure(elevatorMotor2Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    Timer.delay(0.25); // Allow the configs to be burned in
   }
 
   public void setMotorVoltage(double voltage) {
