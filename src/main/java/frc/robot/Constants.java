@@ -225,6 +225,10 @@ public final class Constants {
         public static final double kFeedforwardKv = 0.0;
         public static final double kFeedforwardKa = 0.0;
         public static final double kFeedforwardDtSeconds = 0.0;
+
+        // Setpoints
+        public static final double kSetpointStow = 0.0;
+        public static final double kSetpointIntake = 0.0;
     }
 
     public static class GroundAlgaeWheelsConstants {

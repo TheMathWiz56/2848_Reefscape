@@ -4,6 +4,8 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -11,6 +13,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.GroundAlgaePivotConstants;
 import frc.robot.Constants.GroundAlgaeWheelsConstants;
@@ -18,11 +22,12 @@ import frc.robot.Constants.GroundAlgaePivotConstants;
 
 public class GroundAlgaePivot extends SubsystemBase {
 
-    // Spark Max and Encoder
+    // Spark Max, Encoder, Controller
     private final SparkMax pivotMotor = new SparkMax(GroundAlgaePivotConstants.kMotorId,
             MotorType.kBrushless);
-    private final AbsoluteEncoder pivotEncoder = pivotMotor.getAbsoluteEncoder();
+    private final AbsoluteEncoder pivotMotorEncoder = pivotMotor.getAbsoluteEncoder();
     private final SparkMaxConfig pivotMotorConfig = new SparkMaxConfig();
+    private final SparkClosedLoopController pivotMotorController = pivotMotor.getClosedLoopController();
 
     // Arm Feedforward
     private final ArmFeedforward pivotFeedforward = new ArmFeedforward(GroundAlgaePivotConstants.kFeedforwardKs,
@@ -35,6 +40,14 @@ public class GroundAlgaePivot extends SubsystemBase {
     private TrapezoidProfile.State pivotTrapezoidStart = new TrapezoidProfile.State();
     private TrapezoidProfile.State pivotTrapezoidCurrent = new TrapezoidProfile.State();
     private TrapezoidProfile.State pivotTrapezoidGoal = new TrapezoidProfile.State();
+
+    // Timer
+    private final Timer timer = new Timer();
+
+    // Setpoint
+    // Will need a better solution if the arm will not be at the same position every
+    // time
+    private double pivotSetpoint = GroundAlgaePivotConstants.kSetpointStow;
 
     public GroundAlgaePivot() {
 
@@ -65,6 +78,40 @@ public class GroundAlgaePivot extends SubsystemBase {
         pivotMotor.configure(pivotMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     }
+
+    // Set pivot output with feedforward using position, velocity
+    private void setPivotOutput(double position, double velocity) {
+        pivotMotorController.setReference(position, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0,
+                pivotFeedforward.calculate(position, velocity), SparkClosedLoopController.ArbFFUnits.kPercentOut);
+    }
+
+    // Command to pivot to a setpoint
+    public Command pivotToSetpoint(double newSetpoint, String setpointName) {
+
+        return startRun(
+                () -> {
+                    pivotSetpoint = newSetpoint;
+                    timer.reset();
+                    pivotTrapezoidStart = new TrapezoidProfile.State(pivotMotorEncoder.getPosition(),
+                            pivotMotorEncoder.getVelocity());
+                    pivotTrapezoidGoal = new TrapezoidProfile.State(this.pivotSetpoint, 0);
+                },
+                () -> {
+                    pivotTrapezoidCurrent = pivotTrapezoidProfile.calculate(timer.get(), pivotTrapezoidStart,
+                            pivotTrapezoidGoal);
+                    setPivotOutput(pivotTrapezoidCurrent.position, pivotTrapezoidCurrent.velocity);
+                }).until(() -> pivotTrapezoidProfile.isFinished(timer.get())).withName("Go to " + setpointName);
+
+    }
+
+    // Commands to pivot to some specific setpoints
+    public Command goToStow() {
+        return pivotToSetpoint(GroundAlgaePivotConstants.kSetpointStow, "Stow");
+    }
+
+    public Command goToIntake() {
+        return pivotToSetpoint(GroundAlgaePivotConstants.kSetpointIntake, "Intake");
+    }    
 
     @Override
     public void periodic() {
