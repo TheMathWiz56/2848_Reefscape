@@ -207,16 +207,48 @@ public class Elevator extends SubsystemBase {
   public void initSendable(SendableBuilder builder) {
     super.initSendable(builder); // Not sure why we need this
 
-    builder.addDoubleProperty("Elevator Setpoint Position",
-        () -> ElevatorConstants.kElevatorUseLaserCan ? elevatorPIDLaserCan.getSetpoint().position : elevatorSetpoint,
-        null);
-    builder.addDoubleProperty("Elevator Setpoint Velocity",
-        () -> ElevatorConstants.kElevatorUseLaserCan ? elevatorPIDLaserCan.getSetpoint().velocity : elevatorSetpoint,
-        null);
-    builder.addDoubleProperty("Elevator Goal Position",
-        () -> ElevatorConstants.kElevatorUseLaserCan ? elevatorPIDLaserCan.getGoal().position : elevatorSetpoint, null);
-    builder.addDoubleProperty("Elevator Goal Position",
-        () -> ElevatorConstants.kElevatorUseLaserCan ? elevatorPIDLaserCan.getGoal().velocity : elevatorSetpoint, null);
+    if (ElevatorConstants.kElevatorUseLaserCan) {
+      // Setpoint and goal positions, velocities
+      builder.addDoubleProperty("Elevator Setpoint Position",
+          () -> elevatorPIDLaserCan.getSetpoint().position,
+          null);
+      builder.addDoubleProperty("Elevator Setpoint Velocity",
+          () -> elevatorPIDLaserCan.getSetpoint().velocity,
+          null);
+      builder.addDoubleProperty("Elevator Goal Position",
+          () -> elevatorPIDLaserCan.getGoal().position,
+          null);
+      builder.addDoubleProperty("Elevator Goal Velocity",
+          () -> elevatorPIDLaserCan.getGoal().velocity,
+          null);
+
+      // PID values
+      builder.addDoubleProperty("Elevator kP", () -> elevatorPIDLaserCan.getP(),
+          value -> elevatorPIDLaserCan.setP(value));
+      builder.addDoubleProperty("Elevator kI", () -> elevatorPIDLaserCan.getI(),
+          value -> elevatorPIDLaserCan.setI(value));
+      builder.addDoubleProperty("Elevator kD", () -> elevatorPIDLaserCan.getD(),
+          value -> elevatorPIDLaserCan.setD(value));
+    } else {
+      // Add SparkMax information (not done yet)
+    }
+
+    // Feedforward values
+    // There doesn't seem to be any setters for these. Don't think these would be
+    // useful without that so commenting them out for now
+    /*
+     * builder.addDoubleProperty("Elevator Feedforward Ks", () ->
+     * feedforward.getKs(), null);
+     * builder.addDoubleProperty("Elevator Feedforward Kg", () ->
+     * feedforward.getKg(), null);
+     * builder.addDoubleProperty("Elevator Feedforward Kv", () ->
+     * feedforward.getKv(), null);
+     * builder.addDoubleProperty("Elevator Feedforward Ka", () ->
+     * feedforward.getKa(), null);
+     */
+
+     // Feedforward output
+     builder.addDoubleProperty("Elevator Feedforward Output", () -> feedforward.calculate(elevatorPIDLaserCan.getSetpoint().velocity), null);
   }
 
 }
