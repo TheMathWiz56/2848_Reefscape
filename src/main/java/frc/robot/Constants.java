@@ -174,6 +174,7 @@ public final class Constants {
         public static final double kElevatorSetpointL2 = 0.0;
         public static final double kElevatorSetpointL3 = 0.0;
         public static final double kElevatorSetpointL4 = 0.0;
+        public static final double kElevatorSetpointFeed = 0.0;
         public static final double kElevatorSetpointStow = 0.0;
 
         // For LaserCan, meters
@@ -181,6 +182,7 @@ public final class Constants {
         public static final double kElevatorSetpointL2LaserCan = 0.0;
         public static final double kElevatorSetpointL3LaserCan = 0.0;
         public static final double kElevatorSetpointL4LaserCan = 0.0;
+        public static final double kElevatorSetpointFeedLaserCan = 0.0; 
         public static final double kElevatorSetpointStowLaserCan = 0.0;
     }
 

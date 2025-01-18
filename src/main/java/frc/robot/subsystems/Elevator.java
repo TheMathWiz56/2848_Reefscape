@@ -156,7 +156,6 @@ public class Elevator extends SubsystemBase {
   }
 
   // Set motor speeds based on PID calculation
-  // Better named might be holdPosition
   public void holdPosition() {
     if (ElevatorConstants.kElevatorUseLaserCan) {
       double distance = getLaserDistance();
@@ -181,16 +180,54 @@ public class Elevator extends SubsystemBase {
       return -1.0;
   }
 
+  // Returns true if either limit switch is pressed
   public boolean getLimitSwitches() {
     return elevatorLimitSwitchBottom.get() || elevatorLimitSwitchBottom.get();
   }
 
+  // Default command - hold position
   public Command elevatorDefaultCommand() {
-    return this.run(() -> holdPosition());
+    return this.run(() -> holdPosition()).withName("Elevator Default Command");
   }
 
+  // Set motor voltage to zero, triggered by limit switches in RobotContainer
   public Command elevatorAtHardLimit() {
-    return this.run(() -> setMotorVoltage(0.0));
+    return this.run(() -> setMotorVoltage(0.0)).withName("Elevator At Hard Limit");
+  }
+
+  // Commands to go to position
+  public Command goToPosition(double position, String positionName) {
+    return this.startRun(() -> {
+      setElevatorSetpoint(position);
+    }, () -> {
+      holdPosition();
+    }).until(() -> ElevatorConstants.kElevatorUseLaserCan ? elevatorPIDLaserCan.atGoal() : false)
+        .withName("Go to " + positionName);
+  }
+
+  // Commands to go to various pre-defined positions
+  public Command goToL1() {
+    return goToPosition(ElevatorConstants.kElevatorSetpointL1, "L1");
+  }
+
+  public Command goToL2() {
+    return goToPosition(ElevatorConstants.kElevatorSetpointL2, "L2");
+  }
+
+  public Command goToL3() {
+    return goToPosition(ElevatorConstants.kElevatorSetpointL3, "L3");
+  }
+
+  public Command goToL4() {
+    return goToPosition(ElevatorConstants.kElevatorSetpointL4, "L4");
+  }
+
+  public Command goToFeed() {
+    return goToPosition(ElevatorConstants.kElevatorSetpointFeed, "Feed");
+  }
+
+  public Command goToStow() {
+    return goToPosition(ElevatorConstants.kElevatorSetpointStow, "Stow");
   }
 
   @Override
