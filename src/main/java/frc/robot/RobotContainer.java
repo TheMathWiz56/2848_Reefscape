@@ -205,10 +205,7 @@ public class RobotContainer {
     public Command processor() {
             return new SequentialCommandGroup(
                             groundAlgaePivot.goToScore(),
-                            groundAlgaeWheels.exhaust(), // This just sets the motor output. Could replace it with
-                                                         // something that finishes once it actually exhausts
-                            Commands.waitSeconds(0.33),
-                            groundAlgaeWheels.stop(),
+                            groundAlgaeWheels.outtakeAlgae(),
                             groundAlgaePivot.goToStow());
     }
 
