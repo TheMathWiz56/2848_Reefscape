@@ -230,6 +230,11 @@ public final class Constants {
         public static final double kSetpointStow = 0.0;
         public static final double kSetpointIntake = 0.0;
         public static final double kSetpointScore = 0.0;
+        
+        public static final boolean kForwardSoftLimitEnabled = true;
+        public static final double kForwardSoftLimit = 0.0;
+        public static final boolean kReverseSoftLimitEnabled = true;
+        public static final double kReverseSoftLimit = 0.0;
     }
 
     public static class GroundAlgaeWheelsConstants {
@@ -244,11 +249,6 @@ public final class Constants {
 
         public static final double kIntakeSpeed = 0.0;
         public static final double kExhaustSpeed = 0.0;
-
-        public static final boolean kForwardSoftLimitEnabled = true;
-        public static final double kForwardSoftLimit = 0.0;
-        public static final boolean kReverseSoftLimitEnabled = true;
-        public static final double kReverseSoftLimit = 0.0;
 
     }
 

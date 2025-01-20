@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 import frc.robot.Constants;
-import frc.robot.Constants.PincerConstants;
 
 import static frc.robot.Constants.PincerConstants.*;
 
@@ -42,19 +41,19 @@ public class Pincer extends SubsystemBase{
         pincerController = pincerMotor.getClosedLoopController();
 
         pincerConfig
-            .inverted(PincerConstants.kPincerMotorInverted)
-            .idleMode(PincerConstants.kPincerMotorIdleMode)
-            .smartCurrentLimit(PincerConstants.kPincerMotorSmartCurrentLimit);
+            .inverted(kPincerMotorInverted)
+            .idleMode(kPincerMotorIdleMode)
+            .smartCurrentLimit(kPincerMotorSmartCurrentLimit);
         pincerConfig
             .encoder.positionConversionFactor(kPositionConversionFactor);
         pincerConfig
             .closedLoop
-                .feedbackSensor(PincerConstants.kPincerMotorFeedbackSensor)
-                .pid(PincerConstants.kPincerP, PincerConstants.kPincerI, PincerConstants.kPincerD)
-                .outputRange(PincerConstants.kPincerMotorMinOutput, PincerConstants.kPincerMotorMaxOutput);
+                .feedbackSensor(kPincerMotorFeedbackSensor)
+                .pid(kPincerP, kPincerI, kPincerD)
+                .outputRange(kPincerMotorMinOutput, kPincerMotorMaxOutput);
         pincerConfig
             .absoluteEncoder
-                .zeroOffset(PincerConstants.kPincerMotorAbsoluteEncoderOffset);
+                .zeroOffset(kPincerMotorAbsoluteEncoderOffset);
         pincerConfig
             .softLimit
                 .reverseSoftLimitEnabled(kSoftLimitsEnabled)

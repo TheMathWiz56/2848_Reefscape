@@ -18,34 +18,34 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.GroundAlgaeWheelsConstants;
+import static frc.robot.Constants.GroundAlgaeWheelsConstants.*;
 
 public class GroundAlgaeWheels extends SubsystemBase {
 
-    private final SparkMax wheelsMotor = new SparkMax(GroundAlgaeWheelsConstants.kMotorId, MotorType.kBrushless);
+    private final SparkMax wheelsMotor = new SparkMax(kMotorId, MotorType.kBrushless);
     private final SparkMaxConfig wheelsMotorConfig = new SparkMaxConfig();
     private final SparkClosedLoopController wheelsMotorContoller = wheelsMotor.getClosedLoopController();
 
     // Photogate (beam break)
-    private final DigitalInput wheelsPhotogate = new DigitalInput(GroundAlgaeWheelsConstants.kPhotogateId);
+    private final DigitalInput wheelsPhotogate = new DigitalInput(kPhotogateId);
 
     public GroundAlgaeWheels() {
 
         // Spark motor configuration
         wheelsMotorConfig
-                .inverted(GroundAlgaeWheelsConstants.kMotorInverted)
-                .idleMode(GroundAlgaeWheelsConstants.kMotorIdleMode)
-                .smartCurrentLimit(GroundAlgaeWheelsConstants.kCurrentLimit);
+                .inverted(kMotorInverted)
+                .idleMode(kMotorIdleMode)
+                .smartCurrentLimit(kCurrentLimit);
 
         //Probably don't need these
         /*
         wheelsMotorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-                .pid(GroundAlgaeWheelsConstants.kP, GroundAlgaeWheelsConstants.kI, GroundAlgaeWheelsConstants.kD)
+                .pid(kP, kI, kD)
                 .outputRange(-1, 1);
 
         wheelsMotorConfig.absoluteEncoder
-            .zeroOffset(GroundAlgaeWheelsConstants.kMotorEncoderOffset);
+            .zeroOffset(kMotorEncoderOffset);
          */
 
         //Configure the motor
@@ -57,11 +57,11 @@ public class GroundAlgaeWheels extends SubsystemBase {
     }
 
     public Command intake() {
-        return runOnce(() -> wheelsMotor.set(GroundAlgaeWheelsConstants.kIntakeSpeed));
+        return runOnce(() -> wheelsMotor.set(kIntakeSpeed));
     }
 
     public Command exhaust() {
-        return runOnce(() -> wheelsMotor.set(GroundAlgaeWheelsConstants.kExhaustSpeed));
+        return runOnce(() -> wheelsMotor.set(kExhaustSpeed));
     }
 
     public Command stop() {

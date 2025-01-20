@@ -15,26 +15,25 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.GroundAlgaePivotConstants;
-import frc.robot.Constants.GroundAlgaeWheelsConstants;
+import static frc.robot.Constants.GroundAlgaePivotConstants.*;
 
 public class GroundAlgaePivot extends SubsystemBase {
 
     // Spark Max, Encoder, Controller
-    private final SparkMax pivotMotor = new SparkMax(GroundAlgaePivotConstants.kMotorId,
+    private final SparkMax pivotMotor = new SparkMax(kMotorId,
             MotorType.kBrushless);
     private final AbsoluteEncoder pivotMotorEncoder = pivotMotor.getAbsoluteEncoder();
     private final SparkMaxConfig pivotMotorConfig = new SparkMaxConfig();
     private final SparkClosedLoopController pivotMotorController = pivotMotor.getClosedLoopController();
 
     // Arm Feedforward
-    private final ArmFeedforward pivotFeedforward = new ArmFeedforward(GroundAlgaePivotConstants.kFeedforwardKs,
-            GroundAlgaePivotConstants.kFeedforwardKg, GroundAlgaePivotConstants.kFeedforwardKv,
-            GroundAlgaePivotConstants.kFeedforwardKa, GroundAlgaePivotConstants.kFeedforwardDtSeconds);
+    private final ArmFeedforward pivotFeedforward = new ArmFeedforward(kFeedforwardKs,
+            kFeedforwardKg, kFeedforwardKv,
+            kFeedforwardKa, kFeedforwardDtSeconds);
 
     // Trapezoid Motion Profile
     private final TrapezoidProfile pivotTrapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
-            GroundAlgaePivotConstants.kMaxVelocity, GroundAlgaePivotConstants.kMaxAcceleration));
+            kMaxVelocity, kMaxAcceleration));
     private TrapezoidProfile.State pivotTrapezoidStart = new TrapezoidProfile.State();
     private TrapezoidProfile.State pivotTrapezoidCurrent = new TrapezoidProfile.State();
     private TrapezoidProfile.State pivotTrapezoidGoal = new TrapezoidProfile.State();
@@ -45,33 +44,33 @@ public class GroundAlgaePivot extends SubsystemBase {
     // Setpoint
     // Will need a better solution if the arm will not be at the same position every
     // time
-    private double pivotSetpoint = GroundAlgaePivotConstants.kSetpointStow;
+    private double pivotSetpoint = kSetpointStow;
 
     public GroundAlgaePivot() {
 
         // Spark configuration
         pivotMotorConfig
-                .inverted(GroundAlgaePivotConstants.kMotorInverted)
-                .idleMode(GroundAlgaePivotConstants.kMotorIdleMode)
-                .smartCurrentLimit(GroundAlgaePivotConstants.kCurrentLimit);
+                .inverted(kMotorInverted)
+                .idleMode(kMotorIdleMode)
+                .smartCurrentLimit(kCurrentLimit);
 
         pivotMotorConfig.encoder
-                .positionConversionFactor(GroundAlgaePivotConstants.kMotorPositionConversionFactor)
-                .velocityConversionFactor(GroundAlgaePivotConstants.kMotorVelocityConversionFactor);
+                .positionConversionFactor(kMotorPositionConversionFactor)
+                .velocityConversionFactor(kMotorVelocityConversionFactor);
 
         pivotMotorConfig.closedLoop
                 .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-                .pid(GroundAlgaePivotConstants.kP, GroundAlgaePivotConstants.kI, GroundAlgaePivotConstants.kD)
+                .pid(kP, kI, kD)
                 .outputRange(-1, 1);
 
         pivotMotorConfig.absoluteEncoder
-                .zeroOffset(GroundAlgaePivotConstants.kMotorEncoderOffset);
+                .zeroOffset(kMotorEncoderOffset);
 
         pivotMotorConfig.softLimit
-                .forwardSoftLimitEnabled(GroundAlgaeWheelsConstants.kForwardSoftLimitEnabled)
-                .forwardSoftLimit(GroundAlgaeWheelsConstants.kForwardSoftLimit)
-                .reverseSoftLimitEnabled(GroundAlgaeWheelsConstants.kReverseSoftLimitEnabled)
-                .reverseSoftLimit(GroundAlgaeWheelsConstants.kReverseSoftLimit);
+                .forwardSoftLimitEnabled(kForwardSoftLimitEnabled)
+                .forwardSoftLimit(kForwardSoftLimit)
+                .reverseSoftLimitEnabled(kReverseSoftLimitEnabled)
+                .reverseSoftLimit(kReverseSoftLimit);
 
         pivotMotor.configure(pivotMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -112,15 +111,15 @@ public class GroundAlgaePivot extends SubsystemBase {
 
     // Commands to pivot to some specific setpoints
     public Command goToStow() {
-        return pivotToSetpoint(GroundAlgaePivotConstants.kSetpointStow, "Stow");
+        return pivotToSetpoint(kSetpointStow, "Stow");
     }
 
     public Command goToIntake() {
-        return pivotToSetpoint(GroundAlgaePivotConstants.kSetpointIntake, "Intake");
+        return pivotToSetpoint(kSetpointIntake, "Intake");
     }    
 
     public Command goToScore() {
-        return pivotToSetpoint(GroundAlgaePivotConstants.kSetpointScore, "Score");
+        return pivotToSetpoint(kSetpointScore, "Score");
     }
 
     @Override
