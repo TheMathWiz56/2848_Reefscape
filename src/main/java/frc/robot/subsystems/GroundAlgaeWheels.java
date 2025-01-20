@@ -15,6 +15,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.GroundAlgaeWheelsConstants;
 
@@ -66,6 +67,10 @@ public class GroundAlgaeWheels extends SubsystemBase {
         return runOnce(() -> wheelsMotor.stopMotor());
     }
 
+    public Command holdState(){
+        return Commands.idle(this);
+    }
+    
     @Override
     public void periodic() {
 
