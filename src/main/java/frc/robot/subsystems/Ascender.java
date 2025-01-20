@@ -14,8 +14,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.AscenderConstants;
 
+// Seems like there is uncertainty about the ascender, so I'm holding off on it for now
 public class Ascender extends SubsystemBase {
-
+    
     private final SparkMax ascenderMotor = new SparkMax(AscenderConstants.kAscenderMotorId, SparkMax.MotorType.kBrushless);
 
     // ABS Encoder - could be an AnalogInput instead

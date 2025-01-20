@@ -156,67 +156,64 @@ public class RobotContainer {
     // Missing: limelight functionality
 
     public Command climbSequence() {
-        return elevator.goToStow().andThen(ascender.climb()); // climb() returns null for now
+            return elevator.goToStow().andThen(ascender.climb()); // climb() returns null for now
     }
 
     public Command reefCoral() {
-        return null;
+            return null;
     }
 
     public Command scoreLevel(int level) {
-        Command armPivot, elevatorPivot;
-        switch (level) {
-                case 1:
-                armPivot = arm.pivotToL1();
-                elevatorPivot = elevator.goToL1();
-                        break;
+            Command armPivot, elevatorPivot;
+            switch (level) {
+                    case 1:
+                            armPivot = arm.pivotToL1();
+                            elevatorPivot = elevator.goToL1();
+                            break;
 
-                case 2:
-                armPivot = arm.pivotToL2L3();
-                elevatorPivot = elevator.goToL2();
-                        break;                
-                
-                case 3:
-                armPivot = arm.pivotToL2L3();
-                elevatorPivot = elevator.goToL3();
-                        break;  
+                    case 2:
+                            armPivot = arm.pivotToL2L3();
+                            elevatorPivot = elevator.goToL2();
+                            break;
 
-                case 4:
-                armPivot = arm.pivotToL4();
-                elevatorPivot = elevator.goToL4();                
-                        break;  
-        
-                default:
-                return Commands.none();
-        }
+                    case 3:
+                            armPivot = arm.pivotToL2L3();
+                            elevatorPivot = elevator.goToL3();
+                            break;
 
-        return new SequentialCommandGroup(
-                new ParallelCommandGroup(
-                        elevatorPivot,
-                        armPivot
-                ),
-                pincer.exhaust(),
-                Commands.waitSeconds(0.3),
-                pincer.stopIntake(),
-                new ParallelCommandGroup(
-                        elevator.goToStow(),
-                        arm.stowPivot()
-                )
-        );
+                    case 4:
+                            armPivot = arm.pivotToL4();
+                            elevatorPivot = elevator.goToL4();
+                            break;
+
+                    default:
+                            return Commands.none();
+            }
+
+            return new SequentialCommandGroup(
+                            elevatorPivot,
+                            armPivot,
+                            pincer.exhaust(),
+                            Commands.waitSeconds(0.3),
+                            pincer.stopIntake(),
+                            elevator.goToStow(),
+                            arm.stowPivot()
+
+            );
     }
 
     public Command processor() {
-        return new SequentialCommandGroup(
-                groundAlgaePivot.goToScore(),
-                groundAlgaeWheels.exhaust(), // This just sets the motor output. Could replace it with something that finishes once it actually exhausts
-                Commands.waitSeconds(0.33),
-                groundAlgaeWheels.stop(),
-                groundAlgaePivot.goToStow()
-        );
+            return new SequentialCommandGroup(
+                            groundAlgaePivot.goToScore(),
+                            groundAlgaeWheels.exhaust(), // This just sets the motor output. Could replace it with
+                                                         // something that finishes once it actually exhausts
+                            Commands.waitSeconds(0.33),
+                            groundAlgaeWheels.stop(),
+                            groundAlgaePivot.goToStow());
     }
 
     public Command reefAlgae() {
-        return null;
+            return null;
     }
 
     public Command getAutonomousCommand() {
