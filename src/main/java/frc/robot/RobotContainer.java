@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -163,7 +164,45 @@ public class RobotContainer {
     }
 
     public Command scoreLevel(int level) {
-        return null;
+        Command armPivot, elevatorPivot;
+        switch (level) {
+                case 1:
+                armPivot = arm.pivotToL1();
+                elevatorPivot = elevator.goToL1();
+                        break;
+
+                case 2:
+                armPivot = arm.pivotToL2L3();
+                elevatorPivot = elevator.goToL2();
+                        break;                
+                
+                case 3:
+                armPivot = arm.pivotToL2L3();
+                elevatorPivot = elevator.goToL3();
+                        break;  
+
+                case 4:
+                armPivot = arm.pivotToL4();
+                elevatorPivot = elevator.goToL4();                
+                        break;  
+        
+                default:
+                return Commands.none();
+        }
+
+        return new SequentialCommandGroup(
+                new ParallelCommandGroup(
+                        elevatorPivot,
+                        armPivot
+                ),
+                pincer.exhaust(),
+                Commands.waitSeconds(0.3),
+                pincer.stopIntake(),
+                new ParallelCommandGroup(
+                        elevator.goToStow(),
+                        arm.stowPivot()
+                )
+        );
     }
 
     public Command processor() {
