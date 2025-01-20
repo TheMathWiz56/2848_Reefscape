@@ -28,6 +28,10 @@ public class Ascender extends SubsystemBase {
 
     }
 
+    public Command climb() {
+        return null;
+    }
+
     @Override
     public void periodic() {
 

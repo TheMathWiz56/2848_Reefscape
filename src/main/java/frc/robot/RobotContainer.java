@@ -21,6 +21,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -147,6 +149,35 @@ public class RobotContainer {
 
 
 
+    }
+
+    // Command compositions (there is probably a better place for these)
+    // Missing: limelight functionality
+
+    public Command climbSequence() {
+        return elevator.goToStow().andThen(ascender.climb()); // climb() returns null for now
+    }
+
+    public Command reefCoral() {
+        return null;
+    }
+
+    public Command scoreLevel(int level) {
+        return null;
+    }
+
+    public Command processor() {
+        return new SequentialCommandGroup(
+                groundAlgaePivot.goToScore(),
+                groundAlgaeWheels.exhaust(),
+                Commands.waitSeconds(0.33),
+                groundAlgaeWheels.stop(),
+                groundAlgaePivot.goToStow()
+        );
+    }
+
+    public Command reefAlgae() {
+        return null;
     }
 
     public Command getAutonomousCommand() {

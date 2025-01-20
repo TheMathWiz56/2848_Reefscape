@@ -119,6 +119,10 @@ public class GroundAlgaePivot extends SubsystemBase {
         return pivotToSetpoint(GroundAlgaePivotConstants.kSetpointIntake, "Intake");
     }    
 
+    public Command goToScore() {
+        return pivotToSetpoint(GroundAlgaePivotConstants.kSetpointScore, "Score");
+    }
+
     @Override
     public void periodic() {
 

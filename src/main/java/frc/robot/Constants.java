@@ -229,6 +229,7 @@ public final class Constants {
         // Setpoints
         public static final double kSetpointStow = 0.0;
         public static final double kSetpointIntake = 0.0;
+        public static final double kSetpointScore = 0.0;
     }
 
     public static class GroundAlgaeWheelsConstants {
@@ -263,6 +264,6 @@ public final class Constants {
                 Color.kBlue);
         public static final LEDPattern kFastScrollingJesuit = kJesuit.scrollAtRelativeSpeed(Percent.per(Second).of(75));
         public static final LEDPattern kSlowScrollingJesuit = kJesuit.scrollAtRelativeSpeed(Percent.per(Second).of(25));
-    }
+    } 
 
 }
