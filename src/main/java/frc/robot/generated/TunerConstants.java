@@ -125,6 +125,7 @@ public class TunerConstants {
             .withDriveFrictionVoltage(kDriveFrictionVoltage);
 
 
+    // previously Front Right
     // Front Left
     private static final int kFrontLeftDriveMotorId = 30;
     private static final int kFrontLeftSteerMotorId = 35;
@@ -136,6 +137,7 @@ public class TunerConstants {
     private static final Distance kFrontLeftXPos = Inches.of(10.5);
     private static final Distance kFrontLeftYPos = Inches.of(10.5);
 
+    // previously Back Right
     // Front Right
     private static final int kFrontRightDriveMotorId = 31;
     private static final int kFrontRightSteerMotorId = 36;
@@ -147,6 +149,7 @@ public class TunerConstants {
     private static final Distance kFrontRightXPos = Inches.of(10.5);
     private static final Distance kFrontRightYPos = Inches.of(-10.5);
 
+    // previously Front Left
     // Back Left
     private static final int kBackLeftDriveMotorId = 33;
     private static final int kBackLeftSteerMotorId = 38;
@@ -158,6 +161,7 @@ public class TunerConstants {
     private static final Distance kBackLeftXPos = Inches.of(-10.5);
     private static final Distance kBackLeftYPos = Inches.of(10.5);
 
+    // previously Back Left
     // Back Right
     private static final int kBackRightDriveMotorId = 32;
     private static final int kBackRightSteerMotorId = 37;
