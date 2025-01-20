@@ -84,7 +84,7 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Default commands
-        elevator.setDefaultCommand(elevator.elevatorDefaultCommand());
+        elevator.setDefaultCommand(elevator.holdState());
         arm.setDefaultCommand(arm.holdState());
         pincer.setDefaultCommand(pincer.holdState());
         groundAlgaePivot.setDefaultCommand(groundAlgaePivot.holdState());

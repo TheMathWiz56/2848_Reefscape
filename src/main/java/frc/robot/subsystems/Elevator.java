@@ -194,7 +194,7 @@ public class Elevator extends SubsystemBase {
   }
 
   // Default command - hold position
-  public Command elevatorDefaultCommand() {
+  public Command holdState() {
     return this.run(() -> holdPosition()).withName("Elevator Default Command");
   }
 
