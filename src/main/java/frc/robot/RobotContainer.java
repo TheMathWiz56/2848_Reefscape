@@ -159,10 +159,6 @@ public class RobotContainer {
             return elevator.goToStow().andThen(ascender.climb()); // climb() returns null for now
     }
 
-    public Command reefCoral() {
-            return null;
-    }
-
     public Command scoreLevel(int level) {
             Command armPivot, elevatorPivot;
             switch (level) {
