@@ -4,6 +4,8 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import static edu.wpi.first.units.Units.*;
+
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -254,7 +256,7 @@ public final class Constants {
 
     public static class LEDConstants {
         public static final int kPwmPort = 0;
-        public static final int kNumberOfLEDs = 40;
+        public static final int kNumberOfLEDs = 150;
 
         // LED Patterns
         public static final LEDPattern kOrange = LEDPattern.solid(Color.kOrangeRed);
@@ -264,6 +266,21 @@ public final class Constants {
                 Color.kBlue);
         public static final LEDPattern kFastScrollingJesuit = kJesuit.scrollAtRelativeSpeed(Percent.per(Second).of(75));
         public static final LEDPattern kSlowScrollingJesuit = kJesuit.scrollAtRelativeSpeed(Percent.per(Second).of(25));
-    } 
+        public static final LEDPattern kRainbow = LEDPattern.rainbow(255,128);
+
+        // Scrolling rainbow from WPILib docs reference
+        /*
+        // Our LED strip has a density of 60 LEDs per meter
+        public  static final Distance kLedSpacing = Meters.of(1 / 60.0);
+
+        
+        // Create a new pattern that scrolls the rainbow pattern across the LED strip, moving at a speed
+        // of 1 meter per second.
+        public static final LEDPattern kScrollingRainbow =
+            kRainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), kLedSpacing);
+        
+            */
+            } 
+            
 
 }

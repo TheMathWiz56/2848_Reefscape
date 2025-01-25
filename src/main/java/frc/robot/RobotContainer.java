@@ -62,12 +62,14 @@ public class RobotContainer {
     // Subsystem Instances
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final Lights lights = new Lights();
+    /*
     public final Elevator elevator = new Elevator();
     public final Arm arm = new Arm();
     public final Ascender ascender = new Ascender(); // Note to self: Ascender class hasn't been started yet
     public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
     public final Pincer pincer = new Pincer();
+     */
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
@@ -87,12 +89,13 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Default commands
+        /*
         elevator.setDefaultCommand(elevator.holdState());
         arm.setDefaultCommand(arm.holdState());
         pincer.setDefaultCommand(pincer.holdState());
         groundAlgaePivot.setDefaultCommand(groundAlgaePivot.holdState());
         groundAlgaeWheels.setDefaultCommand(groundAlgaeWheels.holdState());
-
+        */
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
@@ -146,7 +149,7 @@ public class RobotContainer {
         // Trigger to zero motor voltage on elevator if limit switches trip
         // I think this will cause a problem where if the elevator goes too far down, it
         // will not be able to go back up again?
-        Trigger elevatorLimitTrigger = new Trigger(elevator::getLimitSwitches).whileTrue(elevator.elevatorAtHardLimit());
+        //Trigger elevatorLimitTrigger = new Trigger(elevator::getLimitSwitches).whileTrue(elevator.elevatorAtHardLimit());
 
 
 
@@ -154,7 +157,7 @@ public class RobotContainer {
 
     // Command compositions (there is probably a better place for these)
     // Missing: limelight functionality
-
+/*
     public Command climbSequence() {
             return elevator.goToStow().andThen(ascender.climb()); // climb() returns null for now
     }
@@ -208,7 +211,7 @@ public class RobotContainer {
     public Command reefAlgae() {
             return null;
     }
-
+ */
     public Command getAutonomousCommand() {
         /* Run the path selected from the auto chooser */
         return autoChooser.getSelected();
