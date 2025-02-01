@@ -7,6 +7,7 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ColorSensorV3.ColorSensorMeasurementRate;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -80,8 +81,8 @@ public class Elevator extends SubsystemBase {
   private final SparkClosedLoopController elevatorMotor2Controller = elevatorMotor2.getClosedLoopController();
 
   // Spark ABS encoders
-  private final AbsoluteEncoder elevatorMotor1Encoder = elevatorMotor1.getAbsoluteEncoder();
-  private final AbsoluteEncoder elevatorMotor2Encoder = elevatorMotor2.getAbsoluteEncoder();
+  private final RelativeEncoder elevatorMotor1Encoder = elevatorMotor1.getEncoder();
+  private final RelativeEncoder elevatorMotor2Encoder = elevatorMotor2.getEncoder();
 
   // Motor configurations
   private final SparkMaxConfig elevatorMotor1Config = new SparkMaxConfig();
@@ -189,7 +190,6 @@ public class Elevator extends SubsystemBase {
       else
         setMotorVoltage(0.0);
     } else {
-      currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
       // Units are probably messed up
       elevatorMotor1Controller.setReference(currentState.position, SparkMax.ControlType.kPosition,
           ClosedLoopSlot.kSlot0, feedforward.calculate(currentState.position, currentState.velocity));
@@ -227,6 +227,7 @@ public class Elevator extends SubsystemBase {
     return this.startRun(() -> {
       setElevatorSetpoint(position);
     }, () -> {
+      if(!kUseLaserCan) currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
       holdPosition();
     }).until(() -> kUseLaserCan ? elevatorPIDLaserCan.atGoal() : false)
         .withName("Go to " + positionName);
