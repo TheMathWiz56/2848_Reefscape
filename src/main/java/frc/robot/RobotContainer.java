@@ -62,14 +62,12 @@ public class RobotContainer {
     // Subsystem Instances
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final Lights lights = new Lights();
-    /*
     public final Elevator elevator = new Elevator();
     public final Arm arm = new Arm();
     public final Ascender ascender = new Ascender(); // Note to self: Ascender class hasn't been started yet
     public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
     public final Pincer pincer = new Pincer();
-     */
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
@@ -146,10 +144,10 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        // Trigger to zero motor voltage on elevator if limit switches trip
+        // Trigger to zero motor voltage on elevator if top limit switch trips
         // I think this will cause a problem where if the elevator goes too far down, it
         // will not be able to go back up again?
-        //Trigger elevatorLimitTrigger = new Trigger(elevator::getLimitSwitches).whileTrue(elevator.elevatorAtHardLimit());
+        Trigger elevatorLimitTrigger = new Trigger(elevator::getLimitSwitchTop).whileTrue(elevator.elevatorAtTopLimit());
 
 
 

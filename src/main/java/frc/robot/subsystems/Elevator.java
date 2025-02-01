@@ -214,8 +214,12 @@ public class Elevator extends SubsystemBase {
   }
 
   // Returns true if either limit switch is pressed
-  public boolean getLimitSwitches() {
-    return elevatorLimitSwitchBottom.get() || elevatorLimitSwitchBottom.get();
+  public boolean getLimitSwitchTop() {
+    return elevatorLimitSwitchTop.get();
+  }
+
+  public boolean getLimitSwitchBottom() {
+    return elevatorLimitSwitchBottom.get();
   }
 
   // Default command - hold position
@@ -227,8 +231,8 @@ public class Elevator extends SubsystemBase {
   }
 
   // Set motor voltage to zero, triggered by limit switches in RobotContainer
-  public Command elevatorAtHardLimit() {
-    return this.run(() -> setMotorVoltage(0.0)).withName("Elevator At Hard Limit");
+  public Command elevatorAtTopLimit() {
+    return this.run(() -> setMotorVoltage(0.0)).withName("Elevator At Top Limit");
   }
 
   // Command to go to position
