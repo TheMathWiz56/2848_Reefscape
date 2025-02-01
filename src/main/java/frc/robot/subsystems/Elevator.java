@@ -227,9 +227,10 @@ public class Elevator extends SubsystemBase {
     return this.startRun(() -> {
       setElevatorSetpoint(position);
     }, () -> {
-      if(!kUseLaserCan) currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
+      if (!kUseLaserCan)
+        currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
       holdPosition();
-    }).until(() -> kUseLaserCan ? elevatorPIDLaserCan.atGoal() : false)
+    }).until(() -> kUseLaserCan ? elevatorPIDLaserCan.atGoal() : elevatorTrapezoidProfile.isFinished(timer.get()))
         .withName("Go to " + positionName);
   }
 
