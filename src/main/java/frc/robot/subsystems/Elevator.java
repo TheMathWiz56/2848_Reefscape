@@ -220,7 +220,7 @@ public class Elevator extends SubsystemBase {
 
   // Set motor voltage to zero, triggered by limit switches in RobotContainer
   public Command elevatorAtBottomLimit() {
-    return this.startRun(() -> zeroEncoders(), () -> setMotorVoltage(1.0)).withName("Elevator At Top Limit");
+    return this.startRun(() -> zeroEncoders(), () -> setMotorVoltage(1.0)).withName("Elevator At Bottom Limit");
   }
 
   // Default command - hold position
