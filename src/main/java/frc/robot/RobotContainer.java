@@ -144,9 +144,8 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
+
         // Trigger to zero motor voltage on elevator if top limit switch trips
-        // I think this will cause a problem where if the elevator goes too far down, it
-        // will not be able to go back up again?
         Trigger elevatorLimitTrigger = new Trigger(elevator::getLimitSwitchTop).whileTrue(elevator.elevatorAtTopLimit());
 
 
