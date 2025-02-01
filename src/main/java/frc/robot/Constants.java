@@ -143,7 +143,6 @@ public final class Constants {
 
     public static class ElevatorConstants {
         public static final int kMotorId = 0;
-        public static final int kLaserCanId = 0;
         public static final int kLimitSwitchTopId = 0;
         public static final int kLimitSwitchBottomId = 0;
 
@@ -156,8 +155,6 @@ public final class Constants {
         public static final double kMotorPositionConversionFactor = 0.0;
         public static final double kMotorVelocityConversionFactor = 0.0;
 
-        public static final boolean kUseLaserCan = true;
-
         // Trapezoid Proflile parameters
         public static final double kMaxVelocity = 0.0;
         public static final double kMaxAcceleration = 0.0;
@@ -168,11 +165,6 @@ public final class Constants {
         public static final double kD = 0.0;
         public static final double kIZone = 0.0;
         public static final double kIMaxAccum = 0.0;
-
-        // LaserCan PID constants
-        public static final double kPLaserCan = 0.0;
-        public static final double kILaserCan = 0.0;
-        public static final double kDLaserCan = 0.0;
 
         // Feedforward constants
         public static final double kFeedforwardKs = 0.0;
@@ -189,14 +181,6 @@ public final class Constants {
         public static final double kSetpointL4 = 0.0;
         public static final double kSetpointFeed = 0.0;
         public static final double kSetpointStow = 0.0;
-
-        // For LaserCan, meters
-        public static final double kSetpointL1LaserCan = 0.0;
-        public static final double kSetpointL2LaserCan = 0.0;
-        public static final double kSetpointL3LaserCan = 0.0;
-        public static final double kSetpointL4LaserCan = 0.0;
-        public static final double kSetpointFeedLaserCan = 0.0;
-        public static final double kSetpointStowLaserCan = 0.0;
     }
 
     public static class GroundAlgaePivotConstants {

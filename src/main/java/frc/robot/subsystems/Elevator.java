@@ -7,23 +7,9 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-import au.grapplerobotics.LaserCan;
-import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -52,9 +38,6 @@ public class Elevator extends SubsystemBase {
   // Motor configs
   TalonFXConfiguration elevatorMotorConfig = new TalonFXConfiguration();
 
-  // LaserCAN
-  LaserCan laserCan = new LaserCan(kLaserCanId);
-  
   // Limit switches
   /*
    * [Done] Should be bound to a trigger in robotcontainer that calls something
@@ -90,19 +73,7 @@ public class Elevator extends SubsystemBase {
 
   private double currentSetpoint = 0.0;
 
-  // LaserCan controller
-  // ProfiledPIDController reference - should handle the TrapezoidProfile
-  // functions automatically
-  // https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/profiled-pidcontroller.html
-  private ProfiledPIDController elevatorPIDLaserCan = new ProfiledPIDController(kPLaserCan,
-      kILaserCan,
-      kDLaserCan,
-      new TrapezoidProfile.Constraints(
-          kMaxVelocity, kMaxAcceleration));
-
   public Elevator() {
-    // Set LaserCan PID intial position
-    elevatorPIDLaserCan.setGoal(kSetpointStow);
 
     // Set motor configurations
     elevatorMotorConfig.MotorOutput
@@ -133,28 +104,12 @@ public class Elevator extends SubsystemBase {
 
   public void setElevatorSetpoint(double setpoint) {
     currentSetpoint = setpoint;
-    if (kUseLaserCan) {
-      elevatorPIDLaserCan.setGoal(setpoint);
-    } else {
-      timer.reset();
-      startState = new TrapezoidProfile.State(elevatorMotor.getPosition().getValueAsDouble(), elevatorMotor.getVelocity().getValueAsDouble());
-      goalState = new TrapezoidProfile.State(setpoint, 0.0);
-    }
+    timer.reset();
+    startState = new TrapezoidProfile.State(elevatorMotor.getPosition().getValueAsDouble(), elevatorMotor.getVelocity().getValueAsDouble());
+    goalState = new TrapezoidProfile.State(setpoint, 0.0);
   }
 
-  // Set motor speeds based on PID calculation (LaserCan)
-  public void setMotorSpeedsLaserCan() {
-    if (kUseLaserCan) {
-      double distance = getLaserDistance();
-      if (distance != -1.0) // good idea, may have some weird effects though
-        setMotorVoltage(elevatorPIDLaserCan.calculate(distance)
-            + feedforward.calculate(elevatorPIDLaserCan.getSetpoint().velocity));
-      else
-        setMotorVoltage(0.0);
-    }
-  }
-
-  // Set pivot output based on position, velocity (without LaserCan)
+  // Set pivot output based on position, velocity
   public void setMotorOutput(double position, double velocity) {
     // Units might be messed up
     currentState = elevatorTrapezoidProfile.calculate(0.02, currentState, goalState);
@@ -163,17 +118,6 @@ public class Elevator extends SubsystemBase {
       .withVelocity(currentState.velocity);
 
     elevatorMotor.setControl(request);
-  }
-
-  // Returns meters
-  // According to the documentation getMeasurement() can return null. May need a
-  // better way to handle that
-  public double getLaserDistance() {
-    Measurement measurement = laserCan.getMeasurement();
-    if (measurement != null)
-      return measurement.distance_mm * 1000;
-    else
-      return -1.0;
   }
 
   // Returns true if limit switches are pressed
@@ -198,8 +142,7 @@ public class Elevator extends SubsystemBase {
   // Default command - hold position
   public Command holdState() {
     return this.run(() -> {
-      if(kUseLaserCan) setMotorSpeedsLaserCan();
-      else setMotorOutput(currentSetpoint, 0.0);
+      setMotorOutput(currentSetpoint, 0.0);
     }).withName("Elevator Default Command");
   }
 
@@ -209,39 +152,35 @@ public class Elevator extends SubsystemBase {
     return this.startRun(() -> {
       setElevatorSetpoint(position);
     }, () -> {
-      if (kUseLaserCan)
-        setMotorSpeedsLaserCan();
-      else {
         currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
         setMotorOutput(currentState.position, currentState.velocity);
-      }
-    }).until(() -> kUseLaserCan ? elevatorPIDLaserCan.atGoal() : elevatorTrapezoidProfile.isFinished(timer.get()))
+    }).until(() -> elevatorTrapezoidProfile.isFinished(timer.get()))
         .withName("Go to " + positionName);
   }
 
   // Commands to go to various pre-defined positions
   public Command goToL1() {
-    return goToPosition(kUseLaserCan ? kSetpointL1LaserCan : kSetpointL1, "L1");
+    return goToPosition(kSetpointL1, "L1");
   }
 
   public Command goToL2() {
-    return goToPosition(kUseLaserCan ? kSetpointL2LaserCan : kSetpointL2, "L2");
+    return goToPosition(kSetpointL2, "L2");
   }
 
   public Command goToL3() {
-    return goToPosition(kUseLaserCan ? kSetpointL3LaserCan : kSetpointL3, "L3");
+    return goToPosition(kSetpointL3, "L3");
   }
 
   public Command goToL4() {
-    return goToPosition(kUseLaserCan ? kSetpointL4LaserCan : kSetpointL4, "L4");
+    return goToPosition(kSetpointL4, "L4");
   }
 
   public Command goToFeed() {
-    return goToPosition(kUseLaserCan ? kSetpointFeedLaserCan : kSetpointFeed, "Feed");
+    return goToPosition(kSetpointFeed, "Feed");
   }
 
   public Command goToStow() {
-    return goToPosition(kUseLaserCan ? kSetpointStowLaserCan : kSetpointStow, "Stow");
+    return goToPosition(kSetpointStow, "Stow");
   }
 
   public void zeroEncoder() {
@@ -267,44 +206,7 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty("Elevator Motor Closed Loop Output", () -> elevatorMotor.getClosedLoopOutput().getValueAsDouble(), null);
     builder.addDoubleProperty("Elevator Motor Output Current", () -> elevatorMotor.getSupplyCurrent().getValueAsDouble(), null);
 
-    if (kUseLaserCan) {
-      // LaserCan distance
-      double distance = getLaserDistance();
-      builder.addDoubleProperty("Elevator LaserCan Distance", () -> distance, null);
-
-      // Setpoint and goal positions, velocities
-      builder.addDoubleProperty("Elevator Setpoint Position",
-          () -> elevatorPIDLaserCan.getSetpoint().position,
-          null);
-      builder.addDoubleProperty("Elevator Setpoint Velocity",
-          () -> elevatorPIDLaserCan.getSetpoint().velocity,
-          null);
-      builder.addDoubleProperty("Elevator Goal Position",
-          () -> elevatorPIDLaserCan.getGoal().position,
-          null);
-      builder.addDoubleProperty("Elevator Goal Velocity",
-          () -> elevatorPIDLaserCan.getGoal().velocity,
-          null);
-
-      // PID values
-      builder.addDoubleProperty("Elevator kP", () -> elevatorPIDLaserCan.getP(),
-          value -> elevatorPIDLaserCan.setP(value));
-      builder.addDoubleProperty("Elevator kI", () -> elevatorPIDLaserCan.getI(),
-          value -> elevatorPIDLaserCan.setI(value));
-      builder.addDoubleProperty("Elevator kD", () -> elevatorPIDLaserCan.getD(),
-          value -> elevatorPIDLaserCan.setD(value));
-
-      // PID output
-      builder.addDoubleProperty("Elevator PID Output",
-          () -> distance != -1 ? elevatorPIDLaserCan.calculate(getLaserDistance()) : -1,
-          null);
-
-      // Feedforward output
-      builder.addDoubleProperty("Elevator Feedforward Output",
-          () -> feedforward.calculate(elevatorPIDLaserCan.getSetpoint().velocity), null);
-    } else {
-      // Add SparkMax information (not done yet)
-    }
+    // Add SparkMax information (not done yet)
 
     // Feedforward values
     // There doesn't seem to be any setters for these. Don't think these would be
