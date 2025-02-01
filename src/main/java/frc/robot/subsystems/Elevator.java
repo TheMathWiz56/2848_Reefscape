@@ -100,6 +100,8 @@ public class Elevator extends SubsystemBase {
   // Timer for trapezoid profile
   private final Timer timer = new Timer();
 
+  private double currentSetpoint = 0.0;
+
   // LaserCan controller
   // ProfiledPIDController reference - should handle the TrapezoidProfile
   // functions automatically
@@ -171,6 +173,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void setElevatorSetpoint(double setpoint) {
+    currentSetpoint = setpoint;
     if (kUseLaserCan) {
       elevatorPIDLaserCan.setGoal(setpoint);
     } else {
@@ -180,8 +183,8 @@ public class Elevator extends SubsystemBase {
     }
   }
 
-  // Set motor speeds based on PID calculation
-  public void holdPosition() {
+  // Set motor speeds based on PID calculation (LaserCan)
+  public void setMotorSpeedsLaserCan() {
     if (kUseLaserCan) {
       double distance = getLaserDistance();
       if (distance != -1.0) // good idea, may have some weird effects though
@@ -189,11 +192,14 @@ public class Elevator extends SubsystemBase {
             + feedforward.calculate(elevatorPIDLaserCan.getSetpoint().velocity));
       else
         setMotorVoltage(0.0);
-    } else {
-      // Units are probably messed up
-      elevatorMotor1Controller.setReference(currentState.position, SparkMax.ControlType.kPosition,
-          ClosedLoopSlot.kSlot0, feedforward.calculate(currentState.position, currentState.velocity));
     }
+  }
+
+  // Set pivot output based on position, velocity (without LaserCan)
+  public void setMotorOutput(double position, double velocity) {
+    // Units probably messed up
+    elevatorMotor1Controller.setReference(currentState.position, SparkMax.ControlType.kPosition,
+        ClosedLoopSlot.kSlot0, feedforward.calculate(currentState.position, currentState.velocity));
   }
 
   // Returns meters
@@ -214,7 +220,10 @@ public class Elevator extends SubsystemBase {
 
   // Default command - hold position
   public Command holdState() {
-    return this.run(() -> holdPosition()).withName("Elevator Default Command");
+    return this.run(() -> {
+      if(kUseLaserCan) setMotorSpeedsLaserCan();
+      else setMotorOutput(currentSetpoint, 0.0);
+    }).withName("Elevator Default Command");
   }
 
   // Set motor voltage to zero, triggered by limit switches in RobotContainer
@@ -227,9 +236,12 @@ public class Elevator extends SubsystemBase {
     return this.startRun(() -> {
       setElevatorSetpoint(position);
     }, () -> {
-      if (!kUseLaserCan)
+      if (kUseLaserCan)
+        setMotorSpeedsLaserCan();
+      else {
         currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
-      holdPosition();
+        setMotorOutput(currentState.position, currentState.velocity);
+      }
     }).until(() -> kUseLaserCan ? elevatorPIDLaserCan.atGoal() : elevatorTrapezoidProfile.isFinished(timer.get()))
         .withName("Go to " + positionName);
   }
