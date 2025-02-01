@@ -17,7 +17,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import au.grapplerobotics.LaserCan;
-import au.grapplerobotics.LaserCan.Measurement;
+import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -85,9 +85,15 @@ public class Elevator extends SubsystemBase {
       kMaxVelocity, kMaxAcceleration));
 
   //Trapezoid profile states
-  private final TrapezoidProfile.State start = new TrapezoidProfile.State();
-  private final TrapezoidProfile.State goal = new TrapezoidProfile.State();
-  private final TrapezoidProfile.State current = new TrapezoidProfile.State();
+  private TrapezoidProfile.State startState = new TrapezoidProfile.State();
+  private TrapezoidProfile.State goalState = new TrapezoidProfile.State();
+  private TrapezoidProfile.State currentState = new TrapezoidProfile.State();
+
+  // Timer for trapezoid profile
+  private final Timer timer = new Timer();
+
+  // Pivot setpoint for feedforward (on board motor controllers)
+  private double pivotSetpoint = 0;
 
   // LaserCan controller
   // ProfiledPIDController reference - should handle the TrapezoidProfile
@@ -98,9 +104,6 @@ public class Elevator extends SubsystemBase {
       kDLaserCan,
       new TrapezoidProfile.Constraints(
           kMaxVelocity, kMaxAcceleration));
-
-  // Encoder position setpoint for Spark PID
-  private double elevatorSetpoint = kSetpointStow;
 
   public Elevator() {
     // Set LaserCan PID intial position
@@ -150,6 +153,9 @@ public class Elevator extends SubsystemBase {
 
     // Soft limit?
 
+    // Timer start
+    timer.start();
+
     // Apply the motor configurations
     elevatorMotor1.configure(elevatorMotor1Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     elevatorMotor2.configure(elevatorMotor2Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -163,7 +169,9 @@ public class Elevator extends SubsystemBase {
     if (kUseLaserCan) {
       elevatorPIDLaserCan.setGoal(setpoint);
     } else {
-      elevatorSetpoint = setpoint;
+      pivotSetpoint = setpoint;
+      timer.reset();
+      startState = new TrapezoidProfile.State();
     }
   }
 
@@ -219,27 +227,27 @@ public class Elevator extends SubsystemBase {
 
   // Commands to go to various pre-defined positions
   public Command goToL1() {
-    return goToPosition(kSetpointL1, "L1");
+    return goToPosition(kUseLaserCan ? kSetpointL1LaserCan : kSetpointL1, "L1");
   }
 
   public Command goToL2() {
-    return goToPosition(kSetpointL2, "L2");
+    return goToPosition(kUseLaserCan ? kSetpointL2LaserCan : kSetpointL2, "L2");
   }
 
   public Command goToL3() {
-    return goToPosition(kSetpointL3, "L3");
+    return goToPosition(kUseLaserCan ? kSetpointL3LaserCan : kSetpointL3, "L3");
   }
 
   public Command goToL4() {
-    return goToPosition(kSetpointL4, "L4");
+    return goToPosition(kUseLaserCan ? kSetpointL4LaserCan : kSetpointL4, "L4");
   }
 
   public Command goToFeed() {
-    return goToPosition(kSetpointFeed, "Feed");
+    return goToPosition(kUseLaserCan ? kSetpointFeedLaserCan : kSetpointFeed, "Feed");
   }
 
   public Command goToStow() {
-    return goToPosition(kSetpointStow, "Stow");
+    return goToPosition(kUseLaserCan ? kSetpointStowLaserCan : kSetpointStow, "Stow");
   }
 
   @Override
