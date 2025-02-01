@@ -151,8 +151,6 @@ public class Elevator extends SubsystemBase {
 
     elevatorMotor2Config.follow(kMotor1Id, kMotor2Inverted);
 
-    // Soft limit?
-
     // Timer start
     timer.start();
 
@@ -215,6 +213,16 @@ public class Elevator extends SubsystemBase {
     return elevatorLimitSwitchBottom.get();
   }
 
+  // Set motor voltage to zero, triggered by limit switches in RobotContainer
+  public Command elevatorAtTopLimit() {
+    return this.run(() -> setMotorVoltage(0.0)).withName("Elevator At Top Limit");
+  }
+
+  // Set motor voltage to zero, triggered by limit switches in RobotContainer
+  public Command elevatorAtBottomLimit() {
+    return this.startRun(() -> zeroEncoders(), () -> setMotorVoltage(1.0)).withName("Elevator At Top Limit");
+  }
+
   // Default command - hold position
   public Command holdState() {
     return this.run(() -> {
@@ -223,10 +231,6 @@ public class Elevator extends SubsystemBase {
     }).withName("Elevator Default Command");
   }
 
-  // Set motor voltage to zero, triggered by limit switches in RobotContainer
-  public Command elevatorAtTopLimit() {
-    return this.run(() -> setMotorVoltage(0.0)).withName("Elevator At Top Limit");
-  }
 
   // Command to go to position
   public Command goToPosition(double position, String positionName) {
