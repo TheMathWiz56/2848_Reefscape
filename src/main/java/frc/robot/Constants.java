@@ -140,8 +140,7 @@ public final class Constants {
     }
 
     public static class ElevatorConstants {
-        public static final int kMotor1Id = 0;
-        public static final int kMotor2Id = 0;
+        public static final int kMotorId = 0;
         public static final int kLaserCanId = 0;
         public static final int kLimitSwitchTopId = 0;
         public static final int kLimitSwitchBottomId = 0;

@@ -6,6 +6,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -42,8 +43,7 @@ import static frc.robot.Constants.ElevatorConstants.*;
 
 public class Elevator extends SubsystemBase {
 
-  private final SparkMax elevatorMotor1 = new SparkMax(kMotor1Id, MotorType.kBrushless);
-  private final SparkMax elevatorMotor2 = new SparkMax(kMotor2Id, MotorType.kBrushless);
+  private final TalonFX elevatorMotor = new TalonFX(kMotorId);
 
   // LaserCAN
   LaserCan laserCan = new LaserCan(kLaserCanId);
@@ -68,18 +68,6 @@ public class Elevator extends SubsystemBase {
   private final ElevatorFeedforward feedforward = new ElevatorFeedforward(kFeedforwardKs,
       kFeedforwardKg, kFeedforwardKv, kFeedforwardKa,
       kFeedforwardDtSeconds);
-
-  // Spark controllers
-  private final SparkClosedLoopController elevatorMotor1Controller = elevatorMotor1.getClosedLoopController();
-  private final SparkClosedLoopController elevatorMotor2Controller = elevatorMotor2.getClosedLoopController();
-
-  // Spark ABS encoders
-  private final RelativeEncoder elevatorMotor1Encoder = elevatorMotor1.getEncoder();
-  private final RelativeEncoder elevatorMotor2Encoder = elevatorMotor2.getEncoder();
-
-  // Motor configurations
-  private final SparkMaxConfig elevatorMotor1Config = new SparkMaxConfig();
-  private final SparkMaxConfig elevatorMotor2Config = new SparkMaxConfig();
 
   // Trapezoid profile for feedforward
   private final TrapezoidProfile elevatorTrapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
@@ -110,12 +98,12 @@ public class Elevator extends SubsystemBase {
     elevatorPIDLaserCan.setGoal(kSetpointStow);
 
     // Set motor configurations
-    elevatorMotor1Config
+    elevatorMotorConfig
         .inverted(kMotor1Inverted)
         .idleMode(kMotorIdleMode)
         .smartCurrentLimit(kCurrentLimit);
 
-    elevatorMotor1Config.closedLoop
+    elevatorMotorConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .pid(kP, kI,
             kD)
@@ -123,11 +111,11 @@ public class Elevator extends SubsystemBase {
         .iMaxAccum(kIMaxAccum)
         .outputRange(-1, 1);
 
-    elevatorMotor1Config.encoder
+    elevatorMotorConfig.encoder
         .positionConversionFactor(kMotorPositionConversionFactor)
         .velocityConversionFactor(kMotorVelocityConversionFactor);
 
-    elevatorMotor1Config.absoluteEncoder
+    elevatorMotorConfig.absoluteEncoder
         .zeroOffset(kMotor1EncoderOffset);
 
     elevatorMotor2Config
@@ -155,12 +143,12 @@ public class Elevator extends SubsystemBase {
     timer.start();
 
     // Apply the motor configurations
-    elevatorMotor1.configure(elevatorMotor1Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     elevatorMotor2.configure(elevatorMotor2Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void setMotorVoltage(double voltage) {
-    elevatorMotor1.setVoltage(voltage);
+    elevatorMotor.setVoltage(voltage);
   }
 
   public void setElevatorSetpoint(double setpoint) {
@@ -169,7 +157,7 @@ public class Elevator extends SubsystemBase {
       elevatorPIDLaserCan.setGoal(setpoint);
     } else {
       timer.reset();
-      startState = new TrapezoidProfile.State(elevatorMotor1Encoder.getPosition(), elevatorMotor1Encoder.getVelocity());
+      startState = new TrapezoidProfile.State(elevatorMotorEncoder.getPosition(), elevatorMotorEncoder.getVelocity());
       goalState = new TrapezoidProfile.State(setpoint, 0.0);
     }
   }
@@ -189,7 +177,7 @@ public class Elevator extends SubsystemBase {
   // Set pivot output based on position, velocity (without LaserCan)
   public void setMotorOutput(double position, double velocity) {
     // Units probably messed up
-    elevatorMotor1Controller.setReference(currentState.position, SparkMax.ControlType.kPosition,
+    elevatorMotorController.setReference(currentState.position, SparkMax.ControlType.kPosition,
         ClosedLoopSlot.kSlot0, feedforward.calculate(currentState.position, currentState.velocity));
   }
 
@@ -273,7 +261,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void zeroEncoders() {
-    elevatorMotor1Encoder.setPosition(0.0);
+    elevatorMotorEncoder.setPosition(0.0);
     elevatorMotor2Encoder.setPosition(0.0);
   }
 
@@ -292,9 +280,9 @@ public class Elevator extends SubsystemBase {
     super.initSendable(builder); // Not sure why we need this
 
     // Motor information
-    builder.addDoubleProperty("Elevator Motor 1 Temperature", () -> elevatorMotor1.getMotorTemperature(), null);
-    builder.addDoubleProperty("Elevator Motor 1 Output", () -> elevatorMotor1.getAppliedOutput(), null);
-    builder.addDoubleProperty("Elevator Motor 1 Output Current", () -> elevatorMotor1.getOutputCurrent(), null);
+    builder.addDoubleProperty("Elevator Motor 1 Temperature", () -> elevatorMotor.getMotorTemperature(), null);
+    builder.addDoubleProperty("Elevator Motor 1 Output", () -> elevatorMotor.getAppliedOutput(), null);
+    builder.addDoubleProperty("Elevator Motor 1 Output Current", () -> elevatorMotor.getOutputCurrent(), null);
 
     builder.addDoubleProperty("Elevator Motor 2 Temperature", () -> elevatorMotor2.getMotorTemperature(), null);
     builder.addDoubleProperty("Elevator Motor 2 Output", () -> elevatorMotor2.getAppliedOutput(), null);
