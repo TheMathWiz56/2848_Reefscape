@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -145,11 +147,9 @@ public final class Constants {
         public static final int kLimitSwitchTopId = 0;
         public static final int kLimitSwitchBottomId = 0;
 
-        public static final boolean kMotor1Inverted = false;
-        public static final boolean kMotor2Inverted = false;
-        public static final double kMotor1EncoderOffset = 0.0;
-        public static final double kMotor2EncoderOffset = 0.0;
-        public static final IdleMode kMotorIdleMode = IdleMode.kCoast;
+        public static final InvertedValue kMotorInverted = InvertedValue.Clockwise_Positive;
+        public static final double kMotorEncoderOffset = 0.0;
+        public static final NeutralModeValue kMotorIdleMode = NeutralModeValue.Coast;
 
         public static final int kCurrentLimit = 40;
 

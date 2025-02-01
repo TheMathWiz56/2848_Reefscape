@@ -6,7 +6,10 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -45,9 +48,12 @@ public class Elevator extends SubsystemBase {
 
   private final TalonFX elevatorMotor = new TalonFX(kMotorId);
 
+  // Motor configs
+  TalonFXConfiguration elevatorMotorConfig = new TalonFXConfiguration();
+
   // LaserCAN
   LaserCan laserCan = new LaserCan(kLaserCanId);
-
+  
   // Limit switches
   /*
    * [Done] Should be bound to a trigger in robotcontainer that calls something
@@ -98,53 +104,26 @@ public class Elevator extends SubsystemBase {
     elevatorPIDLaserCan.setGoal(kSetpointStow);
 
     // Set motor configurations
-    elevatorMotorConfig
-        .inverted(kMotor1Inverted)
-        .idleMode(kMotorIdleMode)
-        .smartCurrentLimit(kCurrentLimit);
+    elevatorMotorConfig.MotorOutput
+      .withInverted(kMotorInverted)
+      .withNeutralMode(kMotorIdleMode);
 
-    elevatorMotorConfig.closedLoop
-        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-        .pid(kP, kI,
-            kD)
-        .iZone(kIZone)
-        .iMaxAccum(kIMaxAccum)
-        .outputRange(-1, 1);
+    elevatorMotorConfig.CurrentLimits
+      .withStatorCurrentLimit(kCurrentLimit);
 
-    elevatorMotorConfig.encoder
-        .positionConversionFactor(kMotorPositionConversionFactor)
-        .velocityConversionFactor(kMotorVelocityConversionFactor);
-
-    elevatorMotorConfig.absoluteEncoder
-        .zeroOffset(kMotor1EncoderOffset);
-
-    elevatorMotor2Config
-        .idleMode(kMotorIdleMode)
-        .smartCurrentLimit(kCurrentLimit);
-
-    elevatorMotor2Config.closedLoop
-        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-        .pid(kP, kI,
-            kD)
-        .iZone(kIZone)
-        .iMaxAccum(kIMaxAccum)
-        .outputRange(-1, 1);
-
-    elevatorMotor2Config.encoder
-        .positionConversionFactor(kMotorPositionConversionFactor)
-        .velocityConversionFactor(kMotorVelocityConversionFactor);
-
-    elevatorMotor2Config.absoluteEncoder
-        .zeroOffset(kMotor2EncoderOffset);
-
-    elevatorMotor2Config.follow(kMotor1Id, kMotor2Inverted);
+      //Missing feedback sensor, izone, imaxaccum, outputrange
+    elevatorMotorConfig.Slot0
+      .withKP(kP)
+      .withKI(kI)
+      .withKD(kD);
+    
+      //Missing encoder position conversion factor, velocity conversion factor, zero offset
 
     // Timer start
     timer.start();
 
-    // Apply the motor configurations
-    elevatorMotor.configure(elevatorMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    elevatorMotor2.configure(elevatorMotor2Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // Apply the motor configurations, set PID to slot 0
+    elevatorMotor.getConfigurator().apply(elevatorMotorConfig);
   }
 
   public void setMotorVoltage(double voltage) {
@@ -208,7 +187,7 @@ public class Elevator extends SubsystemBase {
 
   // Zero encoders and lift elevator slightly, triggered by limit switches in RobotContainer
   public Command elevatorAtBottomLimit() {
-    return this.startRun(() -> zeroEncoders(), () -> setMotorVoltage(1.0)).withName("Elevator At Bottom Limit");
+    return this.startRun(() -> zeroEncoder(), () -> setMotorVoltage(1.0)).withName("Elevator At Bottom Limit");
   }
 
   // Default command - hold position
@@ -260,9 +239,8 @@ public class Elevator extends SubsystemBase {
     return goToPosition(kUseLaserCan ? kSetpointStowLaserCan : kSetpointStow, "Stow");
   }
 
-  public void zeroEncoders() {
+  public void zeroEncoder() {
     elevatorMotorEncoder.setPosition(0.0);
-    elevatorMotor2Encoder.setPosition(0.0);
   }
 
   @Override
@@ -283,10 +261,6 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty("Elevator Motor 1 Temperature", () -> elevatorMotor.getMotorTemperature(), null);
     builder.addDoubleProperty("Elevator Motor 1 Output", () -> elevatorMotor.getAppliedOutput(), null);
     builder.addDoubleProperty("Elevator Motor 1 Output Current", () -> elevatorMotor.getOutputCurrent(), null);
-
-    builder.addDoubleProperty("Elevator Motor 2 Temperature", () -> elevatorMotor2.getMotorTemperature(), null);
-    builder.addDoubleProperty("Elevator Motor 2 Output", () -> elevatorMotor2.getAppliedOutput(), null);
-    builder.addDoubleProperty("Elevator Motor 2 Output Current", () -> elevatorMotor2.getOutputCurrent(), null);
 
     if (kUseLaserCan) {
       // LaserCan distance
