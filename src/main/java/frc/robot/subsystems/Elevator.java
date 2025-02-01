@@ -115,7 +115,8 @@ public class Elevator extends SubsystemBase {
     currentState = elevatorTrapezoidProfile.calculate(0.02, currentState, goalState);
     PositionVoltage request = new PositionVoltage(0).withSlot(0)
       .withPosition(currentState.position)
-      .withVelocity(currentState.velocity);
+      .withVelocity(currentState.velocity)
+      .withFeedForward(feedforward.calculate(elevatorMotor.getVelocity().getValueAsDouble(), elevatorMotor.getAcceleration().getValueAsDouble()));
 
     elevatorMotor.setControl(request);
   }
@@ -206,7 +207,7 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty("Elevator Motor Closed Loop Output", () -> elevatorMotor.getClosedLoopOutput().getValueAsDouble(), null);
     builder.addDoubleProperty("Elevator Motor Output Current", () -> elevatorMotor.getSupplyCurrent().getValueAsDouble(), null);
 
-    // Add SparkMax information (not done yet)
+    // Add closed loop information (not done yet)
 
     // Feedforward values
     // There doesn't seem to be any setters for these. Don't think these would be
