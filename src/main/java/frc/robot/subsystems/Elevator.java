@@ -6,6 +6,9 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.ColorSensorV3.ColorSensorMeasurementRate;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
@@ -76,6 +79,10 @@ public class Elevator extends SubsystemBase {
   private final SparkClosedLoopController elevatorMotor1Controller = elevatorMotor1.getClosedLoopController();
   private final SparkClosedLoopController elevatorMotor2Controller = elevatorMotor2.getClosedLoopController();
 
+  // Spark ABS encoders
+  private final AbsoluteEncoder elevatorMotor1Encoder = elevatorMotor1.getAbsoluteEncoder();
+  private final AbsoluteEncoder elevatorMotor2Encoder = elevatorMotor2.getAbsoluteEncoder();
+
   // Motor configurations
   private final SparkMaxConfig elevatorMotor1Config = new SparkMaxConfig();
   private final SparkMaxConfig elevatorMotor2Config = new SparkMaxConfig();
@@ -84,16 +91,13 @@ public class Elevator extends SubsystemBase {
   private final TrapezoidProfile elevatorTrapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
       kMaxVelocity, kMaxAcceleration));
 
-  //Trapezoid profile states
+  // Trapezoid profile states
   private TrapezoidProfile.State startState = new TrapezoidProfile.State();
   private TrapezoidProfile.State goalState = new TrapezoidProfile.State();
   private TrapezoidProfile.State currentState = new TrapezoidProfile.State();
 
   // Timer for trapezoid profile
   private final Timer timer = new Timer();
-
-  // Pivot setpoint for feedforward (on board motor controllers)
-  private double pivotSetpoint = 0;
 
   // LaserCan controller
   // ProfiledPIDController reference - should handle the TrapezoidProfile
@@ -169,9 +173,9 @@ public class Elevator extends SubsystemBase {
     if (kUseLaserCan) {
       elevatorPIDLaserCan.setGoal(setpoint);
     } else {
-      pivotSetpoint = setpoint;
       timer.reset();
-      startState = new TrapezoidProfile.State();
+      startState = new TrapezoidProfile.State(elevatorMotor1Encoder.getPosition(), elevatorMotor1Encoder.getVelocity());
+      goalState = new TrapezoidProfile.State(setpoint, 0.0);
     }
   }
 
@@ -185,7 +189,10 @@ public class Elevator extends SubsystemBase {
       else
         setMotorVoltage(0.0);
     } else {
-      // Would probably need to make a full TrapezoidalProfile here
+      currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
+      // Units are probably messed up
+      elevatorMotor1Controller.setReference(currentState.position, SparkMax.ControlType.kPosition,
+          ClosedLoopSlot.kSlot0, feedforward.calculate(currentState.position, currentState.velocity));
     }
   }
 
