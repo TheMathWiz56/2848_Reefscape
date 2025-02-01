@@ -8,6 +8,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.RelativeEncoder;
@@ -136,7 +137,7 @@ public class Elevator extends SubsystemBase {
       elevatorPIDLaserCan.setGoal(setpoint);
     } else {
       timer.reset();
-      startState = new TrapezoidProfile.State(elevatorMotorEncoder.getPosition(), elevatorMotorEncoder.getVelocity());
+      startState = new TrapezoidProfile.State(elevatorMotor.getPosition().getValueAsDouble(), elevatorMotor.getVelocity().getValueAsDouble());
       goalState = new TrapezoidProfile.State(setpoint, 0.0);
     }
   }
@@ -155,9 +156,13 @@ public class Elevator extends SubsystemBase {
 
   // Set pivot output based on position, velocity (without LaserCan)
   public void setMotorOutput(double position, double velocity) {
-    // Units probably messed up
-    elevatorMotorController.setReference(currentState.position, SparkMax.ControlType.kPosition,
-        ClosedLoopSlot.kSlot0, feedforward.calculate(currentState.position, currentState.velocity));
+    // Units might be messed up
+    currentState = elevatorTrapezoidProfile.calculate(0.02, currentState, goalState);
+    PositionVoltage request = new PositionVoltage(0).withSlot(0)
+      .withPosition(currentState.position)
+      .withVelocity(currentState.velocity);
+
+    elevatorMotor.setControl(request);
   }
 
   // Returns meters
@@ -240,7 +245,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public void zeroEncoder() {
-    elevatorMotorEncoder.setPosition(0.0);
+    elevatorMotor.setPosition(0.0);
   }
 
   @Override
@@ -258,9 +263,9 @@ public class Elevator extends SubsystemBase {
     super.initSendable(builder); // Not sure why we need this
 
     // Motor information
-    builder.addDoubleProperty("Elevator Motor 1 Temperature", () -> elevatorMotor.getMotorTemperature(), null);
-    builder.addDoubleProperty("Elevator Motor 1 Output", () -> elevatorMotor.getAppliedOutput(), null);
-    builder.addDoubleProperty("Elevator Motor 1 Output Current", () -> elevatorMotor.getOutputCurrent(), null);
+    builder.addDoubleProperty("Elevator Motor Temperature", () -> elevatorMotor.getDeviceTemp().getValueAsDouble(), null);
+    builder.addDoubleProperty("Elevator Motor Closed Loop Output", () -> elevatorMotor.getClosedLoopOutput().getValueAsDouble(), null);
+    builder.addDoubleProperty("Elevator Motor Output Current", () -> elevatorMotor.getSupplyCurrent().getValueAsDouble(), null);
 
     if (kUseLaserCan) {
       // LaserCan distance
