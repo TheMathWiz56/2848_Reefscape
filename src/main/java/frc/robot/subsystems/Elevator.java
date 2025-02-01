@@ -84,6 +84,11 @@ public class Elevator extends SubsystemBase {
   private final TrapezoidProfile elevatorTrapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
       kMaxVelocity, kMaxAcceleration));
 
+  //Trapezoid profile states
+  private final TrapezoidProfile.State start = new TrapezoidProfile.State();
+  private final TrapezoidProfile.State goal = new TrapezoidProfile.State();
+  private final TrapezoidProfile.State current = new TrapezoidProfile.State();
+
   // LaserCan controller
   // ProfiledPIDController reference - should handle the TrapezoidProfile
   // functions automatically
