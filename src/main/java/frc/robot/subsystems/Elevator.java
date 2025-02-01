@@ -204,7 +204,7 @@ public class Elevator extends SubsystemBase {
       return -1.0;
   }
 
-  // Returns true if either limit switch is pressed
+  // Returns true if limit switches are pressed
   public boolean getLimitSwitchTop() {
     return elevatorLimitSwitchTop.get();
   }
@@ -218,7 +218,7 @@ public class Elevator extends SubsystemBase {
     return this.run(() -> setMotorVoltage(0.0)).withName("Elevator At Top Limit");
   }
 
-  // Set motor voltage to zero, triggered by limit switches in RobotContainer
+  // Zero encoders and lift elevator slightly, triggered by limit switches in RobotContainer
   public Command elevatorAtBottomLimit() {
     return this.startRun(() -> zeroEncoders(), () -> setMotorVoltage(1.0)).withName("Elevator At Bottom Limit");
   }

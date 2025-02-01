@@ -146,7 +146,10 @@ public class RobotContainer {
 
 
         // Trigger to zero motor voltage on elevator if top limit switch trips
-        Trigger elevatorLimitTrigger = new Trigger(elevator::getLimitSwitchTop).whileTrue(elevator.elevatorAtTopLimit());
+        Trigger elevatorTopLimitTrigger = new Trigger(elevator::getLimitSwitchTop).whileTrue(elevator.elevatorAtTopLimit());
+
+        // Trigger to lift elevator slightly, zero encoders if bottom limit switch trips
+        Trigger elevatorBottomLimitTrigger = new Trigger(elevator::getLimitSwitchBottom).whileTrue(elevator.elevatorAtBottomLimit());
 
 
 
