@@ -8,22 +8,18 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.AscenderConstants;
+import static frc.robot.Constants.AscenderConstants.*;
 
 // Seems like there is uncertainty about the ascender, so I'm holding off on it for now
 public class Ascender extends SubsystemBase {
     
-    private final SparkMax ascenderMotor = new SparkMax(AscenderConstants.kAscenderMotorId, SparkMax.MotorType.kBrushless);
+    private final SparkMax ascenderMotor = new SparkMax(kAscenderMotorId, SparkMax.MotorType.kBrushless);
 
-    // ABS Encoder - could be an AnalogInput instead
-    private final DutyCycleEncoder absEncoder = new DutyCycleEncoder(AscenderConstants.kAscenderAbsEncoderId);
-
-    // Potentially also 2 limit switches - DigitalInput class
-    // Additionally there will be a camera
+    private final DigitalInput ascenderLimitSwitch = new DigitalInput(kAscenderLimitSwitchId);
 
     public Ascender() {
 

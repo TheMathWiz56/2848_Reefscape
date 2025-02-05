@@ -204,16 +204,16 @@ public class Elevator extends SubsystemBase {
     // Feedforward values
     // There doesn't seem to be any setters for these. Don't think these would be
     // useful without that so commenting them out for now
-    /*
-     * builder.addDoubleProperty("Elevator Feedforward Ks", () ->
-     * feedforward.getKs(), null);
-     * builder.addDoubleProperty("Elevator Feedforward Kg", () ->
-     * feedforward.getKg(), null);
-     * builder.addDoubleProperty("Elevator Feedforward Kv", () ->
-     * feedforward.getKv(), null);
-     * builder.addDoubleProperty("Elevator Feedforward Ka", () ->
-     * feedforward.getKa(), null);
-     */
+  
+    builder.addDoubleProperty("Elevator Feedforward Ks", () ->
+    feedforward.getKs(), null);
+    builder.addDoubleProperty("Elevator Feedforward Kg", () ->
+    feedforward.getKg(), null);
+    builder.addDoubleProperty("Elevator Feedforward Kv", () ->
+    feedforward.getKv(), null);
+    builder.addDoubleProperty("Elevator Feedforward Ka", () ->
+    feedforward.getKa(), null);
+     
 
   }
 

@@ -138,7 +138,7 @@ public final class Constants {
 
     public static class AscenderConstants {
         public static final int kAscenderMotorId = 0;
-        public static final int kAscenderAbsEncoderId = 0;
+        public static final int kAscenderLimitSwitchId = 0;
     }
 
     public static class ElevatorConstants {
