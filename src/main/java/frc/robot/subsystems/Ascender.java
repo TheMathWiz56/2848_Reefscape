@@ -26,7 +26,7 @@ public class Ascender extends SubsystemBase {
     }
 
     public Command climb() {
-        return null;
+        return runEnd(() -> ascenderMotor.set(1), () -> ascenderMotor.stopMotor()).until(() -> ascenderLimitSwitch.get());
     }
 
     @Override
