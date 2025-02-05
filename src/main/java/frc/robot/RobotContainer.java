@@ -64,7 +64,7 @@ public class RobotContainer {
     public final Lights lights = new Lights();
     public final Elevator elevator = new Elevator();
     public final Arm arm = new Arm();
-    public final Ascender ascender = new Ascender(); // Note to self: Ascender class hasn't been started yet
+    public final Ascender ascender = new Ascender();
     public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
     public final Pincer pincer = new Pincer();
@@ -87,13 +87,14 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Default commands
-        /*
+        
         elevator.setDefaultCommand(elevator.holdState());
         arm.setDefaultCommand(arm.holdState());
         pincer.setDefaultCommand(pincer.holdState());
         groundAlgaePivot.setDefaultCommand(groundAlgaePivot.holdState());
         groundAlgaeWheels.setDefaultCommand(groundAlgaeWheels.holdState());
-        */
+        ascender.setDefaultCommand(Commands.idle(ascender));
+
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
