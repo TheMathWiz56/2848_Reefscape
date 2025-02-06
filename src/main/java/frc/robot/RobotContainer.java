@@ -158,7 +158,7 @@ public class RobotContainer {
 
     // Command compositions (there is probably a better place for these)
     // Missing: limelight functionality
-/*
+
     public Command climbSequence() {
             return elevator.goToStow().andThen(ascender.climb()); // climb() returns null for now
     }
@@ -212,7 +212,7 @@ public class RobotContainer {
     public Command reefAlgae() {
             return null;
     }
- */
+ 
     public Command getAutonomousCommand() {
         /* Run the path selected from the auto chooser */
         return autoChooser.getSelected();
