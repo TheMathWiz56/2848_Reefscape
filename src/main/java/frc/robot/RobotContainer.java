@@ -4,40 +4,29 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.path.PathConstraints;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Ascender;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.GroundAlgaePivot;
-import frc.robot.subsystems.GroundAlgaeWheels;
-import frc.robot.subsystems.Lights;
-import frc.robot.subsystems.Pincer;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -60,14 +49,17 @@ public class RobotContainer {
     private final CommandXboxController operatorJoystick = new CommandXboxController(2);
 
     // Subsystem Instances
+    /*
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final Lights lights = new Lights();
-    public final Elevator elevator = new Elevator();
+    
     public final Arm arm = new Arm();
     public final Ascender ascender = new Ascender();
     public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
     public final Pincer pincer = new Pincer();
+ */
+        public final Elevator elevator = new Elevator();
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
@@ -89,6 +81,13 @@ public class RobotContainer {
         // Default commands
         
         elevator.setDefaultCommand(elevator.holdState());
+
+        driverJoystick.a().onTrue(elevator.goToL1());
+        driverJoystick.b().onTrue(elevator.goToL2());
+        driverJoystick.x().onTrue(elevator.goToL3());
+        driverJoystick.y().onTrue(elevator.goToL4());
+
+        /*
         arm.setDefaultCommand(arm.holdState());
         pincer.setDefaultCommand(pincer.holdState());
         groundAlgaePivot.setDefaultCommand(groundAlgaePivot.holdState());
@@ -122,12 +121,13 @@ public class RobotContainer {
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));
         driverJoystick.pov(180)
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
-
+ */
         /*
          * Run SysId routines when holding back/start and X/Y.
          * Note that each routine should be run exactly once in a single log.
          * Disable for competition
          */
+        /*
         driverJoystick.back().and(driverJoystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
         driverJoystick.back().and(driverJoystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         driverJoystick.start().and(driverJoystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
@@ -151,14 +151,14 @@ public class RobotContainer {
 
         // Trigger to lift elevator slightly, zero encoders if bottom limit switch trips
         Trigger elevatorBottomLimitTrigger = new Trigger(elevator::getLimitSwitchBottom).whileTrue(elevator.elevatorAtBottomLimit());
-
+ */
 
 
     }
 
     // Command compositions (there is probably a better place for these)
     // Missing: limelight functionality
-
+/*
     public Command climbSequence() {
             return elevator.goToStow().andThen(ascender.climb()); // climb() returns null for now
     }
@@ -212,7 +212,7 @@ public class RobotContainer {
     public Command reefAlgae() {
             return null;
     }
- 
+  */
     public Command getAutonomousCommand() {
         /* Run the path selected from the auto chooser */
         return autoChooser.getSelected();

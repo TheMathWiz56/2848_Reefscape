@@ -153,9 +153,6 @@ public final class Constants {
 
         public static final int kCurrentLimit = 50;
 
-        public static final double kMotorPositionConversionFactor = 1.0;
-        public static final double kMotorVelocityConversionFactor = 1.0;
-
         // Trapezoid Proflile parameters
         public static final double kMaxVelocity = 0.0;
         public static final double kMaxAcceleration = 0.0;
@@ -170,16 +167,16 @@ public final class Constants {
         // Feedforward constants
         public static final double kFeedforwardKs = 0.0;
         public static final double kFeedforwardKg = 0.0;
-        public static final double kFeedforwardKv = 0.0;
+        public static final double kFeedforwardKv = 3.0;
         public static final double kFeedforwardKa = 0.0;
         public static final double kFeedforwardDtSeconds = 0.0;
 
         // Setpoints for targeting different levels, some other situations
         // For Spark built in encoder
         public static final double kSetpointL1 = 0.0;
-        public static final double kSetpointL2 = 0.0;
-        public static final double kSetpointL3 = 0.0;
-        public static final double kSetpointL4 = 0.0;
+        public static final double kSetpointL2 = -23.044921875;        
+        public static final double kSetpointL3 = -32.32275390625;
+        public static final double kSetpointL4 = -42.7;
         public static final double kSetpointFeed = 0.0;
         public static final double kSetpointStow = 0.0;
     }

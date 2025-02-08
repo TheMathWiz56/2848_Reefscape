@@ -187,33 +187,35 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty("Elevator Motor Output Current",
         () -> elevatorMotor.getSupplyCurrent().getValueAsDouble(), null);
 
+    builder.addDoubleProperty("Torque Current (Amps)", () -> Math.abs(elevatorMotor.getTorqueCurrent().getValueAsDouble()),
+        null);
+    builder.addDoubleProperty("Supply Current (Amps)", () -> Math.abs(elevatorMotor.getSupplyCurrent().getValueAsDouble()),
+        null);
+    builder.addDoubleProperty("Encoder Output (Rotations)", () -> elevatorMotor.getPosition().getValueAsDouble(),
+        (input) -> elevatorMotor.setPosition(input));
+
     // Add closed loop information (not done yet)
     builder.addDoubleProperty("Elevator kP,", () -> elevatorMotorConfig.Slot0.kP, (kPNew) -> {
-      elevatorMotorConfig.Slot0.withKP(0);
+      elevatorMotorConfig.Slot0.withKP(kPNew);
       elevatorMotor.getConfigurator().apply(elevatorMotorConfig);
     });
     builder.addDoubleProperty("Elevator kI,", () -> elevatorMotorConfig.Slot0.kI, (kINew) -> {
-      elevatorMotorConfig.Slot0.withKI(0);
+      elevatorMotorConfig.Slot0.withKI(kINew);
       elevatorMotor.getConfigurator().apply(elevatorMotorConfig);
     });
     builder.addDoubleProperty("Elevator kD,", () -> elevatorMotorConfig.Slot0.kD, (kDNew) -> {
-      elevatorMotorConfig.Slot0.withKD(0);
+      elevatorMotorConfig.Slot0.withKD(kDNew);
       elevatorMotor.getConfigurator().apply(elevatorMotorConfig);
     });
 
     // Feedforward values
     // There doesn't seem to be any setters for these. Don't think these would be
     // useful without that so commenting them out for now
-  
-    builder.addDoubleProperty("Elevator Feedforward Ks", () ->
-    feedforward.getKs(), null);
-    builder.addDoubleProperty("Elevator Feedforward Kg", () ->
-    feedforward.getKg(), null);
-    builder.addDoubleProperty("Elevator Feedforward Kv", () ->
-    feedforward.getKv(), null);
-    builder.addDoubleProperty("Elevator Feedforward Ka", () ->
-    feedforward.getKa(), null);
-     
+
+    builder.addDoubleProperty("Elevator Feedforward Ks", () -> feedforward.getKs(), null);
+    builder.addDoubleProperty("Elevator Feedforward Kg", () -> feedforward.getKg(), null);
+    builder.addDoubleProperty("Elevator Feedforward Kv", () -> feedforward.getKv(), null);
+    builder.addDoubleProperty("Elevator Feedforward Ka", () -> feedforward.getKa(), null);
 
   }
 
