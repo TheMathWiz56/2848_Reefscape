@@ -1,13 +1,14 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Percent;
+import static edu.wpi.first.units.Units.Second;
+
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import static edu.wpi.first.units.Units.*;
-
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -150,10 +151,10 @@ public final class Constants {
         public static final double kMotorEncoderOffset = 0.0;
         public static final NeutralModeValue kMotorIdleMode = NeutralModeValue.Coast;
 
-        public static final int kCurrentLimit = 40;
+        public static final int kCurrentLimit = 50;
 
-        public static final double kMotorPositionConversionFactor = 0.0;
-        public static final double kMotorVelocityConversionFactor = 0.0;
+        public static final double kMotorPositionConversionFactor = 1.0;
+        public static final double kMotorVelocityConversionFactor = 1.0;
 
         // Trapezoid Proflile parameters
         public static final double kMaxVelocity = 0.0;
@@ -192,8 +193,8 @@ public final class Constants {
 
         public static final int kCurrentLimit = 40;
 
-        public static final double kMotorPositionConversionFactor = 0.0;
-        public static final double kMotorVelocityConversionFactor = 0.0;
+        public static final double kMotorPositionConversionFactor = 1 / 9 * (Math.PI * 0.0446278);
+        public static final double kMotorVelocityConversionFactor = 1 / 9 * (Math.PI * 0.0446278);
 
         // Trapezoid Proflile parameters
         public static final double kMaxVelocity = 0.0;

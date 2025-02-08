@@ -55,7 +55,7 @@ public class Elevator extends SubsystemBase {
         .withNeutralMode(kMotorIdleMode);
 
     elevatorMotorConfig.CurrentLimits
-        .withStatorCurrentLimit(kCurrentLimit);
+        .withSupplyCurrentLimit(kCurrentLimit);
 
     // Missing feedback sensor, izone, imaxaccum, outputrange
     elevatorMotorConfig.Slot0
