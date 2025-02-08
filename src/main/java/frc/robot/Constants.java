@@ -144,7 +144,6 @@ public final class Constants {
 
     public static class ElevatorConstants {
         public static final int kMotorId = 20;
-        public static final int kLimitSwitchTopId = 0;
         public static final int kLimitSwitchBottomId = 1;
 
         public static final InvertedValue kMotorInverted = InvertedValue.CounterClockwise_Positive;
@@ -189,7 +188,10 @@ public final class Constants {
         public static final double kMotorEncoderOffset = 0.0;
 
         public static final int kCurrentLimit = 40;
-        
+
+        public static final double kMotorPositionConversionFactor = 1;
+        public static final double kMotorVelocityConversionFactor = 1;
+
         // Trapezoid Proflile parameters
         public static final double kMaxVelocity = 0.0;
         public static final double kMaxAcceleration = 0.0;
