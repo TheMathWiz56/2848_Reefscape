@@ -97,10 +97,6 @@ public class Elevator extends SubsystemBase {
     elevatorMotor.setControl(request);
   }
 
-  public boolean getLimitSwitchBottom() {
-    return elevatorLimitSwitchBottom.get();
-  }
-
   // Default command - hold position
   public Command holdState() {
     if (!isZeroed)
