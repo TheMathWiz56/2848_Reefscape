@@ -14,6 +14,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.ElevatorConstants.*;
@@ -25,13 +26,11 @@ public class Elevator extends SubsystemBase {
   // Motor configs
   TalonFXConfiguration elevatorMotorConfig = new TalonFXConfiguration();
 
-  private final DigitalInput elevatorLimitSwitchTop = new DigitalInput(kLimitSwitchTopId);
   private final DigitalInput elevatorLimitSwitchBottom = new DigitalInput(
       kLimitSwitchBottomId);
 
   private final ElevatorFeedforward feedforward = new ElevatorFeedforward(kFeedforwardKs,
-      kFeedforwardKg, kFeedforwardKv, kFeedforwardKa,
-      kFeedforwardDtSeconds);
+      kFeedforwardKg, kFeedforwardKv, kFeedforwardKa);
 
   // Trapezoid profile for feedforward
   private final TrapezoidProfile elevatorTrapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
@@ -46,6 +45,8 @@ public class Elevator extends SubsystemBase {
   private final Timer timer = new Timer();
 
   private double currentSetpoint = 0.0;
+
+  private boolean isZeroed = false;
 
   public Elevator() {
 
@@ -88,41 +89,26 @@ public class Elevator extends SubsystemBase {
   // Set pivot output based on position, velocity
   public void setMotorOutput(double position, double velocity) {
     // Units might be messed up
-    currentState = elevatorTrapezoidProfile.calculate(0.02, currentState, goalState);
-    PositionVoltage request = new PositionVoltage(0).withSlot(0)
-        .withPosition(currentState.position)
-        .withVelocity(currentState.velocity)
-        .withFeedForward(feedforward.calculate(elevatorMotor.getVelocity().getValueAsDouble(),
-            elevatorMotor.getAcceleration().getValueAsDouble()));
+    PositionVoltage request = new PositionVoltage(position).withSlot(0)
+        .withFeedForward(feedforward.calculate(velocity, position));
+
+    SmartDashboard.putNumber("Feedforward Output", feedforward.calculate(velocity, position));
 
     elevatorMotor.setControl(request);
-  }
-
-  // Returns true if limit switches are pressed
-  public boolean getLimitSwitchTop() {
-    return elevatorLimitSwitchTop.get();
   }
 
   public boolean getLimitSwitchBottom() {
     return elevatorLimitSwitchBottom.get();
   }
 
-  // Set motor voltage to zero, triggered by limit switches in RobotContainer
-  public Command elevatorAtTopLimit() {
-    return this.run(() -> setMotorVoltage(0.0)).withName("Elevator At Top Limit");
-  }
-
-  // Zero encoders and lift elevator slightly, triggered by limit switches in
-  // RobotContainer
-  public Command elevatorAtBottomLimit() {
-    return this.startRun(() -> zeroEncoder(), () -> setMotorVoltage(1.0)).withName("Elevator At Bottom Limit");
-  }
-
   // Default command - hold position
   public Command holdState() {
-    return this.run(() -> {
-      setMotorOutput(currentSetpoint, 0.0);
-    }).withName("Elevator Default Command");
+    if (!isZeroed)
+      return autoZeroEncoder();
+    else
+      return this.run(() -> {
+        setMotorOutput(currentSetpoint, 0.0);
+      }).withName("Elevator Default Command");
   }
 
   // Command to go to position
@@ -163,11 +149,17 @@ public class Elevator extends SubsystemBase {
 
   public void zeroEncoder() {
     elevatorMotor.setPosition(0.0);
+    isZeroed = true;
+  }
+
+  public Command autoZeroEncoder() {
+    return run(() -> setMotorVoltage(1.0)).until(() -> elevatorLimitSwitchBottom.get())
+        .andThen(runOnce(() -> zeroEncoder())).withName("Zero Encoder");
   }
 
   @Override
   public void periodic() {
-
+    SmartDashboard.putData(this);
   }
 
   @Override
@@ -187,12 +179,22 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty("Elevator Motor Output Current",
         () -> elevatorMotor.getSupplyCurrent().getValueAsDouble(), null);
 
-    builder.addDoubleProperty("Torque Current (Amps)", () -> Math.abs(elevatorMotor.getTorqueCurrent().getValueAsDouble()),
+    builder.addDoubleProperty("Torque Current (Amps)",
+        () -> Math.abs(elevatorMotor.getTorqueCurrent().getValueAsDouble()),
         null);
-    builder.addDoubleProperty("Supply Current (Amps)", () -> Math.abs(elevatorMotor.getSupplyCurrent().getValueAsDouble()),
+    builder.addDoubleProperty("Supply Current (Amps)",
+        () -> Math.abs(elevatorMotor.getSupplyCurrent().getValueAsDouble()),
         null);
     builder.addDoubleProperty("Encoder Output (Rotations)", () -> elevatorMotor.getPosition().getValueAsDouble(),
         (input) -> elevatorMotor.setPosition(input));
+
+    builder.addDoubleProperty("Setpoint", () -> currentSetpoint, null);
+    builder.addDoubleProperty("Profile Current Setpoint", () -> currentState.position, null);
+
+    builder.addDoubleProperty("Velocity", () -> elevatorMotor.getVelocity().getValueAsDouble(), null);
+    builder.addDoubleProperty("Profile Current Velocity", () -> currentState.velocity, null);
+
+    builder.addDoubleProperty("Timer", () -> timer.get(), null);
 
     // Add closed loop information (not done yet)
     builder.addDoubleProperty("Elevator kP,", () -> elevatorMotorConfig.Slot0.kP, (kPNew) -> {

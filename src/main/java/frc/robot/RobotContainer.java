@@ -62,11 +62,11 @@ public class RobotContainer {
         public final Elevator elevator = new Elevator();
 
     /* Path follower */
-    private final SendableChooser<Command> autoChooser;
+    //private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
-        autoChooser = AutoBuilder.buildAutoChooser("TEST");
-        SmartDashboard.putData("Auto Mode", autoChooser);
+        //autoChooser = AutoBuilder.buildAutoChooser("TEST");
+        //SmartDashboard.putData("Auto Mode", autoChooser);
 
         configureBindings();
 
@@ -215,6 +215,7 @@ public class RobotContainer {
   */
     public Command getAutonomousCommand() {
         /* Run the path selected from the auto chooser */
-        return autoChooser.getSelected();
+        //return autoChooser.getSelected();
+        return null;
     }
 }

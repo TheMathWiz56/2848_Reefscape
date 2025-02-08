@@ -144,18 +144,17 @@ public final class Constants {
 
     public static class ElevatorConstants {
         public static final int kMotorId = 20;
-        public static final int kLimitSwitchTopId = 0;
-        public static final int kLimitSwitchBottomId = 0;
+        public static final int kLimitSwitchBottomId = 1;
 
-        public static final InvertedValue kMotorInverted = InvertedValue.Clockwise_Positive;
+        public static final InvertedValue kMotorInverted = InvertedValue.CounterClockwise_Positive;
         public static final double kMotorEncoderOffset = 0.0;
         public static final NeutralModeValue kMotorIdleMode = NeutralModeValue.Coast;
 
         public static final int kCurrentLimit = 50;
 
         // Trapezoid Proflile parameters
-        public static final double kMaxVelocity = 0.0;
-        public static final double kMaxAcceleration = 0.0;
+        public static final double kMaxVelocity = 30.0;
+        public static final double kMaxAcceleration = 15.0;
 
         // Spark built in encoder/controller PID constants
         public static final double kP = 0.0;
@@ -166,8 +165,8 @@ public final class Constants {
 
         // Feedforward constants
         public static final double kFeedforwardKs = 0.0;
-        public static final double kFeedforwardKg = 0.0;
-        public static final double kFeedforwardKv = 3.0;
+        public static final double kFeedforwardKg = -0.5;
+        public static final double kFeedforwardKv = 0.25;
         public static final double kFeedforwardKa = 0.0;
         public static final double kFeedforwardDtSeconds = 0.0;
 
@@ -176,7 +175,7 @@ public final class Constants {
         public static final double kSetpointL1 = 0.0;
         public static final double kSetpointL2 = -23.044921875;        
         public static final double kSetpointL3 = -32.32275390625;
-        public static final double kSetpointL4 = -42.7;
+        public static final double kSetpointL4 = -40;
         public static final double kSetpointFeed = 0.0;
         public static final double kSetpointStow = 0.0;
     }
@@ -214,10 +213,10 @@ public final class Constants {
         public static final double kSetpointIntake = 0.0;
         public static final double kSetpointScore = 0.0;
         
-        public static final boolean kForwardSoftLimitEnabled = true;
+        public static final boolean kForwardSoftLimitEnabled = false;
         public static final double kForwardSoftLimit = 0.0;
         public static final boolean kReverseSoftLimitEnabled = true;
-        public static final double kReverseSoftLimit = 0.0;
+        public static final double kReverseSoftLimit = -40.5;
     }
 
     public static class GroundAlgaeWheelsConstants {
