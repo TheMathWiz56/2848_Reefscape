@@ -14,11 +14,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.AscenderConstants.*;
 
-// Seems like there is uncertainty about the ascender, so I'm holding off on it for now
 public class Ascender extends SubsystemBase {
     
     private final SparkMax ascenderMotor = new SparkMax(kAscenderMotorId, SparkMax.MotorType.kBrushless);
 
+    // On the bottom
     private final DigitalInput ascenderLimitSwitch = new DigitalInput(kAscenderLimitSwitchId);
 
     public Ascender() {
@@ -26,7 +26,8 @@ public class Ascender extends SubsystemBase {
     }
 
     public Command climb() {
-        return runEnd(() -> ascenderMotor.set(1), () -> ascenderMotor.stopMotor()).until(() -> ascenderLimitSwitch.get());
+        return run(() -> ascenderMotor.set(1)).until(() -> false) // Need a stoping condition here
+        .andThen(runEnd(() -> ascenderMotor.set(-1), () -> ascenderMotor.stopMotor()).until(() -> ! ascenderLimitSwitch.get()));
     }
 
     @Override

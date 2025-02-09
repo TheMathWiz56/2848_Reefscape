@@ -149,10 +149,13 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command autoZeroEncoder() {
-    return run(() -> setMotorVoltage(1.0)).until(() -> elevatorLimitSwitchBottom.get())
+    return run(() -> setMotorVoltage(1.5))
+        .until(kUseCurrentForZeroing ? () -> elevatorMotor.getStatorCurrent().getValueAsDouble() > kZeroingCurrent
+            : () -> !elevatorLimitSwitchBottom.get())
         .andThen(runOnce(() -> {
           zeroEncoder();
           setMotorVoltage(0.0);
+          this.setDefaultCommand(holdState());
         })).withName("Zero Encoder");
   }
 
@@ -219,6 +222,7 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty("Elevator Feedforward Ka", () -> feedforward.getKa(), null);
 
     builder.addBooleanProperty("Limit Switch State", () -> elevatorLimitSwitchBottom.get(), null);
+    builder.addBooleanProperty("Is Zeroed", () -> isZeroed, null);
 
   }
 

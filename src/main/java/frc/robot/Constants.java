@@ -157,7 +157,7 @@ public final class Constants {
         public static final double kMaxAcceleration = 15.0;
 
         // Spark built in encoder/controller PID constants
-        public static final double kP = 0.0;
+        public static final double kP = 2.0;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
         public static final double kIZone = 0.0;
@@ -178,6 +178,9 @@ public final class Constants {
         public static final double kSetpointL4 = -40;
         public static final double kSetpointFeed = 0.0;
         public static final double kSetpointStow = 0.0;
+
+        public static final boolean kUseCurrentForZeroing = false;
+        public static final double kZeroingCurrent = 20.0;
     }
 
     public static class GroundAlgaePivotConstants {
