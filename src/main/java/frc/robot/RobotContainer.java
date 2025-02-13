@@ -86,12 +86,13 @@ public class RobotContainer {
         driverJoystick.b().onTrue(elevator.goToL2());
         driverJoystick.x().onTrue(elevator.goToL3());
         driverJoystick.y().onTrue(elevator.goToL4());
-
+        
+        //groundAlgaePivot.setDefaultCommand(groundAlgaePivot.holdState());
+        //groundAlgaeWheels.setDefaultCommand(groundAlgaeWheels.holdState());
+        
         /*
         arm.setDefaultCommand(arm.holdState());
         pincer.setDefaultCommand(pincer.holdState());
-        groundAlgaePivot.setDefaultCommand(groundAlgaePivot.holdState());
-        groundAlgaeWheels.setDefaultCommand(groundAlgaeWheels.holdState());
         ascender.setDefaultCommand(Commands.idle(ascender));
 
         // Note that X is defined as forward according to WPILib convention,
