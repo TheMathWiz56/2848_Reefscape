@@ -45,10 +45,10 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
-    private CommandGenericHID operatorKeypad = new CommandGenericHID(1);
+    
     private final CommandXboxController operatorJoystick = new CommandXboxController(2);
 
-    public reefData reefDat = new reefData();
+    
 
     // Subsystem Instances
     /*
@@ -72,6 +72,8 @@ public class RobotContainer {
 
         configureBindings();
 
+        reefData.reset();
+
         // Warmup path follower
         PathfindingCommand.warmupCommand().schedule();
         Timer.delay(3);
@@ -84,7 +86,7 @@ public class RobotContainer {
         
         elevator.setDefaultCommand(elevator.holdState());
 
-        operatorKeypad.button(1).onTrue(elevator.goToL1());
+        
 
         driverJoystick.a().onTrue(elevator.goToL1());
         driverJoystick.b().onTrue(elevator.goToL2());

@@ -17,7 +17,13 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.reefData;
+
 import static frc.robot.Constants.ElevatorConstants.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Elevator extends SubsystemBase {
 
@@ -40,6 +46,7 @@ public class Elevator extends SubsystemBase {
   private TrapezoidProfile.State startState = new TrapezoidProfile.State();
   private TrapezoidProfile.State goalState = new TrapezoidProfile.State();
   private TrapezoidProfile.State currentState = new TrapezoidProfile.State();
+
 
   // Timer for trapezoid profile
   private final Timer timer = new Timer();
@@ -76,6 +83,7 @@ public class Elevator extends SubsystemBase {
 
   public void setMotorVoltage(double voltage) {
     elevatorMotor.setVoltage(voltage);
+
   }
 
   public void setElevatorSetpoint(double setpoint) {
@@ -162,6 +170,36 @@ public class Elevator extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putData(this);
+    List<Integer> keyDown = new ArrayList<>();
+    keyDown = keypad.keys;
+    keypad.keyMode mode = keypad.mode;
+    int reef =0;
+    Constants.reef.reefLs L = Constants.reef.reefLs.STOW;
+    for(int i : keyDown){
+      if(Constants.reef.rMap.containsKey(i)){
+        reef = Constants.reef.rMap.get(i);
+      } else if(Constants.reef.lMap.containsKey(i)){
+        L = Constants.reef.lMap.get(i);
+      }
+    }
+
+    if(mode== keypad.keyMode.SCORE){
+      if(L == Constants.reef.reefLs.lL1 || L == Constants.reef.reefLs.rL1 && reef!=0){
+        this.goToL1();
+      }
+      if(L == Constants.reef.reefLs.lL2 || L == Constants.reef.reefLs.rL2&& reef!=0){
+        this.goToL2();
+      }
+      if(L == Constants.reef.reefLs.lL3 || L == Constants.reef.reefLs.rL3&& reef!=0){
+        this.goToL3();
+      }
+      if(L == Constants.reef.reefLs.lL4 || L == Constants.reef.reefLs.rL4&& reef!=0){
+        this.goToL4();
+      }
+    }
+    
+
+
   }
 
   @Override

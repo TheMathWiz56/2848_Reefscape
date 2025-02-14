@@ -3,7 +3,7 @@ package frc.robot.Util;
 import java.util.HashMap;
 import java.util.Map;
 
-import frc.robot.Constants.reefLs;
+import frc.robot.Constants.reef.reefLs;
 
 public class reef {
     private Map<reefLs, Boolean> map = new HashMap<>() {{
@@ -19,6 +19,9 @@ public class reef {
 /*update any reef value */
 public void update(reefLs pos,boolean val){
     map.put(pos,val);
+}
+public boolean get(reefLs pos){
+    return map.get(pos);
 }
 }
 

@@ -4,6 +4,9 @@ import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Second;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
@@ -38,7 +41,8 @@ public final class Constants {
         return Math.max(min, Math.min(input, max));
     }
 
-
+    /*possible reef values l for left, r for right, L for level */
+    public static class reef{
     public static enum reefLs{
         lL1,
         lL2,
@@ -47,8 +51,31 @@ public final class Constants {
         rL1,
         rL2,
         rL3,
-        rL4
+        rL4,
+        STOW
     }
+
+    public static final Map<Integer, Integer> rMap = new HashMap<>(){{
+        put(9,1);
+        put(10,2);
+        put(11,3);
+        put(12,4);
+        put(13,5);
+        put(14,6);
+    }};
+
+    public static final Map<Integer,reefLs> lMap = new HashMap<>() {{
+        put(1, reefLs.lL4);
+        put(2, reefLs.lL3);
+        put(3, reefLs.lL2);
+        put(4, reefLs.lL1);
+        put(5, reefLs.rL4);
+        put(6, reefLs.rL3);
+        put(7, reefLs.rL2);
+        put(8, reefLs.rL1);
+    }};
+
+}
 
     // Constants relating to the drivetrain are probably in TunerConstants
 
