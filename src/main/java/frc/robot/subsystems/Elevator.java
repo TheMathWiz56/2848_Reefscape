@@ -127,8 +127,9 @@ public class Elevator extends SubsystemBase {
   }
 
   // Commands to go to various pre-defined positions
-  public Command goToL1() {
-    return goToPosition(kSetpointL1, "L1");
+  
+  public Command goToL1(int reef,Constants.reef.reefLs L) {
+    return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()-> reefData.update(reef,L,false));
   }
 
   public Command goToL2() {
@@ -185,7 +186,7 @@ public class Elevator extends SubsystemBase {
 
     if(mode== keypad.keyMode.SCORE){
       if(L == Constants.reef.reefLs.lL1 || L == Constants.reef.reefLs.rL1 && reef!=0){
-        this.goToL1();
+        this.goToL1(reef,L);
       }
       if(L == Constants.reef.reefLs.lL2 || L == Constants.reef.reefLs.rL2&& reef!=0){
         this.goToL2();
