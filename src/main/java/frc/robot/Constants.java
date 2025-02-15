@@ -50,7 +50,7 @@ public final class Constants {
 
     public static class ArmConstants {
         // ID's
-        public static final int kPivotMotorId = 0;
+        public static final int kPivotMotorId = 21;
 
         // Pivot Motor Controller Settings
         public static final boolean kPivotMotorInverted = false;
@@ -92,9 +92,9 @@ public final class Constants {
 
     public static class PincerConstants {
         // ID
-        public static final int kPincerMotorId = 0;
-        public static final int kIntakeMotorId = 0;
-        public static final int kIntakePhotogateId = 0;
+        public static final int kPincerMotorId = 22; // Claw
+        public static final int kIntakeMotorId = 23; // Wheels
+        //public static final int kIntakePhotogateId = 0;
 
         // Motor Controller Settings
         public static final boolean kPincerMotorInverted = false;
@@ -138,7 +138,7 @@ public final class Constants {
     }
 
     public static class AscenderConstants {
-        public static final int kAscenderMotorId = 0;
+        public static final int kAscenderMotorId = 25;
         public static final int kAscenderLimitSwitchId = 0;
     }
 

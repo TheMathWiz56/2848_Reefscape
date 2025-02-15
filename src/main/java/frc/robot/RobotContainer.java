@@ -93,10 +93,11 @@ public class RobotContainer {
         /*
         arm.setDefaultCommand(arm.holdState());
         pincer.setDefaultCommand(pincer.holdState());
-        ascender.setDefaultCommand(Commands.idle(ascender));
+        ascender.setDefaultCommand(Commands.idle(ascender));*/
 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
+        /*
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive
