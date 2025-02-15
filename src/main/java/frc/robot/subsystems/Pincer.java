@@ -68,9 +68,9 @@ public class Pincer extends SubsystemBase{
 
 
         pincerMotor.configure(pincerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        Constants.kMotorBurnDelay();
+        //Constants.kMotorBurnDelay();
         intakeMotor.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        Constants.kMotorBurnDelay();
+        //Constants.kMotorBurnDelay();
     }
 
     @Override

@@ -73,14 +73,14 @@ public final class Constants {
         public static double kPivotMotorMaxAcceleration = 0.0;
 
         // Soft Limits
-        public static final boolean kSoftLimitsEnabled = true;
-        public static final double kPivotMinAngle = 0.0;
-        public static final double kPivotMaxAngle = 0.0;
+        public static final boolean kSoftLimitsEnabled = false;
+        public static final double kPivotMinAngle = 1.0;
+        public static final double kPivotMaxAngle = 2.0;
         // Position Conversion Factor for soft limits. Should be in units of Arm
         // rotations, ie. the gear ratio.
         // Periodically set the current position to the absolute position since it uses
         // the internal encoder
-        public static final double kPositionConversionFactor = 0.0;
+        public static final double kPositionConversionFactor = 1;
 
         // Setpoints
         public static final double kStowPosition = 0.0;
@@ -118,14 +118,14 @@ public final class Constants {
         public static final double kPincerMotorAbsoluteEncoderOffset = 0.0;
 
         // Soft Limits
-        public static final boolean kSoftLimitsEnabled = true;
-        public static final double kPincerMinAngle = 0.0;
-        public static final double kPincerMaxAngle = 0.0;
+        public static final boolean kSoftLimitsEnabled = false;
+        public static final double kPincerMinAngle = 1.0;
+        public static final double kPincerMaxAngle = 2.0;
         // Position Conversion Factor for soft limits. Should be in units of Arm
         // rotations, ie. the gear ratio.
         // Periodically set the current position to the absolute position since it uses
         // the internal encoder
-        public static final double kPositionConversionFactor = 0.0;
+        public static final double kPositionConversionFactor = 1.0;
 
         // Pincer Setpoints
         public static final double kStowPosition = 0.0;
@@ -133,8 +133,8 @@ public final class Constants {
         public static final double kAlgaePosition = 0.0;
 
         // Intake Setpoints
-        public static final double kIntakeSpeed = 0.0;
-        public static final double kExhaustSpeed = 0.0;
+        public static final double kIntakeSpeed = -0.1;
+        public static final double kExhaustSpeed = 0.1;
     }
 
     public static class AscenderConstants {
