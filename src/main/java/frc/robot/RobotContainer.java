@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Ascender;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Pincer;
 
@@ -48,14 +49,14 @@ public class RobotContainer {
 
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
     private CommandGenericHID operatorKeypad = new CommandGenericHID(1);
-    private final CommandXboxController operatorJoystick = new CommandXboxController(2);
+    private final CommandXboxController operatorJoystick = new CommandXboxController(1);
 
     // Subsystem Instances
     /*
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final Lights lights = new Lights();
     
-        public final Ascender ascender = new Ascender();
+        
     public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
      */
@@ -66,8 +67,9 @@ public class RobotContainer {
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;
 
-    public final Pincer pincer = new Pincer();
+    //public final Pincer pincer = new Pincer();
 
+    public final Ascender ascender = new Ascender();
 
     public RobotContainer() {
         //autoChooser = AutoBuilder.buildAutoChooser("TEST");
@@ -86,7 +88,9 @@ public class RobotContainer {
         // Default commands
         
         //elevator.setDefaultCommand(elevator.holdState());
-        pincer.setDefaultCommand(pincer.holdState());
+        //pincer.setDefaultCommand(pincer.holdState());
+
+        ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
 
         /*
         driverJoystick.a().onTrue(elevator.goToL1());
@@ -97,9 +101,9 @@ public class RobotContainer {
         //groundAlgaePivot.setDefaultCommand(groundAlgaePivot.holdState());
         //groundAlgaeWheels.setDefaultCommand(groundAlgaeWheels.holdState());
         
-        driverJoystick.a().onTrue(pincer.intake());
-        driverJoystick.b().onTrue(pincer.exhaust());
-        driverJoystick.x().onTrue(pincer.stopIntake());
+        //driverJoystick.a().onTrue(pincer.intake());
+        //driverJoystick.b().onTrue(pincer.exhaust());
+        //driverJoystick.x().onTrue(pincer.stopIntake());
 
         //arm.setDefaultCommand(arm.holdState());
 

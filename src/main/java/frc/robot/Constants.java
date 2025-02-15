@@ -26,6 +26,10 @@ public final class Constants {
         Timer.delay(0.1);
     }
 
+    public static double deadzone(double input, double zone) {
+        return Math.abs(input) >= zone ? input : 0.0;
+    }
+
     /**
      * Adjusts the input reference to ensure it stays within the specified range.
      *
