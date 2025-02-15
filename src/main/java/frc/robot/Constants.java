@@ -83,11 +83,12 @@ public final class Constants {
         public static final double kPositionConversionFactor = 1;
 
         // Setpoints
+        // For now: L1 is facing almost straight up, L2L3 is diagonal, L4 is facing straight-on
         public static final double kStowPosition = 0.0;
         public static final double kFeedPosition = 0.0;
-        public static final double kL1Position = 0.0;
-        public static final double kL2L3Position = 0.0;
-        public static final double kL4Position = 0.0;
+        public static final double kL1Position = 0.1;
+        public static final double kL2L3Position = 0.2;
+        public static final double kL4Position = 0.325;
     }
 
     public static class PincerConstants {
