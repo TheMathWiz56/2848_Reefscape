@@ -31,7 +31,7 @@ public class Pincer extends SubsystemBase{
     private final SparkMaxConfig intakeConfig  = new SparkMaxConfig();
 
     // Photogate (beam break), may have another
-    private final DigitalInput intakePhotogate = new DigitalInput(kIntakePhotogateId);
+    // private final DigitalInput intakePhotogate = new DigitalInput(kIntakePhotogateId);
 
     // Use current sensing for the algae
 
@@ -115,9 +115,10 @@ public class Pincer extends SubsystemBase{
 
     /**@return True if the intake photogate is tripped
      */
+    /*
     public boolean hasCoral(){
         return intakePhotogate.get();
-    }
+    } */
 
     /** Moves the pincer to the specified setpoint
      * @param setpoint The desired position for the pincer
