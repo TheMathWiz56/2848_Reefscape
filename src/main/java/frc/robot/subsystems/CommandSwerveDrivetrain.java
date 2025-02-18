@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -14,6 +15,10 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.GoalEndState;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -306,6 +311,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return new Double[] {pose.getX(), pose.getY(), pose.getRotation().getRadians()};
     }
 
+   
+
+
     @Override
     public void periodic() {
         /*
@@ -334,6 +342,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Double[] fusedPose = Pose2dToDoubleArray(currentPose);
         SmartDashboard.putData("Field",m_field);
         SmartDashboard.putNumberArray("Fused PoseDBL", fusedPose);
+       
     }
 
     

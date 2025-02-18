@@ -4,7 +4,9 @@ import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Second;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -15,6 +17,8 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
+import frc.robot.Util.fieldPoint;
+import frc.robot.Util.fieldPoly;
 
 public final class Constants {
 
@@ -41,39 +45,60 @@ public final class Constants {
         return Math.max(min, Math.min(input, max));
     }
 
-    /*possible reef values l for left, r for right, L for level */
+    //util values for the reef
     public static class reef{
-    public static enum reefLs{
-        lL1,
-        lL2,
-        lL3,
-        lL4,
-        rL1,
-        rL2,
-        rL3,
-        rL4,
-        STOW
-    }
+        /*possible reef values l for left, r for right, L for level */
+        public static enum reefSide{
+            LEFT,RIGHT
+        }
+        public static enum reefLs{
+            lL4,
+            lL3,
+            lL2,
+            lL1,
+            rL4,
+            rL3,
+            rL2,
+            rL1,
+            STOW,
+            NONE
+        }
 
-    public static final Map<Integer, Integer> rMap = new HashMap<>(){{
-        put(9,1);
-        put(10,2);
-        put(11,3);
-        put(12,4);
-        put(13,5);
-        put(14,6);
-    }};
+        public static final Map<Integer, Integer> rMap = new HashMap<>(){{
+            put(9,1);
+            put(10,2);
+            put(11,3);
+            put(12,4);
+            put(13,5);
+            put(14,6);
+        }};
 
-    public static final Map<Integer,reefLs> lMap = new HashMap<>() {{
-        put(1, reefLs.lL4);
-        put(2, reefLs.lL3);
-        put(3, reefLs.lL2);
-        put(4, reefLs.lL1);
-        put(5, reefLs.rL4);
-        put(6, reefLs.rL3);
-        put(7, reefLs.rL2);
-        put(8, reefLs.rL1);
-    }};
+        public static final Map<Integer,reefLs> lMap = new HashMap<>() {{
+            put(1, reefLs.lL4);
+            put(2, reefLs.lL3);
+            put(3, reefLs.lL2);
+            put(4, reefLs.lL1);
+            put(5, reefLs.rL4);
+            put(6, reefLs.rL3);
+            put(7, reefLs.rL2);
+            put(8, reefLs.rL1);
+        }};
+        
+        //zones for auto driving around the reef
+        public static final class driveZones{
+            
+            public static final fieldPoly reef1Zone = new fieldPoly(
+                new fieldPoint(5,0),
+                new fieldPoint(-5,0),
+                new fieldPoint(-5,-5),
+                new fieldPoint(5,-5)
+            );
+
+
+            public static final Map<Integer,fieldPoly> fieldPolyList = new HashMap<>(){{
+                put(1,reef1Zone);
+            }};
+        }
 
 }
 

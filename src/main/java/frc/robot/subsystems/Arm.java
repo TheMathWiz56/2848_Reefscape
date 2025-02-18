@@ -148,28 +148,28 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
         List<Integer> keyDown = new ArrayList<>();
     keyDown = keypad.keys;
     keypad.keyMode mode = keypad.mode;
-    Constants.reef.reefLs L = Constants.reef.reefLs.STOW;
-    for(int i : keyDown){
+    // Constants.reef.reefLs L = Constants.reef.reefLs.STOW;
+    // for(int i : keyDown){
       
-      if(Constants.reef.lMap.containsKey(i)){
-        L = Constants.reef.lMap.get(i);
-      }
-    }
+    //   if(Constants.reef.lMap.containsKey(i)){
+    //     L = Constants.reef.lMap.get(i);
+    //   }
+    // }
 
-    if(mode== keypad.keyMode.SCORE){
-      if(L == Constants.reef.reefLs.lL1 || L == Constants.reef.reefLs.rL1){
-        this.pivotToL1();
-      }
-      if(L == Constants.reef.reefLs.lL2 || L == Constants.reef.reefLs.rL2){
-        this.pivotToL2L3();
-      }
-      if(L == Constants.reef.reefLs.lL3 || L == Constants.reef.reefLs.rL3){
-        this.pivotToL2L3();
-      }
-      if(L == Constants.reef.reefLs.lL4 || L == Constants.reef.reefLs.rL4){
-        this.pivotToL4();
-      }
-    }
+    // if(mode== keypad.keyMode.SCORE){
+    //   if(L == Constants.reef.reefLs.lL1 || L == Constants.reef.reefLs.rL1){
+    //     this.pivotToL1();
+    //   }
+    //   if(L == Constants.reef.reefLs.lL2 || L == Constants.reef.reefLs.rL2){
+    //     this.pivotToL2L3();
+    //   }
+    //   if(L == Constants.reef.reefLs.lL3 || L == Constants.reef.reefLs.rL3){
+    //     this.pivotToL2L3();
+    //   }
+    //   if(L == Constants.reef.reefLs.lL4 || L == Constants.reef.reefLs.rL4){
+    //     this.pivotToL4();
+    //   }
+    // }
 
     }
 

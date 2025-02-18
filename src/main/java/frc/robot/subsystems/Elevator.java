@@ -128,9 +128,9 @@ public class Elevator extends SubsystemBase {
 
   // Commands to go to various pre-defined positions
   
-  public Command goToL1(int reef,Constants.reef.reefLs L) {
-    return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()-> reefData.update(reef,L,false));
-  }
+  // public Command goToL1(int reef,int L) {
+  //   return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()-> reefData.update(reef,L,false));
+  // }
 
   public Command goToL2() {
     return goToPosition(kSetpointL2, "L2");
@@ -157,6 +157,38 @@ public class Elevator extends SubsystemBase {
     isZeroed = true;
   }
 
+  public double LtoSetPoint(Constants.reef.reefLs L){
+    if(L == Constants.reef.reefLs.lL1 || L == Constants.reef.reefLs.rL1){
+      return kSetpointL1;
+    }
+    if(L == Constants.reef.reefLs.lL2 || L == Constants.reef.reefLs.rL2){
+      return kSetpointL2;
+    }
+    if(L == Constants.reef.reefLs.lL3 || L == Constants.reef.reefLs.rL3){
+      return kSetpointL3;
+    }
+    if(L == Constants.reef.reefLs.lL4 || L == Constants.reef.reefLs.rL4){
+      return kSetpointL4;
+    }
+    return 0;
+  }
+
+  public Command goToL(Constants.reef.reefLs L,int reef){
+    return this.startRun(() -> {
+      setElevatorSetpoint(LtoSetPoint(L));
+    }, () -> {
+      currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
+      setMotorOutput(currentState.position, currentState.velocity);
+    }).until(() -> elevatorTrapezoidProfile.isFinished(timer.get()))
+        .withName("Go to " + L)
+        .finallyDo((interrupted) ->{
+          if (!interrupted){
+            reefData.update(reef,L,false);
+          }
+        });
+    //return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()-> reefData.update(reef,L,false));
+  }
+
   public Command autoZeroEncoder() {
     return run(() -> setMotorVoltage(1.5))
         .until(kUseCurrentForZeroing ? () -> elevatorMotor.getStatorCurrent().getValueAsDouble() > kZeroingCurrent
@@ -170,33 +202,26 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
+  
     SmartDashboard.putData(this);
-    List<Integer> keyDown = new ArrayList<>();
-    keyDown = keypad.keys;
-    keypad.keyMode mode = keypad.mode;
-    int reef =0;
-    Constants.reef.reefLs L = Constants.reef.reefLs.STOW;
-    for(int i : keyDown){
-      if(Constants.reef.rMap.containsKey(i)){
-        reef = Constants.reef.rMap.get(i);
-      } else if(Constants.reef.lMap.containsKey(i)){
-        L = Constants.reef.lMap.get(i);
-      }
-    }
+    // List<Integer> keyDown = new ArrayList<>();
+    // keyDown = keypad.keys;
+     keypad.keyMode mode = keypad.mode;
+     //int reef =0;
+     //Constants.reef.reefLs L = Constants.reef.reefLs.STOW;
+    // for(int i : keyDown){
+    //   if(Constants.reef.rMap.containsKey(i)){
+    //     reef = Constants.reef.rMap.get(i);
+    //   } else if(Constants.reef.lMap.containsKey(i)){
+    //     L = Constants.reef.lMap.get(i);
+    //   }
+    // }
 
-    if(mode== keypad.keyMode.SCORE){
-      if(L == Constants.reef.reefLs.lL1 || L == Constants.reef.reefLs.rL1 && reef!=0){
-        this.goToL1(reef,L);
-      }
-      if(L == Constants.reef.reefLs.lL2 || L == Constants.reef.reefLs.rL2&& reef!=0){
-        this.goToL2();
-      }
-      if(L == Constants.reef.reefLs.lL3 || L == Constants.reef.reefLs.rL3&& reef!=0){
-        this.goToL3();
-      }
-      if(L == Constants.reef.reefLs.lL4 || L == Constants.reef.reefLs.rL4&& reef!=0){
-        this.goToL4();
-      }
+    // 
+    if(keypad.reef !=0 && keypad.L != Constants.reef.reefLs.NONE){
+      if(mode== keypad.keyMode.SCORE){
+          this.goToL(keypad.L,keypad.reef);
+        }
     }
     
 
