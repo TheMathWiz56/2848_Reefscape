@@ -53,7 +53,7 @@ public class RobotContainer {
     private CommandGenericHID operatorKeypad = new CommandGenericHID(1);
     private final CommandXboxController operatorJoystick = new CommandXboxController(1);
 
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    //public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     // Subsystem Instances
     /*
@@ -64,16 +64,18 @@ public class RobotContainer {
     public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
      */
-        //public final Elevator elevator = new Elevator();
 
         //public final Arm arm = new Arm();
 
     /* Path follower */
+    
+    public final Elevator elevator = new Elevator();
+
     //private final SendableChooser<Command> autoChooser;
 
     //public final Pincer pincer = new Pincer();
 
-    public final Ascender ascender = new Ascender();
+    //public final Ascender ascender = new Ascender();
 
     public RobotContainer() {
         //autoChooser = AutoBuilder.buildAutoChooser("TEST");
@@ -91,17 +93,17 @@ public class RobotContainer {
     private void configureBindings() {
         // Default commands
         
-        //elevator.setDefaultCommand(elevator.holdState());
+        elevator.setDefaultCommand(elevator.holdState());
         //pincer.setDefaultCommand(pincer.holdState());
 
-        ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
+        //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
 
-        /*
+        
         driverJoystick.a().onTrue(elevator.goToL1());
         driverJoystick.b().onTrue(elevator.goToL2());
         driverJoystick.x().onTrue(elevator.goToL3());
         driverJoystick.y().onTrue(elevator.goToL4());
-         */
+        
         //groundAlgaePivot.setDefaultCommand(groundAlgaePivot.holdState());
         //groundAlgaeWheels.setDefaultCommand(groundAlgaeWheels.holdState());
         
@@ -114,7 +116,7 @@ public class RobotContainer {
         /*
         pincer.setDefaultCommand(pincer.holdState());
         ascender.setDefaultCommand(Commands.idle(ascender));*/
-
+/*
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
@@ -142,7 +144,7 @@ public class RobotContainer {
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));
         driverJoystick.pov(180)
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
- 
+  */
         /*
          * Run SysId routines when holding back/start and X/Y.
          * Note that each routine should be run exactly once in a single log.

@@ -175,12 +175,18 @@ public final class Constants {
         public static final double kFeedforwardKa = 0.0;
         public static final double kFeedforwardDtSeconds = 0.0;
 
+        public static final double kSetpointL1 = -1;
+        public static final double kSetpointL2 = -10;        
+        public static final double kSetpointL3 = -20;
+        public static final double kSetpointL4 = -30;
+
         // Setpoints for targeting different levels, some other situations
         // For Spark built in encoder
-        public static final double kSetpointL1 = 0.0;
+        /*public static final double kSetpointL1 = 0.0;
         public static final double kSetpointL2 = -23.044921875;        
         public static final double kSetpointL3 = -32.32275390625;
         public static final double kSetpointL4 = -40;
+        */
         public static final double kSetpointFeed = 0.0;
         public static final double kSetpointStow = 0.0;
 
