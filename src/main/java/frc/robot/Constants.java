@@ -29,21 +29,9 @@ public final class Constants {
      * Delays the program to allow the motor controller to burn the configure to
      * memory
      */
-    public static void kMotorBurnDelay() {
-        Timer.delay(0.1);
-    }
-
-    /**
-     * Adjusts the input reference to ensure it stays within the specified range.
-     *
-     * @param input the desired reference value
-     * @param min   the minimum allowable value
-     * @param max   the maximum allowable value
-     * @return the adjusted reference value, clamped between min and max
-     */
-    public static double kClamp(double input, double min, double max) {
-        return Math.max(min, Math.min(input, max));
-    }
+    
+    
+        
 
     //util values for the reef
     public static class reef{
@@ -82,6 +70,8 @@ public final class Constants {
             put(6, reefLs.rL3);
             put(7, reefLs.rL2);
             put(8, reefLs.rL1);
+            put(22, reefLs.STOW);
+            put(19,reefLs.STOW);
         }};
         
         //zones for auto driving around the reef
@@ -104,6 +94,28 @@ public final class Constants {
 
     // Constants relating to the drivetrain are probably in TunerConstants
 
+    public static void kMotorBurnDelay() {
+        Timer.delay(0.1);
+    }
+
+    public static double deadzone(double input, double zone) {
+        return Math.abs(input) >= zone ? input : 0.0;
+    }
+
+    /**
+     * Adjusts the input reference to ensure it stays within the specified range.
+     *
+     * @param input the desired reference value
+     * @param min   the minimum allowable value
+     * @param max   the maximum allowable value
+     * @return the adjusted reference value, clamped between min and max
+     */
+    public static double kClamp(double input, double min, double max) {
+        return Math.max(min, Math.min(input, max));
+    }
+
+    // Constants relating to the drivetrain are probably in TunerConstants
+
     public static class ControllerConstants {
         public static final int kDriverController = 0;
         // One of the operator controllers is going to be for emergencies if all else
@@ -114,7 +126,7 @@ public final class Constants {
 
     public static class ArmConstants {
         // ID's
-        public static final int kPivotMotorId = 0;
+        public static final int kPivotMotorId = 21;
 
         // Pivot Motor Controller Settings
         public static final boolean kPivotMotorInverted = false;
@@ -137,28 +149,29 @@ public final class Constants {
         public static double kPivotMotorMaxAcceleration = 0.0;
 
         // Soft Limits
-        public static final boolean kSoftLimitsEnabled = true;
-        public static final double kPivotMinAngle = 0.0;
-        public static final double kPivotMaxAngle = 0.0;
+        public static final boolean kSoftLimitsEnabled = false;
+        public static final double kPivotMinAngle = 1.0;
+        public static final double kPivotMaxAngle = 2.0;
         // Position Conversion Factor for soft limits. Should be in units of Arm
         // rotations, ie. the gear ratio.
         // Periodically set the current position to the absolute position since it uses
         // the internal encoder
-        public static final double kPositionConversionFactor = 0.0;
+        public static final double kPositionConversionFactor = 1;
 
         // Setpoints
+        // For now: L1 is facing almost straight up, L2L3 is diagonal, L4 is facing straight-on
         public static final double kStowPosition = 0.0;
         public static final double kFeedPosition = 0.0;
-        public static final double kL1Position = 0.0;
-        public static final double kL2L3Position = 0.0;
-        public static final double kL4Position = 0.0;
+        public static final double kL1Position = 0.1;
+        public static final double kL2L3Position = 0.2;
+        public static final double kL4Position = 0.325;
     }
 
     public static class PincerConstants {
         // ID
-        public static final int kPincerMotorId = 0;
-        public static final int kIntakeMotorId = 0;
-        public static final int kIntakePhotogateId = 0;
+        public static final int kPincerMotorId = 22; // Claw
+        public static final int kIntakeMotorId = 23; // Wheels
+        //public static final int kIntakePhotogateId = 0;
 
         // Motor Controller Settings
         public static final boolean kPincerMotorInverted = false;
@@ -182,14 +195,14 @@ public final class Constants {
         public static final double kPincerMotorAbsoluteEncoderOffset = 0.0;
 
         // Soft Limits
-        public static final boolean kSoftLimitsEnabled = true;
-        public static final double kPincerMinAngle = 0.0;
-        public static final double kPincerMaxAngle = 0.0;
+        public static final boolean kSoftLimitsEnabled = false;
+        public static final double kPincerMinAngle = 1.0;
+        public static final double kPincerMaxAngle = 2.0;
         // Position Conversion Factor for soft limits. Should be in units of Arm
         // rotations, ie. the gear ratio.
         // Periodically set the current position to the absolute position since it uses
         // the internal encoder
-        public static final double kPositionConversionFactor = 0.0;
+        public static final double kPositionConversionFactor = 1.0;
 
         // Pincer Setpoints
         public static final double kStowPosition = 0.0;
@@ -197,12 +210,12 @@ public final class Constants {
         public static final double kAlgaePosition = 0.0;
 
         // Intake Setpoints
-        public static final double kIntakeSpeed = 0.0;
-        public static final double kExhaustSpeed = 0.0;
+        public static final double kIntakeSpeed = -0.1;
+        public static final double kExhaustSpeed = 0.1;
     }
 
     public static class AscenderConstants {
-        public static final int kAscenderMotorId = 0;
+        public static final int kAscenderMotorId = 25;
         public static final int kAscenderLimitSwitchId = 0;
     }
 
@@ -239,9 +252,13 @@ public final class Constants {
         public static final double kSetpointL1 = 0.0;
         public static final double kSetpointL2 = -23.044921875;        
         public static final double kSetpointL3 = -32.32275390625;
-        public static final double kSetpointL4 = -40;
+        public static final double kSetpointL4 = -32.0;
         public static final double kSetpointFeed = 0.0;
         public static final double kSetpointStow = 0.0;
+
+        public static final double kSetpointAlgaeLow = -23.0;
+        public static final double kSetpointAlgaeHigh = -30.0;
+        public static final double kSetpointnet = -32.0;
 
         public static final boolean kUseCurrentForZeroing = false;
         public static final double kZeroingCurrent = 20.0;
@@ -327,7 +344,6 @@ public final class Constants {
             kRainbow.scrollAtAbsoluteSpeed(MetersPerSecond.of(1), kLedSpacing);
         
             */
-            } 
-            
+            }             
 
 }

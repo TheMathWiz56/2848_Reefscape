@@ -16,11 +16,13 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.reefData;
 
 import static frc.robot.Constants.ElevatorConstants.*;
+import static frc.robot.Constants.PincerConstants.kStowPosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -170,6 +172,9 @@ public class Elevator extends SubsystemBase {
     if(L == Constants.reef.reefLs.lL4 || L == Constants.reef.reefLs.rL4){
       return kSetpointL4;
     }
+    if(L == Constants.reef.reefLs.STOW){
+      return kStowPosition;
+    }
     return 0;
   }
 
@@ -218,9 +223,9 @@ public class Elevator extends SubsystemBase {
     // }
 
     // 
-    if(keypad.reef !=0 && keypad.L != Constants.reef.reefLs.NONE){
+    if(keypad.getReef()!=0 && keypad.getReefL() != Constants.reef.reefLs.NONE){
       if(mode== keypad.keyMode.SCORE){
-          this.goToL(keypad.L,keypad.reef);
+          CommandScheduler.getInstance().schedule(this.goToL(keypad.getReefL(),keypad.getReef()));
         }
     }
     
@@ -287,6 +292,10 @@ public class Elevator extends SubsystemBase {
 
     builder.addBooleanProperty("Limit Switch State", () -> elevatorLimitSwitchBottom.get(), null);
     builder.addBooleanProperty("Is Zeroed", () -> isZeroed, null);
+
+    builder.addIntegerProperty("reef at elevator", () -> keypad.getReef(), null);
+
+    builder.addStringProperty("selected L",() -> keypad.getReefL().name(),null);
 
   }
 

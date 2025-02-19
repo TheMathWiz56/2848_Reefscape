@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
@@ -27,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.keypad;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -47,6 +49,8 @@ public class RobotContainer {
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
     
     private final CommandXboxController operatorJoystick = new CommandXboxController(2);
+
+    private final keypad pad = new keypad();
 
     
 
@@ -79,6 +83,8 @@ public class RobotContainer {
         Timer.delay(3);
         FollowPathCommand.warmupCommand().schedule();
         Timer.delay(3);
+
+        CommandScheduler.getInstance().registerSubsystem(pad);
     }
 
     private void configureBindings() {
