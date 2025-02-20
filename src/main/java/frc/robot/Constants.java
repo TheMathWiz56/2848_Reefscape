@@ -58,7 +58,7 @@ public final class Constants {
 
         // Pivot Motor Controller Settings
         public static final boolean kPivotMotorInverted = false;
-        public static final IdleMode kPivotMotorIdleMode = IdleMode.kCoast;
+        public static final IdleMode kPivotMotorIdleMode = IdleMode.kBrake;
         public static final int kPivotMotorSmartCurrentLimit = 40;
 
         // Pivot PID/Feedforward Settings
