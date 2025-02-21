@@ -65,16 +65,13 @@ public class RobotContainer {
     public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
      */
 
-        //public final Arm arm = new Arm();
 
     /* Path follower */
-    
-    public final Elevator elevator = new Elevator();
 
+    public final Arm arm = new Arm();
+    //public final Elevator elevator = new Elevator();
     //private final SendableChooser<Command> autoChooser;
-
     //public final Pincer pincer = new Pincer();
-
     //public final Ascender ascender = new Ascender();
 
     public RobotContainer() {
@@ -93,17 +90,18 @@ public class RobotContainer {
     private void configureBindings() {
         // Default commands
         
-        elevator.setDefaultCommand(elevator.holdState());
+        //elevator.setDefaultCommand(elevator.holdState());
         //pincer.setDefaultCommand(pincer.holdState());
 
         //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
 
-        
-        driverJoystick.a().onTrue(elevator.goToL1());
+        /*
+        driverJoystick.a().onTrue(elevator.goToStow());
         driverJoystick.b().onTrue(elevator.goToL2());
         driverJoystick.x().onTrue(elevator.goToL3());
         driverJoystick.y().onTrue(elevator.goToL4());
-        
+         */
+
         //groundAlgaePivot.setDefaultCommand(groundAlgaePivot.holdState());
         //groundAlgaeWheels.setDefaultCommand(groundAlgaeWheels.holdState());
         
@@ -115,10 +113,13 @@ public class RobotContainer {
 
         /*
         pincer.setDefaultCommand(pincer.holdState());
-        ascender.setDefaultCommand(Commands.idle(ascender));*/
-/*
+*/
+
+        //ascender.setDefaultCommand(Commands.idle(ascender));
+
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
+        /*
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive
@@ -144,7 +145,7 @@ public class RobotContainer {
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));
         driverJoystick.pov(180)
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
-  */
+ */  
         /*
          * Run SysId routines when holding back/start and X/Y.
          * Note that each routine should be run exactly once in a single log.
@@ -172,10 +173,28 @@ public class RobotContainer {
         // Trigger to zero motor voltage on elevator if top limit switch trips
         Trigger elevatorTopLimitTrigger = new Trigger(elevator::getLimitSwitchTop).whileTrue(elevator.elevatorAtTopLimit());
 
-        // Trigger to lift elevator slightly, zero encoders if bottom limit switch trips
-        Trigger elevatorBottomLimitTrigger = new Trigger(elevator::getLimitSwitchBottom).whileTrue(elevator.elevatorAtBottomLimit());
+        
  */
 
+        // Trigger to lift elevator slightly, zero encoders if bottom limit switch trips
+        //Trigger elevatorBottomLimitTrigger = new Trigger(elevator::getLimitSwitchBottom).whileTrue(elevator.elevatorAtBottomLimit());
+
+        driverJoystick.a().onTrue(arm.pivotToL2L3());
+        driverJoystick.b().onTrue(arm.pivotToFeed());
+
+        // Primitive scoring test code
+        
+        arm.setDefaultCommand(arm.simpleSetMotorOutput(() -> driverJoystick.getLeftY() * 0.33));
+
+        /*
+        
+        driverJoystick.a().onTrue(elevator.goToStow());
+        driverJoystick.b().onTrue(elevator.goToL2());
+
+
+        driverJoystick.x().onFalse(pincer.stopIntake());
+        driverJoystick.x().onTrue(pincer.exhaust());
+ */
 
     }
 

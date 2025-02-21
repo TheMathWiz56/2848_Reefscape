@@ -68,10 +68,10 @@ public final class Constants {
         public static final FeedbackSensor kPivotMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
         public static final double kPivotMotorMinOutput = -1;
         public static final double kPivotMotorMaxOutput = 1;
-        public static final double kPivotMotorAbsoluteEncoderOffset = 0.0;
+        public static final double kPivotMotorAbsoluteEncoderOffset = 0.3179724;
         public static double kPivotMotorks = 0.0;
-        public static double kPivotMotorkg = 0.0;
-        public static double kPivotMotorkv = 0.0;
+        public static double kPivotMotorkg = 0.15;
+        public static double kPivotMotorkv = 1.0;
         public static double kPivotMotorka = 0.0;
         public static double kPivotMotorMaxVelocity = 0.0;
         public static double kPivotMotorMaxAcceleration = 0.0;
@@ -87,12 +87,19 @@ public final class Constants {
         public static final double kPositionConversionFactor = 1;
 
         // Setpoints
-        // For now: L1 is facing almost straight up, L2L3 is diagonal, L4 is facing straight-on
+        public static final double kStowPosition = 0.090;
+        public static final double kFeedPosition = 0.173;
+        public static final double kL1Position = 0.1; // Placeholder
+        public static final double kL2L3Position = 0.451;
+        public static final double kL4Position = 0.183;
+
+        // Here L1 is facing almost straight up, L2L3 is diagonal, L4 is facing straight-on
+        /*
         public static final double kStowPosition = 0.0;
         public static final double kFeedPosition = 0.0;
         public static final double kL1Position = 0.1;
         public static final double kL2L3Position = 0.2;
-        public static final double kL4Position = 0.325;
+        public static final double kL4Position = 0.325; */
     }
 
     public static class PincerConstants {
@@ -138,8 +145,8 @@ public final class Constants {
         public static final double kAlgaePosition = 0.0;
 
         // Intake Setpoints
-        public static final double kIntakeSpeed = -0.1;
-        public static final double kExhaustSpeed = 0.1;
+        public static final double kIntakeSpeed = -0.33;
+        public static final double kExhaustSpeed = 0.33;
     }
 
     public static class AscenderConstants {
@@ -175,10 +182,20 @@ public final class Constants {
         public static final double kFeedforwardKa = 0.0;
         public static final double kFeedforwardDtSeconds = 0.0;
 
+
+        public static final double kSetpointL1 = -5; // Placeholder  
+        public static final double kSetpointL2 = -17.40;      
+        public static final double kSetpointL3 = -26.40;
+        public static final double kSetpointL4 = -40.40;
+        public static final double kSetpointFeed = -11.53;
+        public static final double kSetpointStow = 0.31;
+
+        /*
         public static final double kSetpointL1 = -1;
         public static final double kSetpointL2 = -10;        
         public static final double kSetpointL3 = -20;
         public static final double kSetpointL4 = -30;
+         */
 
         // Setpoints for targeting different levels, some other situations
         // For Spark built in encoder
@@ -187,8 +204,7 @@ public final class Constants {
         public static final double kSetpointL3 = -32.32275390625;
         public static final double kSetpointL4 = -40;
         */
-        public static final double kSetpointFeed = 0.0;
-        public static final double kSetpointStow = 0.0;
+
 
         public static final boolean kUseCurrentForZeroing = false;
         public static final double kZeroingCurrent = 20.0;

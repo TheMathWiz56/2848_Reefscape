@@ -8,6 +8,8 @@ package frc.robot.subsystems;
 import frc.robot.Constants;
 import static frc.robot.Constants.ArmConstants.*;
 
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.AbsoluteEncoder;
@@ -205,6 +207,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
     public Command holdState() {
         return run(() -> {
             setPivotOutput(pivotSetpoint, 0);
+        });
+    }
+
+    public Command simpleSetMotorOutput(DoubleSupplier input) {
+        return run(() -> {
+            pivotMotor.set(input.getAsDouble());
         });
     }
 
