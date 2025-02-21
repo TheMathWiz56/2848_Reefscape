@@ -27,7 +27,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Pincer;
 import frc.robot.subsystems.keypad;
 
 public class RobotContainer {
@@ -50,7 +52,10 @@ public class RobotContainer {
     
     private final CommandXboxController operatorJoystick = new CommandXboxController(2);
 
+    //private final Pincer pincer = new Pincer();
+
     private final keypad pad = new keypad();
+    
 
     
 
@@ -66,6 +71,8 @@ public class RobotContainer {
     public final Pincer pincer = new Pincer();
  */
         public final Elevator elevator = new Elevator();
+
+        public final Arm arm = new Arm();
 
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;
@@ -85,6 +92,7 @@ public class RobotContainer {
         Timer.delay(3);
 
         CommandScheduler.getInstance().registerSubsystem(pad);
+        CommandScheduler.getInstance().registerSubsystem(arm);
     }
 
     private void configureBindings() {
@@ -98,6 +106,8 @@ public class RobotContainer {
         driverJoystick.b().onTrue(elevator.goToL2());
         driverJoystick.x().onTrue(elevator.goToL3());
         driverJoystick.y().onTrue(elevator.goToL4());
+
+        operatorJoystick.a().onTrue(arm.pivotToFeed());
 
         /*
         arm.setDefaultCommand(arm.holdState());

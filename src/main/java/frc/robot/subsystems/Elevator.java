@@ -49,6 +49,8 @@ public class Elevator extends SubsystemBase {
   private TrapezoidProfile.State goalState = new TrapezoidProfile.State();
   private TrapezoidProfile.State currentState = new TrapezoidProfile.State();
 
+  private boolean keyHeld = false;
+
 
   // Timer for trapezoid profile
   private final Timer timer = new Timer();
@@ -223,10 +225,14 @@ public class Elevator extends SubsystemBase {
     // }
 
     // 
-    if(keypad.getReef()!=0 && keypad.getReefL() != Constants.reef.reefLs.NONE){
+    
+    if(keypad.getReef()!=0 && keypad.getReefL() != Constants.reef.reefLs.NONE && !keyHeld){
       if(mode== keypad.keyMode.SCORE){
           CommandScheduler.getInstance().schedule(this.goToL(keypad.getReefL(),keypad.getReef()));
+          keyHeld=true;
         }
+    } else{
+      keyHeld = false;
     }
     
 

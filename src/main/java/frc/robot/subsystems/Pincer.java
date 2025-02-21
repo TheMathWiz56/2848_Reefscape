@@ -97,11 +97,23 @@ public class Pincer extends SubsystemBase{
 
     @Override
     public void periodic(){
+
+
         if (pincerPIDUpdated){
             pincerConfig
                 .closedLoop.pid(kPincerP, kPincerI, kPincerD);
             pincerMotor.configure(pincerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
             pincerPIDUpdated = false;
+        }
+
+        if(keypad.intakeRun()==Constants.PincerConstants.intakeStates.INTAKE){
+            this.intake();
+        }
+        if(keypad.intakeRun()==Constants.PincerConstants.intakeStates.STOP){
+            this.stopIntake();
+        }
+        if(keypad.intakeRun()==Constants.PincerConstants.intakeStates.EXHAUST){
+            this.exhaust();
         }
 
         SmartDashboard.putData(this);
