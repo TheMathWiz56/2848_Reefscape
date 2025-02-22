@@ -26,11 +26,15 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.commands.CommandFactory;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.Pincer;
 import frc.robot.subsystems.keypad;
+
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -55,13 +59,27 @@ public class RobotContainer {
     //private final Pincer pincer = new Pincer();
 
     private final keypad pad = new keypad();
-    
+
+    private final Trigger scoreReeftrigger = new Trigger(() ->pad.scoreReef());
+    private final Trigger feedTrigger = new Trigger(() -> pad.feed());
+    private final Trigger stowTrigger = new Trigger(() -> pad.stow());
+    private final Trigger intakeStartTrigger = new Trigger(() -> pad.intakeStart());
+    private final Trigger intakeStopTrigger = new Trigger(() -> pad.intakeStop());
+    private final Trigger intakeExhaustTrigger = new Trigger(() -> pad.intakeExhaust());
+    private final Trigger cancelScoreTrigger = new Trigger(() -> pad.cancelScore());
+    private final Trigger netTrigger = new Trigger(() -> pad.net());
+    private final Trigger climbTrigger = new Trigger(() -> pad.climb());
+    private final Trigger climbCancelTrigger = new Trigger(() ->pad.climbCancel());
+    private final Trigger reefAlgaeHighTrigger = new Trigger(()-> pad.reefAlgaeHigh());
+    private final Trigger reefAlgaeLowTrigger = new Trigger(() ->pad.reefAlgaeLow());
+
+   
 
     
 
     // Subsystem Instances
     /*
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    
     public final Lights lights = new Lights();
     
     public final Arm arm = new Arm();
@@ -70,9 +88,17 @@ public class RobotContainer {
     public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
     public final Pincer pincer = new Pincer();
  */
+        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         public final Elevator elevator = new Elevator();
 
         public final Arm arm = new Arm();
+        public final Pincer pincer = new Pincer();
+        public final Lights lights = new Lights();
+
+        public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
+
+        private final Command scoreL = commandFactory.scoreL(pad.getReefL(), pad.getReef());
+        private final Command stow = commandFactory.stow();
 
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;
@@ -90,6 +116,7 @@ public class RobotContainer {
         Timer.delay(3);
         FollowPathCommand.warmupCommand().schedule();
         Timer.delay(3);
+        
 
         CommandScheduler.getInstance().registerSubsystem(pad);
         CommandScheduler.getInstance().registerSubsystem(arm);
@@ -102,12 +129,19 @@ public class RobotContainer {
 
         
 
-        //driverJoystick.a().onTrue(elevator.goToL1());
-        driverJoystick.b().onTrue(elevator.goToL2());
-        driverJoystick.x().onTrue(elevator.goToL3());
-        driverJoystick.y().onTrue(elevator.goToL4());
 
-        operatorJoystick.a().onTrue(arm.pivotToFeed());
+
+
+
+
+        
+
+        //driverJoystick.a().onTrue(elevator.goToL1());
+        // driverJoystick.b().onTrue(elevator.goToL2());
+        // driverJoystick.x().onTrue(elevator.goToL3());
+        // driverJoystick.y().onTrue(elevator.goToL4());
+
+        // operatorJoystick.a().onTrue(arm.pivotToFeed());
 
         /*
         arm.setDefaultCommand(arm.holdState());

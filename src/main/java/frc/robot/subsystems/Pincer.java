@@ -106,15 +106,7 @@ public class Pincer extends SubsystemBase{
             pincerPIDUpdated = false;
         }
 
-        if(keypad.intakeRun()==Constants.PincerConstants.intakeStates.INTAKE){
-            this.intake();
-        }
-        if(keypad.intakeRun()==Constants.PincerConstants.intakeStates.STOP){
-            this.stopIntake();
-        }
-        if(keypad.intakeRun()==Constants.PincerConstants.intakeStates.EXHAUST){
-            this.exhaust();
-        }
+        
 
         SmartDashboard.putData(this);
     }
@@ -123,6 +115,10 @@ public class Pincer extends SubsystemBase{
      */
     public boolean hasAlgae(){
         return intakeMotor.getOutputCurrent() > kIntakeAlgaeCurrentThreshold;
+    }
+
+    public boolean hasCoral(){
+        return true;
     }
 
     /**@return True if the intake photogate is tripped
@@ -146,6 +142,12 @@ public class Pincer extends SubsystemBase{
         return pincerToSetpoint(kAlgaePosition);
     }
 
+    public Command reefAlgae(){
+        return pincerToSetpoint(Constants.PincerConstants.setPoints.get(
+            Constants.robotStates.pincerStates.ALGAEINTAKE
+        ));
+    }
+
     /** Moves the pincer to the stowed position
      * @return Command
      */
@@ -158,6 +160,12 @@ public class Pincer extends SubsystemBase{
      */
     public Command pincerFunnel() {
         return pincerToSetpoint(kFunnelPosition);
+    }
+
+    public Command algaeScore(){
+        return pincerToSetpoint(Constants.PincerConstants.setPoints.get(
+            Constants.robotStates.pincerStates.ALGAESCORE
+        ));
     }
 
     /** Runs the intake motor at the intake speed

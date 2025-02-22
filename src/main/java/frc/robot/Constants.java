@@ -31,7 +31,34 @@ public final class Constants {
      */
     
     
+    public static final class robotStates{
+        public static enum intakeStates{
+            INTAKE,
+            STOP,
+            EXHAUST
+        }
+        public static enum pivotElevatorStates{
+            ALGAESTOW,
+            EMPTYSTOW,
+            CORALSTOW,
+            FEED,
+            L1,
+            L2,
+            L3,
+            L4,
+            REEFALGAEHIGH,
+            REEFALGAELOW,
+            GROUNDALGAE,
+            PROCESSOR,
+            NET,
+        }
+        public static enum pincerStates{
+            ALGAESCORE,
+            ALGAEINTAKE,
+            CORALINTAKE
+        }
         
+    }
 
     //util values for the reef
     public static class reef{
@@ -123,6 +150,24 @@ public static class ControllerConstants {
 }
 
 public static class ArmConstants {
+
+    public static final HashMap<robotStates.pivotElevatorStates,Double> setPoints = new HashMap<>(){{
+        put(robotStates.pivotElevatorStates.ALGAESTOW,0.0);
+        put(robotStates.pivotElevatorStates.CORALSTOW,0.0);
+        put(robotStates.pivotElevatorStates.EMPTYSTOW,0.0);
+        put(robotStates.pivotElevatorStates.L1,0.0);
+        put(robotStates.pivotElevatorStates.L2,0.0);
+        put(robotStates.pivotElevatorStates.L3,0.0);
+        put(robotStates.pivotElevatorStates.L4,0.0);
+        put(robotStates.pivotElevatorStates.FEED,0.0);
+        put(robotStates.pivotElevatorStates.REEFALGAEHIGH,0.0);
+        put(robotStates.pivotElevatorStates.REEFALGAELOW,0.0);
+        put(robotStates.pivotElevatorStates.GROUNDALGAE,0.0);
+        put(robotStates.pivotElevatorStates.PROCESSOR,0.0);
+        put(robotStates.pivotElevatorStates.NET,0.0);
+    }};
+
+
     // ID's
     public static final int kPivotMotorId = 21;
 
@@ -166,15 +211,14 @@ public static class ArmConstants {
 }
 
 public static class PincerConstants {
-    //INTAKE STATE
-    public static enum intakeStates{
-        INTAKE,
-        STOP,
-        EXHAUST
-    }
+
+    public static final HashMap<robotStates.pincerStates,Double> setPoints = new HashMap<>(){{
+        put(robotStates.pincerStates.ALGAESCORE,0.0);
+        put(robotStates.pincerStates.ALGAEINTAKE,0.0);
+    }};
 
 
-
+    public static final double scoreIntakeDelay=.75;
     // ID
     public static final int kPincerMotorId = 22; // Claw
     public static final int kIntakeMotorId = 23; // Wheels
@@ -229,6 +273,22 @@ public static class AscenderConstants {
 public static class ElevatorConstants {
     public static final int kMotorId = 20;
         public static final int kLimitSwitchBottomId = 1;
+
+        public static final HashMap<robotStates.pivotElevatorStates,Double> setPoints = new HashMap<>(){{
+            put(robotStates.pivotElevatorStates.ALGAESTOW,0.0);
+            put(robotStates.pivotElevatorStates.CORALSTOW,0.0);
+            put(robotStates.pivotElevatorStates.EMPTYSTOW,0.0);
+            put(robotStates.pivotElevatorStates.L1,0.0);
+            put(robotStates.pivotElevatorStates.L2,0.0);
+            put(robotStates.pivotElevatorStates.L3,0.0);
+            put(robotStates.pivotElevatorStates.L4,0.0);
+            put(robotStates.pivotElevatorStates.FEED,0.0);
+            put(robotStates.pivotElevatorStates.REEFALGAEHIGH,0.0);
+            put(robotStates.pivotElevatorStates.REEFALGAELOW,0.0);
+            put(robotStates.pivotElevatorStates.GROUNDALGAE,0.0);
+            put(robotStates.pivotElevatorStates.PROCESSOR,0.0);
+            put(robotStates.pivotElevatorStates.NET,0.0);
+        }};
 
         public static final InvertedValue kMotorInverted = InvertedValue.CounterClockwise_Positive;
         public static final double kMotorEncoderOffset = 0.0;

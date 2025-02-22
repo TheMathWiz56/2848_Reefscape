@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
-import frc.robot.commands.scoreCMD;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ public class keypad extends SubsystemBase{
     public static keyMode mode = keyMode.SCORE;
     public static int reef = 0;
     public static Constants.reef.reefLs L = Constants.reef.reefLs.NONE;
-    private static Constants.PincerConstants.intakeStates intakeState = Constants.PincerConstants.intakeStates.STOP;
+    private static Constants.robotStates.intakeStates intakeState = Constants.robotStates.intakeStates.STOP;
 
     public static enum keyMode {
         SCORE,
@@ -64,22 +64,15 @@ public class keypad extends SubsystemBase{
             }
 
             if(i==20){
-                intakeState = Constants.PincerConstants.intakeStates.INTAKE;
+                intakeState = Constants.robotStates.intakeStates.INTAKE;
             }
             if(i== 21){
-                intakeState = Constants.PincerConstants.intakeStates.STOP;
+                intakeState = Constants.robotStates.intakeStates.STOP;
             }
             if(i==28){
-                intakeState = Constants.PincerConstants.intakeStates.EXHAUST;
+                intakeState = Constants.robotStates.intakeStates.EXHAUST;
             }
         }
-
-    
-
-            
-        
-
-
         if(keys.size()==0){
             reef = 0;
             L = Constants.reef.reefLs.NONE;
@@ -89,22 +82,53 @@ public class keypad extends SubsystemBase{
     }
 
     
-
-
-    public static Constants.PincerConstants.intakeStates intakeRun(){
-        return intakeState;
-    }
-
-
-    public static int getKeysSize(){
+    public int getKeysSize(){
         return keys.size();
     }
 
-    public static int getReef(){
+    public int getReef(){
         return reef;
     }
-    public static Constants.reef.reefLs getReefL(){
+
+
+    public Constants.reef.reefLs getReefL(){
         return L;
+    }
+    public boolean scoreReef(){
+        return reef!=0 && mode == keyMode.SCORE && L != Constants.reef.reefLs.NONE;
+    }
+    public boolean feed(){
+        return keys.contains(20);
+    }
+    public boolean stow(){
+        return keys.contains(22);
+    }
+    public boolean intakeStart(){
+        return keys.contains(20);
+    }
+    public boolean intakeStop(){
+        return keys.contains(21);
+    }
+    public boolean intakeExhaust(){
+        return keys.contains(28);
+    }
+    public boolean cancelScore(){
+        return keys.contains(19);
+    }
+    public boolean net(){
+        return keys.contains(27);
+    }
+    public boolean climb(){
+        return keys.contains(23);
+    }
+    public boolean climbCancel(){
+        return keys.contains(24);
+    }
+    public boolean reefAlgaeHigh(){
+        return keys.contains(25);
+    }
+    public boolean reefAlgaeLow(){
+        return keys.contains(26);
     }
     
     public void initSendable(SendableBuilder builder) {

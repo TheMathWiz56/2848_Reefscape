@@ -130,6 +130,16 @@ public class Elevator extends SubsystemBase {
         .withName("Go to " + positionName);
   }
 
+  public Command goToPosition(double position) {
+    return this.startRun(() -> {
+      setElevatorSetpoint(position);
+    }, () -> {
+      currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
+      setMotorOutput(currentState.position, currentState.velocity);
+    }).until(() -> elevatorTrapezoidProfile.isFinished(timer.get()))
+        ;
+  }
+
   // Commands to go to various pre-defined positions
   
   // public Command goToL1(int reef,int L) {
@@ -152,8 +162,51 @@ public class Elevator extends SubsystemBase {
     return goToPosition(kSetpointFeed, "Feed");
   }
 
+  public Command algaeStow(){
+    return goToPosition(Constants.ElevatorConstants.setPoints.get(
+      Constants.robotStates.pivotElevatorStates.ALGAESTOW
+  ));
+  }
+  
+  public Command coralStow(){
+    return goToPosition(Constants.ElevatorConstants.setPoints.get(
+                Constants.robotStates.pivotElevatorStates.CORALSTOW
+            ));
+  }
+  public Command emptyStow(){
+    return goToPosition(Constants.ElevatorConstants.setPoints.get(
+      Constants.robotStates.pivotElevatorStates.EMPTYSTOW
+  ));
+  }
+  public Command goToNet(){
+    return goToPosition(Constants.ElevatorConstants.setPoints.get(
+      Constants.robotStates.pivotElevatorStates.NET
+    ));
+  }
+
   public Command goToStow() {
     return goToPosition(kSetpointStow, "Stow");
+  }
+
+  public Command goToProcessor(){
+    return goToPosition(Constants.ElevatorConstants.setPoints.get(
+      Constants.robotStates.pivotElevatorStates.PROCESSOR
+    ));
+  }
+
+  public Command reefAlgaeHigh(){
+    return goToPosition(
+      Constants.ElevatorConstants.setPoints.get(
+        Constants.robotStates.pivotElevatorStates.REEFALGAEHIGH
+      )
+    );
+  }
+  public Command reefAlgaeLow(){
+    return goToPosition(
+      Constants.ElevatorConstants.setPoints.get(
+        Constants.robotStates.pivotElevatorStates.REEFALGAELOW
+      )
+    );
   }
 
   public void zeroEncoder() {
@@ -196,6 +249,10 @@ public class Elevator extends SubsystemBase {
     //return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()-> reefData.update(reef,L,false));
   }
 
+  
+
+  
+
   public Command autoZeroEncoder() {
     return run(() -> setMotorVoltage(1.5))
         .until(kUseCurrentForZeroing ? () -> elevatorMotor.getStatorCurrent().getValueAsDouble() > kZeroingCurrent
@@ -226,14 +283,7 @@ public class Elevator extends SubsystemBase {
 
     // 
     
-    if(keypad.getReef()!=0 && keypad.getReefL() != Constants.reef.reefLs.NONE && !keyHeld){
-      if(mode== keypad.keyMode.SCORE){
-          CommandScheduler.getInstance().schedule(this.goToL(keypad.getReefL(),keypad.getReef()));
-          keyHeld=true;
-        }
-    } else{
-      keyHeld = false;
-    }
+    
     
 
 
@@ -299,9 +349,7 @@ public class Elevator extends SubsystemBase {
     builder.addBooleanProperty("Limit Switch State", () -> elevatorLimitSwitchBottom.get(), null);
     builder.addBooleanProperty("Is Zeroed", () -> isZeroed, null);
 
-    builder.addIntegerProperty("reef at elevator", () -> keypad.getReef(), null);
-
-    builder.addStringProperty("selected L",() -> keypad.getReefL().name(),null);
+    
 
   }
 
