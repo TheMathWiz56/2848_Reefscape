@@ -109,7 +109,7 @@ public class RobotContainer {
         //driverJoystick.b().onTrue(pincer.exhaust());
         //driverJoystick.x().onTrue(pincer.stopIntake());
 
-        //arm.setDefaultCommand(arm.holdState());
+        arm.setDefaultCommand(arm.holdState());
 
         /*
         pincer.setDefaultCommand(pincer.holdState());

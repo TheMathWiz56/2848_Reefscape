@@ -78,7 +78,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
                 .outputRange(kPivotMotorMinOutput, kPivotMotorMaxOutput);
         pivotConfig
             .absoluteEncoder
-                .zeroOffset(kPivotMotorAbsoluteEncoderOffset);
+                .zeroOffset(kPivotMotorAbsoluteEncoderOffset)
+                .zeroCentered(kPivotMotorAbsoluteEncoderZeroCentered);
         pivotConfig
             .softLimit
                 .reverseSoftLimitEnabled(kSoftLimitsEnabled)
@@ -132,6 +133,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
         builder.addDoubleProperty("Pivot kI", () -> kPivotI, value -> { kPivotI = value; pivotPIDUpdated = true;});
         builder.addDoubleProperty("Pivot kD", () -> kPivotD, value -> { kPivotD = value; pivotPIDUpdated = true;});
 
+        builder.addDoubleProperty("Pivot Feedforward Output", () -> FF, null);
     }
 
     @Override
@@ -221,8 +223,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
      * @param velocity velocity setpoint (feedforward)
      */
     private void setPivotOutput(double position, double velocity) {
-        FF = pivotFeedforward.calculate(position, velocity);
-        pivotController.setReference(position, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kPercentOut);
+        FF = pivotFeedforward.calculate(position * 2.0 * Math.PI, velocity);
+        //pivotController.setReference(position, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kPercentOut);
     }
 
 }

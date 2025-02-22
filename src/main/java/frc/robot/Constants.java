@@ -58,7 +58,7 @@ public final class Constants {
 
         // Pivot Motor Controller Settings
         public static final boolean kPivotMotorInverted = false;
-        public static final IdleMode kPivotMotorIdleMode = IdleMode.kBrake;
+        public static final IdleMode kPivotMotorIdleMode = IdleMode.kCoast;
         public static final int kPivotMotorSmartCurrentLimit = 40;
 
         // Pivot PID/Feedforward Settings
@@ -69,9 +69,10 @@ public final class Constants {
         public static final double kPivotMotorMinOutput = -1;
         public static final double kPivotMotorMaxOutput = 1;
         public static final double kPivotMotorAbsoluteEncoderOffset = 0.3179724;
+        public static final boolean kPivotMotorAbsoluteEncoderZeroCentered = true;
         public static double kPivotMotorks = 0.0;
-        public static double kPivotMotorkg = 0.15;
-        public static double kPivotMotorkv = 1.0;
+        public static double kPivotMotorkg = 3;
+        public static double kPivotMotorkv = 0.0;  // 1..0
         public static double kPivotMotorka = 0.0;
         public static double kPivotMotorMaxVelocity = 0.0;
         public static double kPivotMotorMaxAcceleration = 0.0;
@@ -86,12 +87,12 @@ public final class Constants {
         // the internal encoder
         public static final double kPositionConversionFactor = 1;
 
-        // Setpoints
-        public static final double kStowPosition = 0.090;
-        public static final double kFeedPosition = 0.173;
-        public static final double kL1Position = 0.1; // Placeholder
-        public static final double kL2L3Position = 0.451;
-        public static final double kL4Position = 0.183;
+        // Setpoints (placeholdes)
+        public static final double kStowPosition = 0;
+        public static final double kFeedPosition = 0;
+        public static final double kL1Position = 0.0; // Placeholder
+        public static final double kL2L3Position = -0.1;
+        public static final double kL4Position = -0.2;
 
         // Here L1 is facing almost straight up, L2L3 is diagonal, L4 is facing straight-on
         /*
