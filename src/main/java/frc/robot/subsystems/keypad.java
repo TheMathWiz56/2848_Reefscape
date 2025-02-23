@@ -17,7 +17,7 @@ public class keypad extends SubsystemBase{
     public static keyMode mode = keyMode.SCORE;
     public static int reef = 0;
     public static Constants.reef.reefLs L = Constants.reef.reefLs.NONE;
-    private static Constants.robotStates.intakeStates intakeState = Constants.robotStates.intakeStates.STOP;
+    
 
     public static enum keyMode {
         SCORE,
@@ -63,15 +63,7 @@ public class keypad extends SubsystemBase{
                 L = Constants.reef.reefLs.NONE;
             }
 
-            if(i==20){
-                intakeState = Constants.robotStates.intakeStates.INTAKE;
-            }
-            if(i== 21){
-                intakeState = Constants.robotStates.intakeStates.STOP;
-            }
-            if(i==28){
-                intakeState = Constants.robotStates.intakeStates.EXHAUST;
-            }
+        
         }
         if(keys.size()==0){
             reef = 0;
@@ -95,7 +87,7 @@ public class keypad extends SubsystemBase{
         return L;
     }
     public boolean scoreReef(){
-        return reef!=0 && mode == keyMode.SCORE && L != Constants.reef.reefLs.NONE;
+        return reef!=0 &&  L != Constants.reef.reefLs.NONE;
     }
     public boolean feed(){
         return keys.contains(20);
@@ -135,6 +127,8 @@ public class keypad extends SubsystemBase{
         builder.addIntegerProperty("Reef selected", () -> reef, null);
         builder.addIntegerProperty("keydown size", () -> keys.size(), null);
         builder.addStringProperty("key presses", () -> keys.toString(), null);
+        builder.addStringProperty("L",() ->getReefL().name(),null);
+        builder.addBooleanProperty("score reef",()->scoreReef(),null);
     }
 
 }

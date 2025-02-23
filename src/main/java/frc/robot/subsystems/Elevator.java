@@ -215,37 +215,29 @@ public class Elevator extends SubsystemBase {
   }
 
   public double LtoSetPoint(Constants.reef.reefLs L){
-    if(L == Constants.reef.reefLs.lL1 || L == Constants.reef.reefLs.rL1){
+    if(L.equals(Constants.reef.reefLs.lL1) || L.equals(Constants.reef.reefLs.rL1)){
       return kSetpointL1;
     }
-    if(L == Constants.reef.reefLs.lL2 || L == Constants.reef.reefLs.rL2){
+    if(L.equals(Constants.reef.reefLs.lL2) || L.equals(Constants.reef.reefLs.rL2)){
       return kSetpointL2;
     }
-    if(L == Constants.reef.reefLs.lL3 || L == Constants.reef.reefLs.rL3){
+    if(L.equals(Constants.reef.reefLs.lL3) || L.equals(Constants.reef.reefLs.rL3)){
       return kSetpointL3;
     }
-    if(L == Constants.reef.reefLs.lL4 || L == Constants.reef.reefLs.rL4){
+    if(L.equals(Constants.reef.reefLs.lL4) || L.equals(Constants.reef.reefLs.rL4)){
       return kSetpointL4;
-    }
-    if(L == Constants.reef.reefLs.STOW){
-      return kStowPosition;
     }
     return 0;
   }
 
   public Command goToL(Constants.reef.reefLs L,int reef){
     return this.startRun(() -> {
-      setElevatorSetpoint(LtoSetPoint(L));
+      setElevatorSetpoint(Constants.ElevatorConstants.setPoints.get(Constants.reef.reefToState.get(L)));
     }, () -> {
       currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
       setMotorOutput(currentState.position, currentState.velocity);
     }).until(() -> elevatorTrapezoidProfile.isFinished(timer.get()))
-        .withName("Go to " + L)
-        .finallyDo((interrupted) ->{
-          if (!interrupted){
-            reefData.update(reef,L,false);
-          }
-        });
+        .withName("Go to " + L.name());
     //return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()-> reefData.update(reef,L,false));
   }
 
@@ -270,7 +262,7 @@ public class Elevator extends SubsystemBase {
     SmartDashboard.putData(this);
     // List<Integer> keyDown = new ArrayList<>();
     // keyDown = keypad.keys;
-     keypad.keyMode mode = keypad.mode;
+     //keypad.keyMode mode = keypad.mode;
      //int reef =0;
      //Constants.reef.reefLs L = Constants.reef.reefLs.STOW;
     // for(int i : keyDown){
@@ -348,6 +340,7 @@ public class Elevator extends SubsystemBase {
 
     builder.addBooleanProperty("Limit Switch State", () -> elevatorLimitSwitchBottom.get(), null);
     builder.addBooleanProperty("Is Zeroed", () -> isZeroed, null);
+    
 
     
 

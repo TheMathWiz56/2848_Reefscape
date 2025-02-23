@@ -51,6 +51,8 @@ public final class Constants {
             GROUNDALGAE,
             PROCESSOR,
             NET,
+            NONE,
+            STOW
         }
 
         public static enum pincerStates {
@@ -92,6 +94,21 @@ public final class Constants {
             }
         };
 
+        public static Map<reefLs, robotStates.pivotElevatorStates> reefToState = new HashMap<>(){{
+            put(reefLs.lL4, robotStates.pivotElevatorStates.L4);
+            put(reefLs.lL3,robotStates.pivotElevatorStates.L3);
+            put(reefLs.lL2,robotStates.pivotElevatorStates.L2);
+            put(reefLs.lL1,robotStates.pivotElevatorStates.L1);
+            put(reefLs.rL4,robotStates.pivotElevatorStates.L4);
+            put(reefLs.rL3,robotStates.pivotElevatorStates.L3);
+            put(reefLs.rL2,robotStates.pivotElevatorStates.L2);
+            put(reefLs.rL1,robotStates.pivotElevatorStates.L1);
+            put(reefLs.NONE,robotStates.pivotElevatorStates.L2);
+            
+            
+            
+        }};
+
         public static final Map<Integer, reefLs> lMap = new HashMap<>() {
             {
                 put(1, reefLs.lL4);
@@ -102,7 +119,7 @@ public final class Constants {
                 put(6, reefLs.rL3);
                 put(7, reefLs.rL2);
                 put(8, reefLs.rL1);
-                put(22, reefLs.STOW);
+                put(22,reefLs.STOW);
                 put(19, reefLs.STOW);
             }
         };
@@ -179,12 +196,12 @@ public final class Constants {
         public static final int kPivotMotorId = 21;
 
         // Pivot Motor Controller Settings
-        public static final boolean kPivotMotorInverted = true;
+        public static final boolean kPivotMotorInverted = false;
         public static final IdleMode kPivotMotorIdleMode = IdleMode.kCoast;
         public static final int kPivotMotorSmartCurrentLimit = 40;
 
         // Pivot PID/Feedforward Settings
-        public static double kPivotP = 8.0;
+        public static double kPivotP = 6.0;
         public static double kPivotI = 0.0;
         public static double kPivotD = 0.0;
         public static final FeedbackSensor kPivotMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
@@ -320,7 +337,7 @@ public final class Constants {
             public static final double kMotorEncoderOffset = 0.0;
             public static final NeutralModeValue kMotorIdleMode = NeutralModeValue.Coast;
 
-            public static final int kCurrentLimit = 50;
+            public static final int kCurrentLimit = 40;
 
             // Trapezoid Proflile parameters
             public static final double kMaxVelocity = 30.0;

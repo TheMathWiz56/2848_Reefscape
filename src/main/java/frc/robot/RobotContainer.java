@@ -94,25 +94,26 @@ public class RobotContainer {
 
     //public final Lights lights = new Lights();
     public final Arm arm = new Arm();
-    public final Ascender ascender = new Ascender();
-    public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
-    public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
+    public final Ascender ascender = null;//new Ascender();
+    //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
+    //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
     public final Pincer pincer = new Pincer();
  
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         public final Elevator elevator = new Elevator();
-        public final Lights lights = new Lights();
+        public final Lights lights = null;//new Lights();
 
         public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
 
-        private final Command scoreLCMD = commandFactory.scoreL(pad.getReefL(), pad.getReef());
-        private final Command stowCMD = commandFactory.stow();
-        private final Command feedCMD = commandFactory.feed();
-        private final Command reefAlgaeHighCMD = commandFactory.reefAlgaeHigh();
-        private final Command reefAlgaeLowCMD = commandFactory.reefAlgaeLow();
-        private final Command netCMD = commandFactory.net();
-        private final Command processorCMD = commandFactory.processor();
-
+        //private final Command scoreLCMD = commandFactory.scoreL(pad.getReefL(), pad.getReef());
+        // private final Command stowCMD = commandFactory.stow();
+        // private final Command feedCMD = commandFactory.feed();
+        // private final Command reefAlgaeHighCMD = commandFactory.reefAlgaeHigh();
+        // private final Command reefAlgaeLowCMD = commandFactory.reefAlgaeLow();
+        // private final Command netCMD = commandFactory.net();
+        // private final Command processorCMD = commandFactory.processor();
+        private final Command scoreL3CMD = commandFactory.scoreL(Constants.reef.reefLs.lL3,1);
+        private final Command scoreL2CMD = commandFactory.scoreL(Constants.reef.reefLs.lL2,1);
 
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;
@@ -144,23 +145,24 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Default commands
-        elevator.setDefaultCommand(elevator.holdState());
+       elevator.setDefaultCommand(elevator.holdState());
+       arm.setDefaultCommand(arm.holdState());
 
 
 
-        scoreReefTrigger.onTrue(scoreLCMD);
-        feedTrigger.onTrue(feedCMD);
-        stowTrigger.onTrue(stowCMD);
-        intakeStartTrigger.onTrue(new InstantCommand(() -> pincer.intake(),pincer));
-        intakeStopTrigger.onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
-        intakeExhaustTrigger.onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
-        cancelScoreTrigger.onTrue(new InstantCommand(()-> CommandScheduler.getInstance().cancel(netCMD,processorCMD,scoreLCMD)));
-        netTrigger.onTrue(netCMD);
+        //scoreReefTrigger.onTrue(scoreLCMD);
+        //feedTrigger.onTrue(feedCMD);
+        //stowTrigger.onTrue(stowCMD);
+        //intakeStartTrigger.onTrue(new InstantCommand(() -> pincer.intake(),pincer));
+        //intakeStopTrigger.onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
+        //intakeExhaustTrigger.onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
+        //cancelScoreTrigger.onTrue(new InstantCommand(()-> CommandScheduler.getInstance().cancel(netCMD,processorCMD,scoreLCMD)));
+        //netTrigger.onTrue(netCMD);
         //TODO: add climb stop and do it in code
         //climbTrigger.onTrue(new InstantCommand(() ->ascender.climb()),ascender);
         //climbCancelTrigger.onTrue(new InstantCommand() ->ascender.st)
-        reefAlgaeHighTrigger.onTrue(reefAlgaeHighCMD);
-        reefAlgaeLowTrigger.onTrue(reefAlgaeLowCMD);
+        //reefAlgaeHighTrigger.onTrue(reefAlgaeHighCMD);
+        //reefAlgaeLowTrigger.onTrue(reefAlgaeLowCMD);
 
         
 
@@ -171,7 +173,12 @@ public class RobotContainer {
 
         
 
-        //driverJoystick.a().onTrue(elevator.goToL1());
+       //driverJoystick.a().onTrue(elevator.goToL(Constants.reef.reefLs.lL3,1));
+       //driverJoystick.b().onTrue(arm.pivotToL2L3());
+       //driverJoystick.a().onTrue(arm.pivotToFeed());
+       driverJoystick.a().onTrue(scoreL2CMD);
+       driverJoystick.b().onTrue(scoreL3CMD);
+     
         // driverJoystick.b().onTrue(elevator.goToL2());
         // driverJoystick.x().onTrue(elevator.goToL3());
         // driverJoystick.y().onTrue(elevator.goToL4());

@@ -29,9 +29,11 @@ public class CommandFactory {
 /*Moves only elevator, pivot and intake to score on reef */
     public Command scoreL(Constants.reef.reefLs L,int reef){
         return elevator.goToL(L,reef)
-            .andThen(arm.moveToPoint(reef))
+            .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+                Constants.reef.reefToState.get(L)
+            )))
             .andThen(pincer.exhaust())
-            .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+             .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
             .finallyDo((interrupted) ->{
                   pincer.stopIntake().schedule();
                 });
