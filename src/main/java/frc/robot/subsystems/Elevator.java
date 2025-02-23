@@ -49,6 +49,9 @@ public class Elevator extends SubsystemBase {
   private TrapezoidProfile.State goalState = new TrapezoidProfile.State();
   private TrapezoidProfile.State currentState = new TrapezoidProfile.State();
 
+
+  private int commandRan = 0;
+
   private boolean keyHeld = false;
 
 
@@ -233,11 +236,13 @@ public class Elevator extends SubsystemBase {
   public Command goToL(Constants.reef.reefLs L,int reef){
     return this.startRun(() -> {
       setElevatorSetpoint(Constants.ElevatorConstants.setPoints.get(Constants.reef.reefToState.get(L)));
+      //setElevatorSetpoint(-26);
     }, () -> {
       currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
       setMotorOutput(currentState.position, currentState.velocity);
     }).until(() -> elevatorTrapezoidProfile.isFinished(timer.get()))
-        .withName("Go to " + L.name());
+        .withName("Go to " + L.name())
+        .finallyDo(()-> commandRan++);
     //return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()-> reefData.update(reef,L,false));
   }
 
@@ -252,6 +257,7 @@ public class Elevator extends SubsystemBase {
         .andThen(runOnce(() -> {
           zeroEncoder();
           setMotorVoltage(0.0);
+         
           this.setDefaultCommand(holdState());
         })).withName("Zero Encoder");
   }
@@ -340,6 +346,7 @@ public class Elevator extends SubsystemBase {
 
     builder.addBooleanProperty("Limit Switch State", () -> elevatorLimitSwitchBottom.get(), null);
     builder.addBooleanProperty("Is Zeroed", () -> isZeroed, null);
+    builder.addIntegerProperty("commands ran",()->commandRan,null);
     
 
     

@@ -105,15 +105,15 @@ public class RobotContainer {
 
         public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
 
-        //private final Command scoreLCMD = commandFactory.scoreL(pad.getReefL(), pad.getReef());
+        private final Command scoreLCMD = commandFactory.scoreL(()->pad.getReefL(), ()->pad.getReef());
         // private final Command stowCMD = commandFactory.stow();
         // private final Command feedCMD = commandFactory.feed();
         // private final Command reefAlgaeHighCMD = commandFactory.reefAlgaeHigh();
         // private final Command reefAlgaeLowCMD = commandFactory.reefAlgaeLow();
         // private final Command netCMD = commandFactory.net();
         // private final Command processorCMD = commandFactory.processor();
-        private final Command scoreL3CMD = commandFactory.scoreL(Constants.reef.reefLs.lL3,1);
-        private final Command scoreL2CMD = commandFactory.scoreL(Constants.reef.reefLs.lL2,1);
+        //private final Command scoreL3CMD = commandFactory.scoreL(Constants.reef.reefLs.lL3,1);
+        //private final Command scoreL2CMD = commandFactory.scoreL(Constants.reef.reefLs.lL2,1);
 
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;
@@ -141,6 +141,7 @@ public class RobotContainer {
 
         CommandScheduler.getInstance().registerSubsystem(pad);
         CommandScheduler.getInstance().registerSubsystem(arm);
+        
     }
 
     private void configureBindings() {
@@ -150,7 +151,7 @@ public class RobotContainer {
 
 
 
-        //scoreReefTrigger.onTrue(scoreLCMD);
+        scoreReefTrigger.onTrue(scoreLCMD);
         //feedTrigger.onTrue(feedCMD);
         //stowTrigger.onTrue(stowCMD);
         //intakeStartTrigger.onTrue(new InstantCommand(() -> pincer.intake(),pincer));
@@ -176,8 +177,8 @@ public class RobotContainer {
        //driverJoystick.a().onTrue(elevator.goToL(Constants.reef.reefLs.lL3,1));
        //driverJoystick.b().onTrue(arm.pivotToL2L3());
        //driverJoystick.a().onTrue(arm.pivotToFeed());
-       driverJoystick.a().onTrue(scoreL2CMD);
-       driverJoystick.b().onTrue(scoreL3CMD);
+       //driverJoystick.a().onTrue(scoreL2CMD);
+       //driverJoystick.b().onTrue(scoreL3CMD);
      
         // driverJoystick.b().onTrue(elevator.goToL2());
         // driverJoystick.x().onTrue(elevator.goToL3());

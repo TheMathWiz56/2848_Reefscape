@@ -3,6 +3,9 @@ package frc.robot.commands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Lights;
+
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
@@ -27,10 +30,10 @@ public class CommandFactory {
         this.lights = lights;
     }
 /*Moves only elevator, pivot and intake to score on reef */
-    public Command scoreL(Constants.reef.reefLs L,int reef){
-        return elevator.goToL(L,reef)
+    public Command scoreL(Supplier<Constants.reef.reefLs> L,Supplier<Integer> reef){
+        return elevator.goToL(L.get(),reef.get())
             .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
-                Constants.reef.reefToState.get(L)
+                Constants.reef.reefToState.get(L.get())
             )))
             .andThen(pincer.exhaust())
              .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
