@@ -7,12 +7,12 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class reefData {
-    public static reef r1 = new reef();
-    public static reef r2 = new reef();
-    public static reef r3 = new reef();
-    public static reef r4 = new reef();
-    public static reef r5 = new reef();
-    public static reef r6 = new reef();
+    private static reef r1 = new reef();
+    private static reef r2 = new reef();
+    private static reef r3 = new reef();
+    private static reef r4 = new reef();
+    private static reef r5 = new reef();
+    private static reef r6 = new reef();
     //private static List<reef> reefs = List.of(r1,r2,r3,r4,r5,r6);
     private static Map<Integer,reef>  reefs = new HashMap<>() {{
         put(1, r1);
@@ -22,7 +22,7 @@ public class reefData {
         put(5, r5);
         put(6, r6);
     }};
-    public void reset(){
+    public static void reset(){
         r1 = new reef();
         r2 = new reef();
         r3 = new reef();
@@ -37,7 +37,10 @@ public class reefData {
         reefs.put(6, r6);
         }
         /*update reef, reef id(1-6), which L, set value */
-    public static void update(int id,Constants.reefLs loc, boolean val){
+    public static void update(int id,Constants.reef.reefLs loc, boolean val){
         reefs.get(id).update(loc,val);
+    }
+    public static boolean open(int id, Constants.reef.reefLs loc){
+        return reefs.get(id).get(loc);
     }
 }

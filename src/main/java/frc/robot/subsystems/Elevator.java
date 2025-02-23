@@ -16,8 +16,16 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.reefData;
+
 import static frc.robot.Constants.ElevatorConstants.*;
+import static frc.robot.Constants.PincerConstants.kStowPosition;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Elevator extends SubsystemBase {
 
@@ -40,6 +48,9 @@ public class Elevator extends SubsystemBase {
   private TrapezoidProfile.State startState = new TrapezoidProfile.State();
   private TrapezoidProfile.State goalState = new TrapezoidProfile.State();
   private TrapezoidProfile.State currentState = new TrapezoidProfile.State();
+
+  private boolean keyHeld = false;
+
 
   // Timer for trapezoid profile
   private final Timer timer = new Timer();
@@ -76,6 +87,7 @@ public class Elevator extends SubsystemBase {
 
   public void setMotorVoltage(double voltage) {
     elevatorMotor.setVoltage(voltage);
+
   }
 
   public void setElevatorSetpoint(double setpoint) {
@@ -118,10 +130,21 @@ public class Elevator extends SubsystemBase {
         .withName("Go to " + positionName);
   }
 
-  // Commands to go to various pre-defined positions
-  public Command goToL1() {
-    return goToPosition(kSetpointL1, "L1");
+  public Command goToPosition(double position) {
+    return this.startRun(() -> {
+      setElevatorSetpoint(position);
+    }, () -> {
+      currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
+      setMotorOutput(currentState.position, currentState.velocity);
+    }).until(() -> elevatorTrapezoidProfile.isFinished(timer.get()))
+        ;
   }
+
+  // Commands to go to various pre-defined positions
+  
+  // public Command goToL1(int reef,int L) {
+  //   return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()-> reefData.update(reef,L,false));
+  // }
 
   public Command goToL2() {
     return goToPosition(kSetpointL2, "L2");
@@ -139,14 +162,96 @@ public class Elevator extends SubsystemBase {
     return goToPosition(kSetpointFeed, "Feed");
   }
 
+  public Command algaeStow(){
+    return goToPosition(Constants.ElevatorConstants.setPoints.get(
+      Constants.robotStates.pivotElevatorStates.ALGAESTOW
+  ));
+  }
+  
+  public Command coralStow(){
+    return goToPosition(Constants.ElevatorConstants.setPoints.get(
+                Constants.robotStates.pivotElevatorStates.CORALSTOW
+            ));
+  }
+  public Command emptyStow(){
+    return goToPosition(Constants.ElevatorConstants.setPoints.get(
+      Constants.robotStates.pivotElevatorStates.EMPTYSTOW
+  ));
+  }
+  public Command goToNet(){
+    return goToPosition(Constants.ElevatorConstants.setPoints.get(
+      Constants.robotStates.pivotElevatorStates.NET
+    ));
+  }
+
   public Command goToStow() {
     return goToPosition(kSetpointStow, "Stow");
+  }
+
+  public Command goToProcessor(){
+    return goToPosition(Constants.ElevatorConstants.setPoints.get(
+      Constants.robotStates.pivotElevatorStates.PROCESSOR
+    ));
+  }
+
+  public Command reefAlgaeHigh(){
+    return goToPosition(
+      Constants.ElevatorConstants.setPoints.get(
+        Constants.robotStates.pivotElevatorStates.REEFALGAEHIGH
+      )
+    );
+  }
+  public Command reefAlgaeLow(){
+    return goToPosition(
+      Constants.ElevatorConstants.setPoints.get(
+        Constants.robotStates.pivotElevatorStates.REEFALGAELOW
+      )
+    );
   }
 
   public void zeroEncoder() {
     elevatorMotor.setPosition(0.0);
     isZeroed = true;
   }
+
+  public double LtoSetPoint(Constants.reef.reefLs L){
+    if(L == Constants.reef.reefLs.lL1 || L == Constants.reef.reefLs.rL1){
+      return kSetpointL1;
+    }
+    if(L == Constants.reef.reefLs.lL2 || L == Constants.reef.reefLs.rL2){
+      return kSetpointL2;
+    }
+    if(L == Constants.reef.reefLs.lL3 || L == Constants.reef.reefLs.rL3){
+      return kSetpointL3;
+    }
+    if(L == Constants.reef.reefLs.lL4 || L == Constants.reef.reefLs.rL4){
+      return kSetpointL4;
+    }
+    if(L == Constants.reef.reefLs.STOW){
+      return kStowPosition;
+    }
+    return 0;
+  }
+
+  public Command goToL(Constants.reef.reefLs L,int reef){
+    return this.startRun(() -> {
+      setElevatorSetpoint(LtoSetPoint(L));
+    }, () -> {
+      currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
+      setMotorOutput(currentState.position, currentState.velocity);
+    }).until(() -> elevatorTrapezoidProfile.isFinished(timer.get()))
+        .withName("Go to " + L)
+        .finallyDo((interrupted) ->{
+          if (!interrupted){
+            reefData.update(reef,L,false);
+          }
+        });
+    //return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()-> reefData.update(reef,L,false));
+  }
+
+  
+
+  
 
   public Command autoZeroEncoder() {
     return run(() -> setMotorVoltage(1.5))
@@ -161,7 +266,27 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
+  
     SmartDashboard.putData(this);
+    // List<Integer> keyDown = new ArrayList<>();
+    // keyDown = keypad.keys;
+     keypad.keyMode mode = keypad.mode;
+     //int reef =0;
+     //Constants.reef.reefLs L = Constants.reef.reefLs.STOW;
+    // for(int i : keyDown){
+    //   if(Constants.reef.rMap.containsKey(i)){
+    //     reef = Constants.reef.rMap.get(i);
+    //   } else if(Constants.reef.lMap.containsKey(i)){
+    //     L = Constants.reef.lMap.get(i);
+    //   }
+    // }
+
+    // 
+    
+    
+    
+
+
   }
 
   @Override
@@ -223,6 +348,8 @@ public class Elevator extends SubsystemBase {
 
     builder.addBooleanProperty("Limit Switch State", () -> elevatorLimitSwitchBottom.get(), null);
     builder.addBooleanProperty("Is Zeroed", () -> isZeroed, null);
+
+    
 
   }
 

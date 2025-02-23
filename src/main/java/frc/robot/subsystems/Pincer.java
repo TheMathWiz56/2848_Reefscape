@@ -31,6 +31,7 @@ public class Pincer extends SubsystemBase{
     private final SparkMaxConfig intakeConfig  = new SparkMaxConfig();
 
     // Photogate (beam break), may have another
+    //private final DigitalInput intakePhotogate = new DigitalInput(kIntakePhotogateId);
     // private final DigitalInput intakePhotogate = new DigitalInput(kIntakePhotogateId);
 
     // Use current sensing for the algae
@@ -97,12 +98,16 @@ public class Pincer extends SubsystemBase{
 
     @Override
     public void periodic(){
+
+
         if (pincerPIDUpdated){
             pincerConfig
                 .closedLoop.pid(kPincerP, kPincerI, kPincerD);
             pincerMotor.configure(pincerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
             pincerPIDUpdated = false;
         }
+
+        
 
         SmartDashboard.putData(this);
     }
@@ -113,12 +118,19 @@ public class Pincer extends SubsystemBase{
         return intakeMotor.getOutputCurrent() > kIntakeAlgaeCurrentThreshold;
     }
 
+    public boolean hasCoral(){
+        return true;
+    }
+
     /**@return True if the intake photogate is tripped
      */
     /*
     public boolean hasCoral(){
         return intakePhotogate.get();
     } */
+    // public boolean hasCoral(){
+    //     return intakePhotogate.get();
+    // }
 
     /** Moves the pincer to the specified setpoint
      * @param setpoint The desired position for the pincer
@@ -135,6 +147,12 @@ public class Pincer extends SubsystemBase{
         return pincerToSetpoint(kAlgaePosition);
     }
 
+    public Command reefAlgae(){
+        return pincerToSetpoint(Constants.PincerConstants.setPoints.get(
+            Constants.robotStates.pincerStates.ALGAEINTAKE
+        ));
+    }
+
     /** Moves the pincer to the stowed position
      * @return Command
      */
@@ -147,6 +165,12 @@ public class Pincer extends SubsystemBase{
      */
     public Command pincerFunnel() {
         return pincerToSetpoint(kFunnelPosition);
+    }
+
+    public Command algaeScore(){
+        return pincerToSetpoint(Constants.PincerConstants.setPoints.get(
+            Constants.robotStates.pincerStates.ALGAESCORE
+        ));
     }
 
     /** Runs the intake motor at the intake speed

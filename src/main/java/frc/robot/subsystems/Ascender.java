@@ -38,6 +38,9 @@ public class Ascender extends SubsystemBase {
     public Command manualClimb(DoubleSupplier input) {
         return run(() -> ascenderMotor.set(input.getAsDouble() * 0.5));
     }
+    public void stop() {
+        
+    }
 
     @Override
     public void periodic() {

@@ -14,24 +14,35 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
+import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.commands.CommandFactory;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Ascender;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Ascender;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Pincer;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+
+import frc.robot.subsystems.Lights;
+import frc.robot.subsystems.Pincer;
+import frc.robot.subsystems.keypad;
 
 
 public class RobotContainer {
@@ -51,18 +62,62 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
-    private CommandGenericHID operatorKeypad = new CommandGenericHID(1);
+    
     private final CommandXboxController operatorJoystick = new CommandXboxController(2);
 
-    public reefData reefDat = new reefData();
+    //private final Pincer pincer = new Pincer();
 
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    private final keypad pad = new keypad();
+
+    private final Trigger scoreReefTrigger = new Trigger(() ->pad.scoreReef());
+    private final Trigger feedTrigger = new Trigger(() -> pad.feed());
+    private final Trigger stowTrigger = new Trigger(() -> pad.stow());
+    private final Trigger intakeStartTrigger = new Trigger(() -> pad.intakeStart());
+    private final Trigger intakeStopTrigger = new Trigger(() -> pad.intakeStop());
+    private final Trigger intakeExhaustTrigger = new Trigger(() -> pad.intakeExhaust());
+    private final Trigger cancelScoreTrigger = new Trigger(() -> pad.cancelScore());
+    private final Trigger netTrigger = new Trigger(() -> pad.net());
+    private final Trigger climbTrigger = new Trigger(() -> pad.climb());
+    private final Trigger climbCancelTrigger = new Trigger(() ->pad.climbCancel());
+    private final Trigger reefAlgaeHighTrigger = new Trigger(()-> pad.reefAlgaeHigh());
+    private final Trigger reefAlgaeLowTrigger = new Trigger(() ->pad.reefAlgaeLow());
+//intakes, climb, cancel
+   
+
+    
+
+    
 
     // Subsystem Instances
 
     //public final Lights lights = new Lights();
     public final Arm arm = new Arm();
-    public final Elevator elevator = new Elevator();
+    public final Ascender ascender = new Ascender();
+    public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
+    public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
+    public final Pincer pincer = new Pincer();
+ */
+        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+        public final Elevator elevator = new Elevator();
+
+        public final Arm arm = new Arm();
+        public final Pincer pincer = new Pincer();
+        public final Lights lights = new Lights();
+
+        public final Ascender ascender = new Ascender();
+
+        public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
+
+        private final Command scoreLCMD = commandFactory.scoreL(pad.getReefL(), pad.getReef());
+        private final Command stowCMD = commandFactory.stow();
+        private final Command feedCMD = commandFactory.feed();
+        private final Command reefAlgaeHighCMD = commandFactory.reefAlgaeHigh();
+        private final Command reefAlgaeLowCMD = commandFactory.reefAlgaeLow();
+        private final Command netCMD = commandFactory.net();
+        private final Command processorCMD = commandFactory.processor();
+
+
+    /* Path follower */
     //private final SendableChooser<Command> autoChooser;
     public final Pincer pincer = new Pincer();
     //public final Ascender ascender = new Ascender();
@@ -73,21 +128,58 @@ public class RobotContainer {
 
         configureBindings();
 
+        reefData.reset();
+
+        
+
+        
+
         // Warmup path follower
         PathfindingCommand.warmupCommand().schedule();
         Timer.delay(3);
         FollowPathCommand.warmupCommand().schedule();
         Timer.delay(3);
+        
+
+        CommandScheduler.getInstance().registerSubsystem(pad);
+        CommandScheduler.getInstance().registerSubsystem(arm);
     }
 
     private void configureBindings() {
         // Default commands
         elevator.setDefaultCommand(elevator.holdState());
 
-        driverJoystick.a().onTrue(elevator.goToL1());
-        driverJoystick.b().onTrue(elevator.goToL2());
-        driverJoystick.x().onTrue(elevator.goToL3());
-        driverJoystick.y().onTrue(elevator.goToL4());
+
+
+        scoreReefTrigger.onTrue(scoreLCMD);
+        feedTrigger.onTrue(feedCMD);
+        stowTrigger.onTrue(stowCMD);
+        intakeStartTrigger.onTrue(new InstantCommand(() -> pincer.intake(),pincer));
+        intakeStopTrigger.onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
+        intakeExhaustTrigger.onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
+        cancelScoreTrigger.onTrue(new InstantCommand(()-> CommandScheduler.getInstance().cancel(netCMD,processorCMD,scoreLCMD)));
+        netTrigger.onTrue(netCMD);
+        //TODO: add climb stop and do it in code
+        //climbTrigger.onTrue(new InstantCommand(() ->ascender.climb()),ascender);
+        //climbCancelTrigger.onTrue(new InstantCommand() ->ascender.st)
+        reefAlgaeHighTrigger.onTrue(reefAlgaeHighCMD);
+        reefAlgaeLowTrigger.onTrue(reefAlgaeLowCMD);
+
+        
+
+
+
+
+
+
+        
+
+        //driverJoystick.a().onTrue(elevator.goToL1());
+        // driverJoystick.b().onTrue(elevator.goToL2());
+        // driverJoystick.x().onTrue(elevator.goToL3());
+        // driverJoystick.y().onTrue(elevator.goToL4());
+
+        // operatorJoystick.a().onTrue(arm.pivotToFeed());
 
         /*
         arm.setDefaultCommand(arm.holdState());

@@ -5,8 +5,12 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
+
 import frc.robot.Constants;
 import static frc.robot.Constants.ArmConstants.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.function.DoubleSupplier;
 
@@ -27,7 +31,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-
 /*
  * Joseph's changes notes:
  * - removed absEncoder, will be plugged strait into the spark max
@@ -41,16 +44,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * Depending on the used sensors, we may not know where the elevator/arm is on startup. Need to have some checks to restrict control until 0'd
  */
 
- public class Arm extends SubsystemBase {
+public class Arm extends SubsystemBase {
 
     private final SparkMax pivotMotor = new SparkMax(kPivotMotorId, MotorType.kBrushless);
-    private final SparkMaxConfig pivotConfig  = new SparkMaxConfig();
+    private final SparkMaxConfig pivotConfig = new SparkMaxConfig();
     private final SparkClosedLoopController pivotController;
     private final AbsoluteEncoder pivotAbsEncoder;
 
     private boolean pivotPIDUpdated = false;
 
-    // Feedforward controller for arm motion (helps to predict required motor output)
+    // Feedforward controller for arm motion (helps to predict required motor
+    // output)
     private final ArmFeedforward pivotFeedforward;
     private double pivotSetpoint, FF;
 
@@ -66,16 +70,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
         // Build motor configs
         pivotConfig
-            .inverted(kPivotMotorInverted)
-            .idleMode(kPivotMotorIdleMode)
-            .smartCurrentLimit(kPivotMotorSmartCurrentLimit);
-        pivotConfig
-            .encoder.positionConversionFactor(kPositionConversionFactor);
-        pivotConfig
-            .closedLoop
+                .inverted(kPivotMotorInverted)
+                .idleMode(kPivotMotorIdleMode)
+                .smartCurrentLimit(kPivotMotorSmartCurrentLimit);
+        pivotConfig.encoder.positionConversionFactor(kPositionConversionFactor);
+        pivotConfig.closedLoop
                 .feedbackSensor(kPivotMotorFeedbackSensor)
                 .pid(kPivotP, kPivotI, kPivotD)
                 .outputRange(kPivotMotorMinOutput, kPivotMotorMaxOutput);
+        pivotConfig.absoluteEncoder
+                .zeroOffset(kPivotMotorAbsoluteEncoderOffset);
+        pivotConfig.softLimit
         pivotConfig
             .absoluteEncoder
                 .zeroOffset(kPivotMotorAbsoluteEncoderOffset)
@@ -85,18 +90,19 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
                 .reverseSoftLimitEnabled(kSoftLimitsEnabled)
                 .forwardSoftLimitEnabled(kSoftLimitsEnabled)
                 .forwardSoftLimit(kPivotMaxAngle)
-                .reverseSoftLimit(kPivotMinAngle);        
+                .reverseSoftLimit(kPivotMinAngle);
 
-        // Initialize Feedforward 
+        // Initialize Feedforward
         pivotSetpoint = kStowPosition;
         FF = 0;
-        goalState = new TrapezoidProfile.State(); 
-        startState = new TrapezoidProfile.State(); 
-        currentState = new TrapezoidProfile.State(); 
+        goalState = new TrapezoidProfile.State();
+        startState = new TrapezoidProfile.State();
+        currentState = new TrapezoidProfile.State();
 
         pivotFeedforward = new ArmFeedforward(kPivotMotorks, kPivotMotorkg, kPivotMotorkv, kPivotMotorka);
-        
-        pivotProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(kPivotMotorMaxVelocity, kPivotMotorMaxAcceleration));
+
+        pivotProfile = new TrapezoidProfile(
+                new TrapezoidProfile.Constraints(kPivotMotorMaxVelocity, kPivotMotorMaxAcceleration));
 
         timer.start();
 
@@ -116,19 +122,35 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
         builder.addDoubleProperty("Pivot Motor Output", () -> pivotMotor.getAppliedOutput(), null);
         builder.addDoubleProperty("Pivot Motor Temperature", () -> pivotMotor.getMotorTemperature(), null);
         builder.addDoubleProperty("Pivot Motor Output Current", () -> pivotMotor.getOutputCurrent(), null);
-        
+
         // Motion Profile
         builder.addDoubleProperty("Pivot Setpoint", () -> pivotSetpoint, null);
         builder.addDoubleProperty("Pivot Profile Timer", () -> timer.get(), null);
         builder.addDoubleProperty("Pivot Profile Current Position", () -> currentState.position, null);
         builder.addDoubleProperty("Pivot Profile Current Velocity", () -> currentState.velocity, null);
+        builder.addDoubleProperty("Pivot Profile Position Error Deg",
+                () -> currentState.position - pivotAbsEncoder.getPosition(), null);
+        builder.addDoubleProperty("Pivot Profile Velocity Error Deg",
+                () -> currentState.velocity - pivotAbsEncoder.getVelocity(), null);
         builder.addDoubleProperty("Pivot Profile Position Error Deg", () -> (currentState.position - pivotAbsEncoder.getPosition()) * 360, null);
         builder.addDoubleProperty("Pivot Profile Velocity Error Deg", () -> currentState.velocity - pivotAbsEncoder.getVelocity(), null);
         builder.addDoubleProperty("Pivot Profile Goal Position", () -> goalState.position, null);
         builder.addDoubleProperty("Pivot Profile Goal Velocity", () -> goalState.velocity, null);
 
-
         // PID Tuning
+        builder.addDoubleProperty("Pivot kP", () -> kPivotP, value -> {
+            kPivotP = value;
+            pivotPIDUpdated = true;
+        });
+        builder.addDoubleProperty("Pivot kI", () -> kPivotI, value -> {
+            kPivotI = value;
+            pivotPIDUpdated = true;
+        });
+        builder.addDoubleProperty("Pivot kD", () -> kPivotD, value -> {
+            kPivotD = value;
+            pivotPIDUpdated = true;
+        });
+
         builder.addDoubleProperty("Pivot kP", () -> kPivotP, value -> { kPivotP = value; pivotPIDUpdated = true;});
         builder.addDoubleProperty("Pivot kI", () -> kPivotI, value -> { kPivotI = value; pivotPIDUpdated = true;});
         builder.addDoubleProperty("Pivot kD", () -> kPivotD, value -> { kPivotD = value; pivotPIDUpdated = true;});
@@ -138,17 +160,44 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
     @Override
     public void periodic() {
-        if (pivotPIDUpdated){
-            pivotConfig
-                .closedLoop.pid(kPivotP, kPivotI, kPivotD);
+        if (pivotPIDUpdated) {
+            pivotConfig.closedLoop.pid(kPivotP, kPivotI, kPivotD);
             pivotMotor.configure(pivotConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
             pivotPIDUpdated = false;
         }
 
         SmartDashboard.putData(this);
+        List<Integer> keyDown = new ArrayList<>();
+        keyDown = keypad.keys;
+        keypad.keyMode mode = keypad.mode;
+        // Constants.reef.reefLs L = Constants.reef.reefLs.STOW;
+        // for(int i : keyDown){
+
+        // if(Constants.reef.lMap.containsKey(i)){
+        // L = Constants.reef.lMap.get(i);
+        // }
+        // }
+
+        // if(mode== keypad.keyMode.SCORE){
+        // if(L == Constants.reef.reefLs.lL1 || L == Constants.reef.reefLs.rL1){
+        // this.pivotToL1();
+        // }
+        // if(L == Constants.reef.reefLs.lL2 || L == Constants.reef.reefLs.rL2){
+        // this.pivotToL2L3();
+        // }
+        // if(L == Constants.reef.reefLs.lL3 || L == Constants.reef.reefLs.rL3){
+        // this.pivotToL2L3();
+        // }
+        // if(L == Constants.reef.reefLs.lL4 || L == Constants.reef.reefLs.rL4){
+        // this.pivotToL4();
+        // }
+        // }
+
     }
 
-    /**Follows a motion profile to rotate the arm to the new setpoint
+    /**
+     * Follows a motion profile to rotate the arm to the new setpoint
+     * 
      * @param newSetpoint Setpoint for the arm pivot to go to
      * @return Command
      */
@@ -166,44 +215,73 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
             })
             .until(() -> pivotProfile.isFinished(timer.get()))
             .withName("Go To Reference");
+                () -> {
+                    this.pivotSetpoint = Constants.kClamp(newSetpoint, kPivotMinAngle, kPivotMaxAngle);
+                    timer.reset();
+                    startState = new TrapezoidProfile.State(pivotAbsEncoder.getPosition(),
+                            pivotAbsEncoder.getVelocity());
+                    goalState = new TrapezoidProfile.State(this.pivotSetpoint, 0);
+                },
+                () -> {
+                    currentState = pivotProfile.calculate(timer.get(), startState, goalState);
+                    setPivotOutput(currentState.position, currentState.velocity);
+                })
+                .until(() -> pivotProfile.isFinished(timer.get()))
+                .withName("Go To Reference");
     }
 
-    /**Sets the pivot to the position for stowing
+    /**
+     * Sets the pivot to the position for stowing
+     * 
      * @return Commmand
      */
-    public Command stowPivot(){
+    public Command stowPivot() {
         return pivotToSetpoint(kStowPosition);
     }
 
-    /**Sets the pivot to the position for intaking from the feeding station
+    /**
+     * Sets the pivot to the position for intaking from the feeding station
+     * 
      * @return Commmand
      */
-    public Command pivotToFeed(){
+    public Command pivotToFeed() {
         return pivotToSetpoint(kFeedPosition);
     }
 
-    /**Sets the pivot to the position for scoring on L1
+    /**
+     * Sets the pivot to the position for scoring on L1
+     * 
      * @return Commmand
      */
-    public Command pivotToL1(){
+    public Command pivotToL1() {
         return pivotToSetpoint(kL1Position);
     }
 
-    /**Sets the pivot to the position for scoring on L2 & L3
+    public Command moveToPoint(double point) {
+        return pivotToSetpoint(point);
+    }
+
+    /**
+     * Sets the pivot to the position for scoring on L2 & L3
+     * 
      * @return Commmand
      */
-    public Command pivotToL2L3(){
+    public Command pivotToL2L3() {
         return pivotToSetpoint(kL2L3Position);
     }
 
-    /**Sets the pivot to the position for scoring on L4
+    /**
+     * Sets the pivot to the position for scoring on L4
+     * 
      * @return Commmand
      */
-    public Command pivotToL4(){
+    public Command pivotToL4() {
         return pivotToSetpoint(kL4Position);
     }
 
-    /**Holds the arm pivot at the current angle setpoint
+    /**
+     * Holds the arm pivot at the current angle setpoint
+     * 
      * @return Command
      */
     public Command holdState() {
@@ -222,14 +300,53 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
         });
     }
 
-    /**Sets the PID setpoint with the calculated feedforward to the pivot motor
+    public Command algaeStow() {
+        return pivotToSetpoint(Constants.ArmConstants.setPoints.get(
+                Constants.robotStates.pivotElevatorStates.ALGAESTOW));
+    }
+
+    public Command coralStow() {
+        return pivotToSetpoint(Constants.ArmConstants.setPoints.get(
+                Constants.robotStates.pivotElevatorStates.CORALSTOW));
+    }
+
+    public Command emptyStow() {
+        return pivotToSetpoint(Constants.ArmConstants.setPoints.get(
+                Constants.robotStates.pivotElevatorStates.EMPTYSTOW));
+    }
+
+    public Command goToNet() {
+        return pivotToSetpoint(Constants.ArmConstants.setPoints.get(
+            Constants.robotStates.pivotElevatorStates.NET
+        ));
+    }
+
+    public Command reefAlgaeHigh(){
+        return pivotToSetpoint(Constants.ArmConstants.setPoints.get(
+            Constants.robotStates.pivotElevatorStates.REEFALGAEHIGH
+        ));
+    }
+    public Command reefAlgaeLow(){
+        return pivotToSetpoint(Constants.ArmConstants.setPoints.get(
+            Constants.robotStates.pivotElevatorStates.REEFALGAELOW
+        ));
+    }
+    public Command goToProcessor(){
+        return pivotToSetpoint(Constants.ArmConstants.setPoints.get(
+          Constants.robotStates.pivotElevatorStates.PROCESSOR
+        ));
+      }
+
+    /**
+     * Sets the PID setpoint with the calculated feedforward to the pivot motor
+     * 
      * @param position position setpoint (feedforward & PID)
      * @param velocity velocity setpoint (feedforward)
      */
     private void setPivotOutput(double position, double velocity) {
         FF = pivotFeedforward.calculate(position * 2.0 * Math.PI, velocity);
-        pivotController.setReference(position, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kVoltage);
+        pivotController.setReference(position, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF,
+                SparkClosedLoopController.ArbFFUnits.kVoltage);
     }
 
 }
-
