@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Ascender;
@@ -53,7 +54,7 @@ public class RobotContainer {
     private CommandGenericHID operatorKeypad = new CommandGenericHID(1);
     private final CommandXboxController operatorJoystick = new CommandXboxController(1);
 
-    //public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     // Subsystem Instances
     /*
@@ -69,9 +70,9 @@ public class RobotContainer {
     /* Path follower */
 
     public final Arm arm = new Arm();
-    //public final Elevator elevator = new Elevator();
+    public final Elevator elevator = new Elevator();
     //private final SendableChooser<Command> autoChooser;
-    //public final Pincer pincer = new Pincer();
+    public final Pincer pincer = new Pincer();
     //public final Ascender ascender = new Ascender();
 
     public RobotContainer() {
@@ -89,9 +90,23 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Default commands
+
+        elevator.setDefaultCommand(elevator.holdState());
+        arm.setDefaultCommand(arm.holdState());
+        pincer.setDefaultCommand(pincer.holdState());
+
+        driverJoystick.a().onTrue(elevator.goToL3());
+        driverJoystick.b().onTrue(arm.pivotToL2L3());
+
+        driverJoystick.x().onTrue(elevator.goToFeed());
+        driverJoystick.y().onTrue(arm.pivotToFeed());
+
         
-        //elevator.setDefaultCommand(elevator.holdState());
-        //pincer.setDefaultCommand(pincer.holdState());
+        driverJoystick.leftBumper().onTrue(pincer.intake());
+        driverJoystick.leftBumper().onFalse(pincer.stopIntake());
+        driverJoystick.rightBumper().onTrue(pincer.exhaust());
+        driverJoystick.rightBumper().onFalse(pincer.stopIntake());
+
 
         //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
 
@@ -109,7 +124,7 @@ public class RobotContainer {
         //driverJoystick.b().onTrue(pincer.exhaust());
         //driverJoystick.x().onTrue(pincer.stopIntake());
 
-        arm.setDefaultCommand(arm.holdState());
+        //arm.setDefaultCommand(arm.holdState());
 
         /*
         pincer.setDefaultCommand(pincer.holdState());
@@ -119,7 +134,7 @@ public class RobotContainer {
 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        /*
+        
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive
@@ -130,7 +145,8 @@ public class RobotContainer {
                         .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with
                                                                                           // negative X (left)
                 ));
-
+                 
+/*
         driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
         driverJoystick.b().whileTrue(drivetrain.applyRequest(() -> point
                 .withModuleDirection(new Rotation2d(-driverJoystick.getLeftY(), -driverJoystick.getLeftX())))); // idk
@@ -138,14 +154,15 @@ public class RobotContainer {
                                                                                                                 // this
                                                                                                                 // is
                                                                                                                 // useful
-
+ */
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
+        /*
         driverJoystick.pov(0)
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));
         driverJoystick.pov(180)
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
- */  
+ */
         /*
          * Run SysId routines when holding back/start and X/Y.
          * Note that each routine should be run exactly once in a single log.
@@ -156,12 +173,12 @@ public class RobotContainer {
         driverJoystick.back().and(driverJoystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         driverJoystick.start().and(driverJoystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         driverJoystick.start().and(driverJoystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // reset the field-centric heading on left bumper press
-        driverJoystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+*/
+        // reset the field-centric heading on back press
+        driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         // reset the pose
-        driverJoystick.rightBumper().onTrue(drivetrain.runOnce(() -> drivetrain.resetToVision(true)));
-
+        //driverJoystick.rightBumper().onTrue(drivetrain.runOnce(() -> drivetrain.resetToVision(true)));
+/*
         // testing
         driverJoystick.x()
                 .onTrue(lights.inAction())
@@ -178,13 +195,16 @@ public class RobotContainer {
 
         // Trigger to lift elevator slightly, zero encoders if bottom limit switch trips
         //Trigger elevatorBottomLimitTrigger = new Trigger(elevator::getLimitSwitchBottom).whileTrue(elevator.elevatorAtBottomLimit());
+        
+        //driverJoystick.a().onTrue(arm.pivotToL2L3());
+        //driverJoystick.b().onTrue(arm.pivotToFeed());
+        
 
-        driverJoystick.a().onTrue(arm.pivotToL2L3());
-        driverJoystick.b().onTrue(arm.pivotToFeed());
-
+        //driverJoystick.a().onTrue(arm.changeSetpointInstant(ArmConstants.kL2L3Position));
+        //driverJoystick.b().onTrue(arm.changeSetpointInstant(ArmConstants.kFeedPosition));
         // Primitive scoring test code
         
-        arm.setDefaultCommand(arm.simpleSetMotorOutput(() -> driverJoystick.getLeftY() * 0.33));
+        //arm.setDefaultCommand(arm.simpleSetMotorOutput(() -> driverJoystick.getLeftY() * 0.33));
 
         /*
         

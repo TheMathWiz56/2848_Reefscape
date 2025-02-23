@@ -122,7 +122,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
         builder.addDoubleProperty("Pivot Profile Timer", () -> timer.get(), null);
         builder.addDoubleProperty("Pivot Profile Current Position", () -> currentState.position, null);
         builder.addDoubleProperty("Pivot Profile Current Velocity", () -> currentState.velocity, null);
-        builder.addDoubleProperty("Pivot Profile Position Error Deg", () -> currentState.position - pivotAbsEncoder.getPosition(), null);
+        builder.addDoubleProperty("Pivot Profile Position Error Deg", () -> (currentState.position - pivotAbsEncoder.getPosition()) * 360, null);
         builder.addDoubleProperty("Pivot Profile Velocity Error Deg", () -> currentState.velocity - pivotAbsEncoder.getVelocity(), null);
         builder.addDoubleProperty("Pivot Profile Goal Position", () -> goalState.position, null);
         builder.addDoubleProperty("Pivot Profile Goal Velocity", () -> goalState.velocity, null);
@@ -132,7 +132,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
         builder.addDoubleProperty("Pivot kP", () -> kPivotP, value -> { kPivotP = value; pivotPIDUpdated = true;});
         builder.addDoubleProperty("Pivot kI", () -> kPivotI, value -> { kPivotI = value; pivotPIDUpdated = true;});
         builder.addDoubleProperty("Pivot kD", () -> kPivotD, value -> { kPivotD = value; pivotPIDUpdated = true;});
-
+        
         builder.addDoubleProperty("Pivot Feedforward Output", () -> FF, null);
     }
 
@@ -162,7 +162,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
             },
             () -> {
                 currentState = pivotProfile.calculate(timer.get(), startState, goalState);
-                setPivotOutput(currentState.position, currentState.velocity);
+                setPivotOutput(currentState.position, currentState.velocity); // rotations
             })
             .until(() -> pivotProfile.isFinished(timer.get()))
             .withName("Go To Reference");
@@ -209,7 +209,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
     public Command holdState() {
         return run(() -> {
             setPivotOutput(pivotSetpoint, 0);
-        });
+        }).withName("Hold State");
+    }
+
+    public Command changeSetpointInstant(double newSetpoint) {
+        return runOnce(() -> pivotSetpoint = newSetpoint);
     }
 
     public Command simpleSetMotorOutput(DoubleSupplier input) {
@@ -224,7 +228,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
      */
     private void setPivotOutput(double position, double velocity) {
         FF = pivotFeedforward.calculate(position * 2.0 * Math.PI, velocity);
-        //pivotController.setReference(position, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kPercentOut);
+        pivotController.setReference(position, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF, SparkClosedLoopController.ArbFFUnits.kVoltage);
     }
 
 }

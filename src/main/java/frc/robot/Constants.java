@@ -62,7 +62,7 @@ public final class Constants {
         public static final int kPivotMotorSmartCurrentLimit = 40;
 
         // Pivot PID/Feedforward Settings
-        public static double kPivotP = 0.0;
+        public static double kPivotP = 8.0;
         public static double kPivotI = 0.0;
         public static double kPivotD = 0.0;
         public static final FeedbackSensor kPivotMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
@@ -71,28 +71,29 @@ public final class Constants {
         public static final double kPivotMotorAbsoluteEncoderOffset = 0.3179724;
         public static final boolean kPivotMotorAbsoluteEncoderZeroCentered = true;
         public static double kPivotMotorks = 0.0;
-        public static double kPivotMotorkg = 3;
-        public static double kPivotMotorkv = 0.0;  // 1..0
+        public static double kPivotMotorkg = -0.33;
+        public static double kPivotMotorkv = 10.0;  // 1..0
         public static double kPivotMotorka = 0.0;
-        public static double kPivotMotorMaxVelocity = 0.0;
-        public static double kPivotMotorMaxAcceleration = 0.0;
+        public static double kPivotMotorMaxVelocity = 1.0;
+        public static double kPivotMotorMaxAcceleration = 1.0;
 
         // Soft Limits
         public static final boolean kSoftLimitsEnabled = false;
-        public static final double kPivotMinAngle = 1.0;
-        public static final double kPivotMaxAngle = 2.0;
+        public static final double kPivotMinAngle = -0.25;
+        public static final double kPivotMaxAngle = 0.25;
         // Position Conversion Factor for soft limits. Should be in units of Arm
         // rotations, ie. the gear ratio.
         // Periodically set the current position to the absolute position since it uses
         // the internal encoder
         public static final double kPositionConversionFactor = 1;
 
-        // Setpoints (placeholdes)
-        public static final double kStowPosition = 0;
-        public static final double kFeedPosition = 0;
+        // Setpoints (rotations)
+        public static final double kStowPosition = -0.249;
+        public static final double kStowCoralPosition = 0.243;
+        public static final double kFeedPosition = -0.104;
         public static final double kL1Position = 0.0; // Placeholder
-        public static final double kL2L3Position = -0.1;
-        public static final double kL4Position = -0.2;
+        public static final double kL2L3Position = 0.109;
+        public static final double kL4Position = 0.139;
 
         // Here L1 is facing almost straight up, L2L3 is diagonal, L4 is facing straight-on
         /*
@@ -184,12 +185,13 @@ public final class Constants {
         public static final double kFeedforwardDtSeconds = 0.0;
 
 
-        public static final double kSetpointL1 = -5; // Placeholder  
-        public static final double kSetpointL2 = -17.40;      
-        public static final double kSetpointL3 = -26.40;
-        public static final double kSetpointL4 = -40.40;
-        public static final double kSetpointFeed = -11.53;
-        public static final double kSetpointStow = 0.31;
+        public static final double kSetpointL1 = -7.5; // Placeholder  
+        public static final double kSetpointL2 = -17.145;      
+        public static final double kSetpointL3 = -26.844;
+        public static final double kSetpointL4 = -41.289;
+        public static final double kSetpointFeed = -12.312;
+        public static final double kSetpointStow = -0.065;
+        public static final double kSetpointStowCoral = -6.130;
 
         /*
         public static final double kSetpointL1 = -1;
