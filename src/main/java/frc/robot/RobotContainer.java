@@ -97,7 +97,7 @@ public class RobotContainer {
     public final Ascender ascender = null;//new Ascender();
     //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
-    public final Pincer pincer = new Pincer();
+    public final Pincer pincer = null; //new Pincer();
  
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         public final Elevator elevator = new Elevator();
@@ -112,8 +112,8 @@ public class RobotContainer {
         // private final Command reefAlgaeLowCMD = commandFactory.reefAlgaeLow();
         // private final Command netCMD = commandFactory.net();
         // private final Command processorCMD = commandFactory.processor();
-        private final Command scoreL3CMD = commandFactory.scoreL(Constants.reef.reefLs.lL3,1);
-        private final Command scoreL2CMD = commandFactory.scoreL(Constants.reef.reefLs.lL2,1);
+        // private final Command scoreL3CMD = commandFactory.scoreL(Constants.reef.reefLs.lL3,1);
+        // private final Command scoreL2CMD = commandFactory.scoreL(Constants.reef.reefLs.lL2,1);
 
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;
@@ -176,14 +176,19 @@ public class RobotContainer {
        //driverJoystick.a().onTrue(elevator.goToL(Constants.reef.reefLs.lL3,1));
        //driverJoystick.b().onTrue(arm.pivotToL2L3());
        //driverJoystick.a().onTrue(arm.pivotToFeed());
-       driverJoystick.a().onTrue(scoreL2CMD);
-       driverJoystick.b().onTrue(scoreL3CMD);
-     
+       //driverJoystick.a().onTrue(scoreL2CMD);
+       //driverJoystick.b().onTrue(scoreL3CMD);
+
+        driverJoystick.a().onTrue(elevator.goToFeed());
+        driverJoystick.b().onTrue(elevator.goToL3());
+        driverJoystick.x().onTrue(elevator.goToStow());
+
         // driverJoystick.b().onTrue(elevator.goToL2());
         // driverJoystick.x().onTrue(elevator.goToL3());
         // driverJoystick.y().onTrue(elevator.goToL4());
 
         // operatorJoystick.a().onTrue(arm.pivotToFeed());
+
 
         /*
         arm.setDefaultCommand(arm.holdState());
@@ -203,10 +208,9 @@ public class RobotContainer {
         driverJoystick.rightBumper().onTrue(pincer.exhaust());
         driverJoystick.rightBumper().onFalse(pincer.stopIntake());
 
-
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        
+        */
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive

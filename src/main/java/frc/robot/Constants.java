@@ -340,8 +340,8 @@ public final class Constants {
             public static final int kCurrentLimit = 40;
 
             // Trapezoid Proflile parameters
-            public static final double kMaxVelocity = 30.0;
-            public static final double kMaxAcceleration = 15.0;
+            public static final double kMaxVelocity = 30.0 * 1.5;
+            public static final double kMaxAcceleration = 15.0 * 1.5;
 
             // Spark built in encoder/controller PID constants
             public static final double kP = 2.0;
