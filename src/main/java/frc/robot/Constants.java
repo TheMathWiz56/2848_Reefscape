@@ -42,6 +42,18 @@ public final class Constants {
         return Math.max(min, Math.min(input, max));
     }
 
+
+    public static enum reefLs{
+        lL1,
+        lL2,
+        lL3,
+        lL4,
+        rL1,
+        rL2,
+        rL3,
+        rL4
+    }
+
     // Constants relating to the drivetrain are probably in TunerConstants
 
     public static class ControllerConstants {

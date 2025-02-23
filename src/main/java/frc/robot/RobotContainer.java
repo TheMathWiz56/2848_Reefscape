@@ -52,7 +52,9 @@ public class RobotContainer {
 
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
     private CommandGenericHID operatorKeypad = new CommandGenericHID(1);
-    private final CommandXboxController operatorJoystick = new CommandXboxController(1);
+    private final CommandXboxController operatorJoystick = new CommandXboxController(2);
+
+    public reefData reefDat = new reefData();
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -81,6 +83,13 @@ public class RobotContainer {
     private void configureBindings() {
         // Default commands
         elevator.setDefaultCommand(elevator.holdState());
+
+        driverJoystick.a().onTrue(elevator.goToL1());
+        driverJoystick.b().onTrue(elevator.goToL2());
+        driverJoystick.x().onTrue(elevator.goToL3());
+        driverJoystick.y().onTrue(elevator.goToL4());
+
+        /*
         arm.setDefaultCommand(arm.holdState());
         pincer.setDefaultCommand(pincer.holdState());
 
