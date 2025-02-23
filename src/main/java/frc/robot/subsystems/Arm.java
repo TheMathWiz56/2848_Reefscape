@@ -80,7 +80,6 @@ public class Arm extends SubsystemBase {
                 .outputRange(kPivotMotorMinOutput, kPivotMotorMaxOutput);
         pivotConfig.absoluteEncoder
                 .zeroOffset(kPivotMotorAbsoluteEncoderOffset);
-        pivotConfig.softLimit
         pivotConfig
             .absoluteEncoder
                 .zeroOffset(kPivotMotorAbsoluteEncoderOffset)
@@ -215,20 +214,23 @@ public class Arm extends SubsystemBase {
             })
             .until(() -> pivotProfile.isFinished(timer.get()))
             .withName("Go To Reference");
-                () -> {
-                    this.pivotSetpoint = Constants.kClamp(newSetpoint, kPivotMinAngle, kPivotMaxAngle);
-                    timer.reset();
-                    startState = new TrapezoidProfile.State(pivotAbsEncoder.getPosition(),
-                            pivotAbsEncoder.getVelocity());
-                    goalState = new TrapezoidProfile.State(this.pivotSetpoint, 0);
-                },
-                () -> {
-                    currentState = pivotProfile.calculate(timer.get(), startState, goalState);
-                    setPivotOutput(currentState.position, currentState.velocity);
-                })
-                .until(() -> pivotProfile.isFinished(timer.get()))
-                .withName("Go To Reference");
-    }
+
+        }
+    //     private Command pivotToSetpoint(double setPoin)
+    //             () -> {
+    //                 this.pivotSetpoint = Constants.kClamp(newSetpoint, kPivotMinAngle, kPivotMaxAngle);
+    //                 timer.reset();
+    //                 startState = new TrapezoidProfile.State(pivotAbsEncoder.getPosition(),
+    //                         pivotAbsEncoder.getVelocity());
+    //                 goalState = new TrapezoidProfile.State(this.pivotSetpoint, 0);
+    //             },
+    //             () -> {
+    //                 currentState = pivotProfile.calculate(timer.get(), startState, goalState);
+    //                 setPivotOutput(currentState.position, currentState.velocity);
+    //             })
+    //             .until(() -> pivotProfile.isFinished(timer.get()))
+    //             .withName("Go To Reference");
+    // }
 
     /**
      * Sets the pivot to the position for stowing

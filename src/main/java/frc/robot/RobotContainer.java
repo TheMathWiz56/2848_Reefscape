@@ -37,6 +37,8 @@ import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Ascender;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.GroundAlgaePivot;
+import frc.robot.subsystems.GroundAlgaeWheels;
 import frc.robot.subsystems.Pincer;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
@@ -96,15 +98,10 @@ public class RobotContainer {
     public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
     public final Pincer pincer = new Pincer();
- */
+ 
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         public final Elevator elevator = new Elevator();
-
-        public final Arm arm = new Arm();
-        public final Pincer pincer = new Pincer();
         public final Lights lights = new Lights();
-
-        public final Ascender ascender = new Ascender();
 
         public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
 
@@ -119,7 +116,7 @@ public class RobotContainer {
 
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;
-    public final Pincer pincer = new Pincer();
+
     //public final Ascender ascender = new Ascender();
 
     public RobotContainer() {
