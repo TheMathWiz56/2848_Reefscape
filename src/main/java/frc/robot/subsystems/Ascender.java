@@ -29,6 +29,9 @@ public class Ascender extends SubsystemBase {
         return run(() -> ascenderMotor.set(1)).until(() -> false) // Need a stoping condition here
         .andThen(runEnd(() -> ascenderMotor.set(-1), () -> ascenderMotor.stopMotor()).until(() -> ! ascenderLimitSwitch.get()));
     }
+    public void stop() {
+        
+    }
 
     @Override
     public void periodic() {

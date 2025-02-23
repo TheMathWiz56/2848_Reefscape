@@ -60,20 +60,20 @@ public class CommandFactory {
         .until(()->pincer.hasCoral());
     }
 
-    public Command reefAlgae(Constants.robotStates.pivotElevatorStates state){
-        if(state == Constants.robotStates.pivotElevatorStates.REEFALGAEHIGH){
+    public Command reefAlgaeHigh(){
             return elevator.reefAlgaeHigh()
             .andThen(arm.reefAlgaeHigh())
             .andThen(pincer.reefAlgae())
             .andThen(pincer.intake());
         }
-        if(state == Constants.robotStates.pivotElevatorStates.REEFALGAELOW){
+        
+    public Command reefAlgaeLow(){
+        
             return elevator.reefAlgaeLow()
             .andThen(arm.reefAlgaeLow())
             .andThen(pincer.reefAlgae())
             .andThen(pincer.intake());
-        }
-        return stow();
+        
     }
 /*score net net */
     public Command net(){
@@ -94,6 +94,8 @@ public class CommandFactory {
             pincer.stopIntake().schedule();
           });
     }
+
+    
     
     
 

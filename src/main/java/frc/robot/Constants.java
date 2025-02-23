@@ -153,13 +153,13 @@ public static class ArmConstants {
 
     public static final HashMap<robotStates.pivotElevatorStates,Double> setPoints = new HashMap<>(){{
         put(robotStates.pivotElevatorStates.ALGAESTOW,0.0);
-        put(robotStates.pivotElevatorStates.CORALSTOW,0.0);
-        put(robotStates.pivotElevatorStates.EMPTYSTOW,0.0);
+        put(robotStates.pivotElevatorStates.CORALSTOW,0.243);
+        put(robotStates.pivotElevatorStates.EMPTYSTOW,-.249);
         put(robotStates.pivotElevatorStates.L1,0.0);
-        put(robotStates.pivotElevatorStates.L2,0.0);
-        put(robotStates.pivotElevatorStates.L3,0.0);
-        put(robotStates.pivotElevatorStates.L4,0.0);
-        put(robotStates.pivotElevatorStates.FEED,0.0);
+        put(robotStates.pivotElevatorStates.L2,0.109);
+        put(robotStates.pivotElevatorStates.L3,0.109);
+        put(robotStates.pivotElevatorStates.L4,0.139);
+        put(robotStates.pivotElevatorStates.FEED,-.104);
         put(robotStates.pivotElevatorStates.REEFALGAEHIGH,0.0);
         put(robotStates.pivotElevatorStates.REEFALGAELOW,0.0);
         put(robotStates.pivotElevatorStates.GROUNDALGAE,0.0);
@@ -183,7 +183,7 @@ public static class ArmConstants {
     public static final FeedbackSensor kPivotMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
     public static final double kPivotMotorMinOutput = -1;
     public static final double kPivotMotorMaxOutput = 1;
-    public static final double kPivotMotorAbsoluteEncoderOffset = 0.0;
+    public static final double kPivotMotorAbsoluteEncoderOffset = 0.3179724;
     public static double kPivotMotorks = 0.0;
     public static double kPivotMotorkg = .3;
     public static double kPivotMotorkv = 1.95;
@@ -203,11 +203,12 @@ public static class ArmConstants {
 
     // Setpoints
     // For now: L1 is facing almost straight up, L2L3 is diagonal, L4 is facing straight-on
-    public static final double kStowPosition = 0.09;
-    public static final double kFeedPosition = 0.173;
-    public static final double kL1Position = 0.1;
-    public static final double kL2L3Position = 0.451;
-    public static final double kL4Position = 0.459;
+    public static final double kStowPosition = -0.249;
+        public static final double kStowCoralPosition = 0.243;
+        public static final double kFeedPosition = -0.104;
+        public static final double kL1Position = 0.0; // Placeholder
+        public static final double kL2L3Position = 0.109;
+        public static final double kL4Position = 0.139;
 }
 
 public static class PincerConstants {
@@ -261,8 +262,8 @@ public static class PincerConstants {
     public static final double kAlgaePosition = 0.0;
 
     // Intake Setpoints
-    public static final double kIntakeSpeed = -0.1;
-    public static final double kExhaustSpeed = 0.1;
+    public static final double kIntakeSpeed = -0.33;
+    public static final double kExhaustSpeed = 0.33;
 }
 
 public static class AscenderConstants {
@@ -276,13 +277,13 @@ public static class ElevatorConstants {
 
         public static final HashMap<robotStates.pivotElevatorStates,Double> setPoints = new HashMap<>(){{
             put(robotStates.pivotElevatorStates.ALGAESTOW,0.0);
-            put(robotStates.pivotElevatorStates.CORALSTOW,0.0);
-            put(robotStates.pivotElevatorStates.EMPTYSTOW,0.0);
-            put(robotStates.pivotElevatorStates.L1,0.0);
-            put(robotStates.pivotElevatorStates.L2,0.0);
-            put(robotStates.pivotElevatorStates.L3,0.0);
-            put(robotStates.pivotElevatorStates.L4,0.0);
-            put(robotStates.pivotElevatorStates.FEED,0.0);
+            put(robotStates.pivotElevatorStates.CORALSTOW,-6.130);
+            put(robotStates.pivotElevatorStates.EMPTYSTOW,-.065);
+            put(robotStates.pivotElevatorStates.L1,-7.5); //placeholder
+            put(robotStates.pivotElevatorStates.L2,-17.145);
+            put(robotStates.pivotElevatorStates.L3,-26.844);
+            put(robotStates.pivotElevatorStates.L4,-41.289);
+            put(robotStates.pivotElevatorStates.FEED,-12.312);
             put(robotStates.pivotElevatorStates.REEFALGAEHIGH,0.0);
             put(robotStates.pivotElevatorStates.REEFALGAELOW,0.0);
             put(robotStates.pivotElevatorStates.GROUNDALGAE,0.0);
@@ -316,12 +317,13 @@ public static class ElevatorConstants {
     public static final double kFeedforwardKa = 0.0;
     public static final double kFeedforwardDtSeconds = 0.0;
 
-    public static final double kSetpointL1 = -1;
-    public static final double kSetpointL2 = -17.4;        
-    public static final double kSetpointL3 = -26.4;
-    public static final double kSetpointL4 = -40.4;
-
-    public static final double kSetpointNet = -42.05;
+    public static final double kSetpointL1 = -7.5; // Placeholder  
+        public static final double kSetpointL2 = -17.145;      
+        public static final double kSetpointL3 = -26.844;
+        public static final double kSetpointL4 = -41.289;
+        public static final double kSetpointFeed = -12.312;
+        public static final double kSetpointStow = -0.065;
+        public static final double kSetpointStowCoral = -6.130;
 
     // Setpoints for targeting different levels, some other situations
     // For Spark built in encoder
@@ -330,8 +332,7 @@ public static class ElevatorConstants {
     public static final double kSetpointL3 = -32.32275390625;
     public static final double kSetpointL4 = -40;
     */
-    public static final double kSetpointFeed = -11.53;
-    public static final double kSetpointStow = 0.31;
+    
 
     public static final boolean kUseCurrentForZeroing = false;
     public static final double kZeroingCurrent = 20.0;
