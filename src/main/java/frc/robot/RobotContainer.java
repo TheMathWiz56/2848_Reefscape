@@ -57,18 +57,8 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     // Subsystem Instances
-    /*
 
-    public final Lights lights = new Lights();
-    
-        
-    public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
-    public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
-     */
-
-
-    /* Path follower */
-
+    //public final Lights lights = new Lights();
     public final Arm arm = new Arm();
     public final Elevator elevator = new Elevator();
     //private final SendableChooser<Command> autoChooser;
@@ -90,10 +80,11 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Default commands
-
         elevator.setDefaultCommand(elevator.holdState());
         arm.setDefaultCommand(arm.holdState());
         pincer.setDefaultCommand(pincer.holdState());
+
+        // Manual cycling testing code
 
         driverJoystick.a().onTrue(elevator.goToL3());
         driverJoystick.b().onTrue(arm.pivotToL2L3());
@@ -107,30 +98,6 @@ public class RobotContainer {
         driverJoystick.rightBumper().onTrue(pincer.exhaust());
         driverJoystick.rightBumper().onFalse(pincer.stopIntake());
 
-
-        //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
-
-        /*
-        driverJoystick.a().onTrue(elevator.goToStow());
-        driverJoystick.b().onTrue(elevator.goToL2());
-        driverJoystick.x().onTrue(elevator.goToL3());
-        driverJoystick.y().onTrue(elevator.goToL4());
-         */
-
-        //groundAlgaePivot.setDefaultCommand(groundAlgaePivot.holdState());
-        //groundAlgaeWheels.setDefaultCommand(groundAlgaeWheels.holdState());
-        
-        //driverJoystick.a().onTrue(pincer.intake());
-        //driverJoystick.b().onTrue(pincer.exhaust());
-        //driverJoystick.x().onTrue(pincer.stopIntake());
-
-        //arm.setDefaultCommand(arm.holdState());
-
-        /*
-        pincer.setDefaultCommand(pincer.holdState());
-*/
-
-        //ascender.setDefaultCommand(Commands.idle(ascender));
 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
@@ -146,6 +113,7 @@ public class RobotContainer {
                                                                                           // negative X (left)
                 ));
                  
+        // Other drivebase code, could be used later?
 /*
         driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
         driverJoystick.b().whileTrue(drivetrain.applyRequest(() -> point
@@ -154,15 +122,14 @@ public class RobotContainer {
                                                                                                                 // this
                                                                                                                 // is
                                                                                                                 // useful
- */
+
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        /*
         driverJoystick.pov(0)
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));
         driverJoystick.pov(180)
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
- */
+
         /*
          * Run SysId routines when holding back/start and X/Y.
          * Note that each routine should be run exactly once in a single log.
@@ -178,44 +145,9 @@ public class RobotContainer {
         driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         // reset the pose
         //driverJoystick.rightBumper().onTrue(drivetrain.runOnce(() -> drivetrain.resetToVision(true)));
-/*
-        // testing
-        driverJoystick.x()
-                .onTrue(lights.inAction())
-                .onFalse(lights.actionComplete());
 
-        drivetrain.registerTelemetry(logger::telemeterize);
-
-
-        // Trigger to zero motor voltage on elevator if top limit switch trips
-        Trigger elevatorTopLimitTrigger = new Trigger(elevator::getLimitSwitchTop).whileTrue(elevator.elevatorAtTopLimit());
-
-        
- */
-
-        // Trigger to lift elevator slightly, zero encoders if bottom limit switch trips
-        //Trigger elevatorBottomLimitTrigger = new Trigger(elevator::getLimitSwitchBottom).whileTrue(elevator.elevatorAtBottomLimit());
-        
-        //driverJoystick.a().onTrue(arm.pivotToL2L3());
-        //driverJoystick.b().onTrue(arm.pivotToFeed());
-        
-
-        //driverJoystick.a().onTrue(arm.changeSetpointInstant(ArmConstants.kL2L3Position));
-        //driverJoystick.b().onTrue(arm.changeSetpointInstant(ArmConstants.kFeedPosition));
-        // Primitive scoring test code
-        
-        //arm.setDefaultCommand(arm.simpleSetMotorOutput(() -> driverJoystick.getLeftY() * 0.33));
-
-        /*
-        
-        driverJoystick.a().onTrue(elevator.goToStow());
-        driverJoystick.b().onTrue(elevator.goToL2());
-
-
-        driverJoystick.x().onFalse(pincer.stopIntake());
-        driverJoystick.x().onTrue(pincer.exhaust());
- */
-
+        // ???
+        //drivetrain.registerTelemetry(logger::telemeterize);
     }
 
     // Command compositions (there is probably a better place for these)
