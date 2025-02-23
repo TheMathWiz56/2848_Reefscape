@@ -18,6 +18,7 @@ public class keypad extends SubsystemBase{
     public static int reef = 0;
     public static Constants.reef.reefLs L = Constants.reef.reefLs.NONE;
     private int scoreReefCalls = 0;
+    private Constants.reef.reefLs scoreL = Constants.reef.reefLs.NONE;
     
 
     public static enum keyMode {
@@ -76,22 +77,24 @@ public class keypad extends SubsystemBase{
 
     
     public int getKeysSize(){
-        periodic();
+        //periodic();
         return keys.size();
     }
 
     public int getReef(){
-        periodic();
+        //periodic();
         return reef;
     }
 
 
     public Constants.reef.reefLs getReefL(){
-        periodic();
-        return L;
+        //periodic();
+        return scoreL;
     }
     public boolean scoreReef(){
-        periodic();
+        if(reef!=0 &&  L != Constants.reef.reefLs.NONE){
+            scoreL = L;
+        }
         return reef!=0 &&  L != Constants.reef.reefLs.NONE;
     }
     public boolean feed(){

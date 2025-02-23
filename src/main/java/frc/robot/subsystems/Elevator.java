@@ -51,6 +51,9 @@ public class Elevator extends SubsystemBase {
 
 
   private int commandRan = 0;
+  private int nones = 0;
+
+  private Constants.reef.reefLs lastL = Constants.reef.reefLs.lL3;
 
   private boolean keyHeld = false;
 
@@ -234,6 +237,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command goToL(Constants.reef.reefLs L,int reef){
+    lastL = L;
     return this.startRun(() -> {
       setElevatorSetpoint(Constants.ElevatorConstants.setPoints.get(Constants.reef.reefToState.get(L)));
       //setElevatorSetpoint(-26);
@@ -347,6 +351,8 @@ public class Elevator extends SubsystemBase {
     builder.addBooleanProperty("Limit Switch State", () -> elevatorLimitSwitchBottom.get(), null);
     builder.addBooleanProperty("Is Zeroed", () -> isZeroed, null);
     builder.addIntegerProperty("commands ran",()->commandRan,null);
+    builder.addIntegerProperty("nones",()->nones,null);
+    builder.addStringProperty("last L",()->lastL.name(),null);
     
 
     

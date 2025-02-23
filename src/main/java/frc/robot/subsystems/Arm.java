@@ -92,7 +92,7 @@ public class Arm extends SubsystemBase {
                 .reverseSoftLimit(kPivotMinAngle);
 
         // Initialize Feedforward
-        pivotSetpoint = kStowPosition;
+        pivotSetpoint = kFeedPosition;
         FF = 0;
         goalState = new TrapezoidProfile.State();
         startState = new TrapezoidProfile.State();
