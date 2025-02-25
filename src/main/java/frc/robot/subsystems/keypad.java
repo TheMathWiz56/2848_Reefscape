@@ -19,6 +19,8 @@ public class keypad extends SubsystemBase{
     public static Constants.reef.reefLs L = Constants.reef.reefLs.NONE;
     private int scoreReefCalls = 0;
     private Constants.reef.reefLs scoreL = Constants.reef.reefLs.NONE;
+
+    private int scoreReef = 0;
     
 
     public static enum keyMode {
@@ -30,6 +32,7 @@ public class keypad extends SubsystemBase{
 
     public keypad() {
         operatorKeypad = new CommandGenericHID(1);
+       
     }
         @Override
     public void periodic() {
@@ -83,7 +86,7 @@ public class keypad extends SubsystemBase{
 
     public int getReef(){
         //periodic();
-        return reef;
+        return scoreReef;
     }
 
 
@@ -92,8 +95,10 @@ public class keypad extends SubsystemBase{
         return scoreL;
     }
     public boolean scoreReef(){
-        if(reef!=0 &&  L != Constants.reef.reefLs.NONE){
+        if( reef!=0 &&  L != Constants.reef.reefLs.NONE){
+            //CommandScheduler.getInstance().schedule(m_elevator.goToL(L,reef));
             scoreL = L;
+            scoreReef = reef;
         }
         return reef!=0 &&  L != Constants.reef.reefLs.NONE;
     }
@@ -136,8 +141,10 @@ public class keypad extends SubsystemBase{
         builder.addIntegerProperty("keydown size", () -> keys.size(), null);
         builder.addStringProperty("key presses", () -> keys.toString(), null);
         builder.addStringProperty("L",() ->getReefL().name(),null);
-        builder.addBooleanProperty("score reef",()->scoreReef(),null);
+        //builder.addBooleanProperty("score reef",()->scoreReef(),null);
         //builder.addIntegerProperty("score reef calls", ()-> scoreReefCalls, null);
+        builder.addStringProperty("scoreL",()->scoreL.name(),null);
+        builder.addIntegerProperty("scoreReef",()->scoreReef,null);
     }
 
 }

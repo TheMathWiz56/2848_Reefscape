@@ -69,20 +69,7 @@ public class RobotContainer {
 
     //private final Pincer pincer = new Pincer();
 
-    private final keypad pad = new keypad();
-
-    private final Trigger scoreReefTrigger = new Trigger(() ->pad.scoreReef());
-    private final Trigger feedTrigger = new Trigger(() -> pad.feed());
-    private final Trigger stowTrigger = new Trigger(() -> pad.stow());
-    private final Trigger intakeStartTrigger = new Trigger(() -> pad.intakeStart());
-    private final Trigger intakeStopTrigger = new Trigger(() -> pad.intakeStop());
-    private final Trigger intakeExhaustTrigger = new Trigger(() -> pad.intakeExhaust());
-    private final Trigger cancelScoreTrigger = new Trigger(() -> pad.cancelScore());
-    private final Trigger netTrigger = new Trigger(() -> pad.net());
-    private final Trigger climbTrigger = new Trigger(() -> pad.climb());
-    private final Trigger climbCancelTrigger = new Trigger(() ->pad.climbCancel());
-    private final Trigger reefAlgaeHighTrigger = new Trigger(()-> pad.reefAlgaeHigh());
-    private final Trigger reefAlgaeLowTrigger = new Trigger(() ->pad.reefAlgaeLow());
+    
 //intakes, climb, cancel
    
 
@@ -102,10 +89,13 @@ public class RobotContainer {
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         public final Elevator elevator = new Elevator();
         public final Lights lights = null;//new Lights();
+        private final keypad pad = new keypad();
+
+        //TODO: if whativer i just did doesnt work. pass elevator and scoreL to pad and schedule from there
 
         public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
 
-        private final Command scoreLCMD = commandFactory.scoreL(()->pad.getReefL(), ()->pad.getReef());
+        private final Command scoreLCMD = commandFactory.scoreL(()->pad.getReefL(),()-> pad.getReef());
         // private final Command stowCMD = commandFactory.stow();
         // private final Command feedCMD = commandFactory.feed();
         // private final Command reefAlgaeHighCMD = commandFactory.reefAlgaeHigh();
@@ -114,6 +104,21 @@ public class RobotContainer {
         // private final Command processorCMD = commandFactory.processor();
         //private final Command scoreL3CMD = commandFactory.scoreL(Constants.reef.reefLs.lL3,1);
         //private final Command scoreL2CMD = commandFactory.scoreL(Constants.reef.reefLs.lL2,1);
+
+       
+
+    private final Trigger scoreReefTrigger = new Trigger(() ->pad.scoreReef());
+    private final Trigger feedTrigger = new Trigger(() -> pad.feed());
+    private final Trigger stowTrigger = new Trigger(() -> pad.stow());
+    private final Trigger intakeStartTrigger = new Trigger(() -> pad.intakeStart());
+    private final Trigger intakeStopTrigger = new Trigger(() -> pad.intakeStop());
+    private final Trigger intakeExhaustTrigger = new Trigger(() -> pad.intakeExhaust());
+    private final Trigger cancelScoreTrigger = new Trigger(() -> pad.cancelScore());
+    private final Trigger netTrigger = new Trigger(() -> pad.net());
+    private final Trigger climbTrigger = new Trigger(() -> pad.climb());
+    private final Trigger climbCancelTrigger = new Trigger(() ->pad.climbCancel());
+    private final Trigger reefAlgaeHighTrigger = new Trigger(()-> pad.reefAlgaeHigh());
+    private final Trigger reefAlgaeLowTrigger = new Trigger(() ->pad.reefAlgaeLow());
 
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;

@@ -200,6 +200,10 @@ public class Elevator extends SubsystemBase {
     ));
   }
 
+  public boolean isDone(){
+   return  elevatorTrapezoidProfile.isFinished(timer.get()); 
+  }
+
   public Command reefAlgaeHigh(){
     return goToPosition(
       Constants.ElevatorConstants.setPoints.get(
