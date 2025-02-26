@@ -93,17 +93,17 @@ public class RobotContainer {
     // Subsystem Instances
 
     //public final Lights lights = new Lights();
-    public final Arm arm = new Arm();
+    //public final Arm arm = new Arm();
     public final Ascender ascender = null;//new Ascender();
     //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
-    public final Pincer pincer = null; //new Pincer();
+    //public final Pincer pincer = null; //new Pincer();
  
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-        public final Elevator elevator = new Elevator();
-        public final Lights lights = null;//new Lights();
+        //public final Elevator elevator = new Elevator();
+        //public final Lights lights = null;//new Lights();
 
-        public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
+        //public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
 
         //private final Command scoreLCMD = commandFactory.scoreL(pad.getReefL(), pad.getReef());
         // private final Command stowCMD = commandFactory.stow();
@@ -139,14 +139,14 @@ public class RobotContainer {
         Timer.delay(3);
         
 
-        CommandScheduler.getInstance().registerSubsystem(pad);
-        CommandScheduler.getInstance().registerSubsystem(arm);
+        //CommandScheduler.getInstance().registerSubsystem(pad);
+        //CommandScheduler.getInstance().registerSubsystem(arm);
     }
 
     private void configureBindings() {
         // Default commands
-       elevator.setDefaultCommand(elevator.holdState());
-       arm.setDefaultCommand(arm.holdState());
+       //elevator.setDefaultCommand(elevator.holdState());
+       //arm.setDefaultCommand(arm.holdState());
 
 
 
@@ -179,9 +179,12 @@ public class RobotContainer {
        //driverJoystick.a().onTrue(scoreL2CMD);
        //driverJoystick.b().onTrue(scoreL3CMD);
 
+       /*
+
         driverJoystick.a().onTrue(elevator.goToFeed());
         driverJoystick.b().onTrue(elevator.goToL3());
         driverJoystick.x().onTrue(elevator.goToStow());
+         */
 
         // driverJoystick.b().onTrue(elevator.goToL2());
         // driverJoystick.x().onTrue(elevator.goToL3());
@@ -256,7 +259,10 @@ public class RobotContainer {
         //driverJoystick.rightBumper().onTrue(drivetrain.runOnce(() -> drivetrain.resetToVision(true)));
 
         // ???
-        //drivetrain.registerTelemetry(logger::telemeterize);
+        // drivetrain.registerTelemetry(logger::telemeterize);
+
+        ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
+        
     }
 
     // Command compositions (there is probably a better place for these)

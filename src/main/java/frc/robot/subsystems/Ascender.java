@@ -8,6 +8,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
 
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,7 +37,7 @@ public class Ascender extends SubsystemBase {
     } */
 
     public Command manualClimb(DoubleSupplier input) {
-        return run(() -> ascenderMotor.set(input.getAsDouble() * 0.5));
+        return run(() -> { if(ascenderLimitSwitch.get()) ascenderMotor.set(input.getAsDouble() * 0.5); else ascenderMotor.set(0); });
     }
     public void stop() {
         
@@ -51,4 +52,14 @@ public class Ascender extends SubsystemBase {
     public void simulationPeriodic() {
 
     }
+
+    
+  @Override
+  public void initSendable(SendableBuilder builder) {
+    super.initSendable(builder); // Not sure why we need this
+
+    // Motor information
+    builder.addBooleanProperty("Ascender Limit Switch", () -> ascenderLimitSwitch.get(), null);
+  }
+
 }
