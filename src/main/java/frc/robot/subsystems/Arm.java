@@ -80,19 +80,17 @@ public class Arm extends SubsystemBase {
                 .outputRange(kPivotMotorMinOutput, kPivotMotorMaxOutput);
         pivotConfig.absoluteEncoder
                 .zeroOffset(kPivotMotorAbsoluteEncoderOffset);
-        pivotConfig
-            .absoluteEncoder
+        pivotConfig.absoluteEncoder
                 .zeroOffset(kPivotMotorAbsoluteEncoderOffset)
                 .zeroCentered(kPivotMotorAbsoluteEncoderZeroCentered);
-        pivotConfig
-            .softLimit
+        pivotConfig.softLimit
                 .reverseSoftLimitEnabled(kSoftLimitsEnabled)
                 .forwardSoftLimitEnabled(kSoftLimitsEnabled)
                 .forwardSoftLimit(kPivotMaxAngle)
                 .reverseSoftLimit(kPivotMinAngle);
 
         // Initialize Feedforward
-        pivotSetpoint = kFeedPosition; //temporary //kStowPosition;
+        pivotSetpoint = kFeedPosition; // temporary //kStowPosition;
         FF = 0;
         goalState = new TrapezoidProfile.State();
         startState = new TrapezoidProfile.State();
@@ -131,8 +129,10 @@ public class Arm extends SubsystemBase {
                 () -> currentState.position - pivotAbsEncoder.getPosition(), null);
         builder.addDoubleProperty("Pivot Profile Velocity Error Deg",
                 () -> currentState.velocity - pivotAbsEncoder.getVelocity(), null);
-        builder.addDoubleProperty("Pivot Profile Position Error Deg", () -> (currentState.position - pivotAbsEncoder.getPosition()) * 360, null);
-        builder.addDoubleProperty("Pivot Profile Velocity Error Deg", () -> currentState.velocity - pivotAbsEncoder.getVelocity(), null);
+        builder.addDoubleProperty("Pivot Profile Position Error Deg",
+                () -> (currentState.position - pivotAbsEncoder.getPosition()) * 360, null);
+        builder.addDoubleProperty("Pivot Profile Velocity Error Deg",
+                () -> currentState.velocity - pivotAbsEncoder.getVelocity(), null);
         builder.addDoubleProperty("Pivot Profile Goal Position", () -> goalState.position, null);
         builder.addDoubleProperty("Pivot Profile Goal Velocity", () -> goalState.velocity, null);
 
@@ -150,10 +150,19 @@ public class Arm extends SubsystemBase {
             pivotPIDUpdated = true;
         });
 
-        builder.addDoubleProperty("Pivot kP", () -> kPivotP, value -> { kPivotP = value; pivotPIDUpdated = true;});
-        builder.addDoubleProperty("Pivot kI", () -> kPivotI, value -> { kPivotI = value; pivotPIDUpdated = true;});
-        builder.addDoubleProperty("Pivot kD", () -> kPivotD, value -> { kPivotD = value; pivotPIDUpdated = true;});
-        
+        builder.addDoubleProperty("Pivot kP", () -> kPivotP, value -> {
+            kPivotP = value;
+            pivotPIDUpdated = true;
+        });
+        builder.addDoubleProperty("Pivot kI", () -> kPivotI, value -> {
+            kPivotI = value;
+            pivotPIDUpdated = true;
+        });
+        builder.addDoubleProperty("Pivot kD", () -> kPivotD, value -> {
+            kPivotD = value;
+            pivotPIDUpdated = true;
+        });
+
         builder.addDoubleProperty("Pivot Feedforward Output", () -> FF, null);
     }
 
@@ -202,34 +211,36 @@ public class Arm extends SubsystemBase {
      */
     private Command pivotToSetpoint(double newSetpoint) {
         return startRun(
-            () -> {
-                this.pivotSetpoint = Constants.kClamp(newSetpoint, kPivotMinAngle, kPivotMaxAngle);
-                timer.reset();
-                startState = new TrapezoidProfile.State(pivotAbsEncoder.getPosition(), pivotAbsEncoder.getVelocity());
-                goalState = new TrapezoidProfile.State(this.pivotSetpoint, 0);
-            },
-            () -> {
-                currentState = pivotProfile.calculate(timer.get(), startState, goalState);
-                setPivotOutput(currentState.position, currentState.velocity); // rotations
-            })
-            .until(() -> pivotProfile.isFinished(timer.get()))
-            .withName("Go To Reference");
+                () -> {
+                    this.pivotSetpoint = Constants.kClamp(newSetpoint, kPivotMinAngle, kPivotMaxAngle);
+                    timer.reset();
+                    startState = new TrapezoidProfile.State(pivotAbsEncoder.getPosition(),
+                            pivotAbsEncoder.getVelocity());
+                    goalState = new TrapezoidProfile.State(this.pivotSetpoint, 0);
+                },
+                () -> {
+                    currentState = pivotProfile.calculate(timer.get(), startState, goalState);
+                    setPivotOutput(currentState.position, currentState.velocity); // rotations
+                })
+                .until(() -> pivotProfile.isFinished(timer.get()))
+                .withName("Go To Reference");
 
-        }
-    //     private Command pivotToSetpoint(double setPoin)
-    //             () -> {
-    //                 this.pivotSetpoint = Constants.kClamp(newSetpoint, kPivotMinAngle, kPivotMaxAngle);
-    //                 timer.reset();
-    //                 startState = new TrapezoidProfile.State(pivotAbsEncoder.getPosition(),
-    //                         pivotAbsEncoder.getVelocity());
-    //                 goalState = new TrapezoidProfile.State(this.pivotSetpoint, 0);
-    //             },
-    //             () -> {
-    //                 currentState = pivotProfile.calculate(timer.get(), startState, goalState);
-    //                 setPivotOutput(currentState.position, currentState.velocity);
-    //             })
-    //             .until(() -> pivotProfile.isFinished(timer.get()))
-    //             .withName("Go To Reference");
+    }
+    // private Command pivotToSetpoint(double setPoin)
+    // () -> {
+    // this.pivotSetpoint = Constants.kClamp(newSetpoint, kPivotMinAngle,
+    // kPivotMaxAngle);
+    // timer.reset();
+    // startState = new TrapezoidProfile.State(pivotAbsEncoder.getPosition(),
+    // pivotAbsEncoder.getVelocity());
+    // goalState = new TrapezoidProfile.State(this.pivotSetpoint, 0);
+    // },
+    // () -> {
+    // currentState = pivotProfile.calculate(timer.get(), startState, goalState);
+    // setPivotOutput(currentState.position, currentState.velocity);
+    // })
+    // .until(() -> pivotProfile.isFinished(timer.get()))
+    // .withName("Go To Reference");
     // }
 
     /**
@@ -319,25 +330,23 @@ public class Arm extends SubsystemBase {
 
     public Command goToNet() {
         return pivotToSetpoint(Constants.ArmConstants.setPoints.get(
-            Constants.robotStates.pivotElevatorStates.NET
-        ));
+                Constants.robotStates.pivotElevatorStates.NET));
     }
 
-    public Command reefAlgaeHigh(){
+    public Command reefAlgaeHigh() {
         return pivotToSetpoint(Constants.ArmConstants.setPoints.get(
-            Constants.robotStates.pivotElevatorStates.REEFALGAEHIGH
-        ));
+                Constants.robotStates.pivotElevatorStates.REEFALGAEHIGH));
     }
-    public Command reefAlgaeLow(){
+
+    public Command reefAlgaeLow() {
         return pivotToSetpoint(Constants.ArmConstants.setPoints.get(
-            Constants.robotStates.pivotElevatorStates.REEFALGAELOW
-        ));
+                Constants.robotStates.pivotElevatorStates.REEFALGAELOW));
     }
-    public Command goToProcessor(){
+
+    public Command goToProcessor() {
         return pivotToSetpoint(Constants.ArmConstants.setPoints.get(
-          Constants.robotStates.pivotElevatorStates.PROCESSOR
-        ));
-      }
+                Constants.robotStates.pivotElevatorStates.PROCESSOR));
+    }
 
     /**
      * Sets the PID setpoint with the calculated feedforward to the pivot motor
@@ -349,6 +358,19 @@ public class Arm extends SubsystemBase {
         FF = pivotFeedforward.calculate(position * 2.0 * Math.PI, velocity);
         pivotController.setReference(position, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0, FF,
                 SparkClosedLoopController.ArbFFUnits.kVoltage);
+    }
+
+    // Functions to determine if it is safe to move elevator to top or bottom
+    // True if pivot is facing up or moving to face up
+    public boolean facingUpwards() {
+        return pivotAbsEncoder.getPosition() <= kFacingUpPosition || pivotSetpoint <= kFacingUpPosition
+                || goalState.position <= kFacingUpPosition;
+    }
+
+    // True if pivot is facing down or moving to face down
+    public boolean facingDownwards() {
+        return pivotAbsEncoder.getPosition() >= kFacingUpPosition || pivotSetpoint >= kFacingUpPosition
+                || goalState.position >= kFacingUpPosition;
     }
 
 }

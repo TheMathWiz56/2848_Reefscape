@@ -235,6 +235,10 @@ public final class Constants {
         public static final double kL2L3Position = 0.109;
         public static final double kL4Position = 0.139;
 
+        public static final double kFacingUpPosition = -0.2;
+        public static final double kFacingDownPosition = 0.1;
+
+
         // Here L1 is facing almost straight up, L2L3 is diagonal, L4 is facing
         // straight-on
         /*
