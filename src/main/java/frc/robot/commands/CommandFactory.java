@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
@@ -32,15 +33,37 @@ public class CommandFactory {
 /*Moves only elevator, pivot and intake to score on reef */
     public Command scoreL(Supplier<Constants.reef.reefLs> L,Supplier<Integer> reef){
         return elevator.goToL(L.get(),reef.get())
-            .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
-                Constants.reef.reefToState.get(L.get())
-            )))
+            // .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+            //     Constants.reef.reefToState.get(L.get())
+            // )))
             .andThen(pincer.exhaust())
              .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
             .finallyDo((interrupted) ->{
                   pincer.stopIntake().schedule();
                 });
     }
+    public Command scoreL(Constants.reef.reefLs L,int reef){
+        return elevator.goToL(L,reef)
+            // .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+            //     Constants.reef.reefToState.get(L)
+            // )))
+            .andThen(pincer.exhaust())
+             .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+            .finallyDo((interrupted) ->{
+                  pincer.stopIntake().schedule();
+                });
+    }
+    // public Command scoreL(){
+    //     return new WaitUntilCommand(()->elevator.isDone())
+    //         .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+    //             Constants.reef.reefToState.get(L.get())
+    //         )))
+    //         .andThen(pincer.exhaust())
+    //          .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+    //         .finallyDo((interrupted) ->{
+    //               pincer.stopIntake().schedule();
+    //             });
+    // }
 /*stows. Uses sensor to determine which stow */
     public Command stow(){
         if(pincer.hasCoral()){

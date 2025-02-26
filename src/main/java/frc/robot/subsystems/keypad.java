@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
@@ -30,9 +31,11 @@ public class keypad extends SubsystemBase{
 
     private CommandGenericHID operatorKeypad = new CommandGenericHID(1);
 
+    // public keypad() {
+    //     operatorKeypad = new CommandGenericHID(1);
+    // }
     public keypad() {
         operatorKeypad = new CommandGenericHID(1);
-       
     }
         @Override
     public void periodic() {
@@ -70,10 +73,10 @@ public class keypad extends SubsystemBase{
 
         
         }
-        if(keys.size()==0){
-            reef = 0;
-            L = Constants.reef.reefLs.NONE;
-        }
+        // if(keys.size()==0){
+        //     reef = 0;
+        //     L = Constants.reef.reefLs.NONE;
+        // }
 
         
     }
