@@ -100,7 +100,7 @@ public class RobotContainer {
     //public final Pincer pincer = null; //new Pincer();
  
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-        //public final Elevator elevator = new Elevator();
+        public final Elevator elevator = new Elevator();
         //public final Lights lights = null;//new Lights();
 
         //public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
@@ -145,8 +145,8 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Default commands
-       //elevator.setDefaultCommand(elevator.holdState());
-       //arm.setDefaultCommand(arm.holdState());
+       elevator.setDefaultCommand(elevator.holdState());
+       arm.setDefaultCommand(arm.holdState());
 
 
 
@@ -168,7 +168,9 @@ public class RobotContainer {
 
 
 
-
+        driverJoystick.a().onTrue(elevator.goToFeed());
+        driverJoystick.b().onTrue(elevator.goToL3());
+        driverJoystick.x().onTrue(elevator.goToStow(() -> arm.facingDownwards()));
 
 
         
@@ -181,9 +183,7 @@ public class RobotContainer {
 
        /*
 
-        driverJoystick.a().onTrue(elevator.goToFeed());
-        driverJoystick.b().onTrue(elevator.goToL3());
-        driverJoystick.x().onTrue(elevator.goToStow());
+
          */
 
         // driverJoystick.b().onTrue(elevator.goToL2());

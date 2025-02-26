@@ -9,6 +9,8 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -26,6 +28,7 @@ import static frc.robot.Constants.PincerConstants.kStowPosition;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 public class Elevator extends SubsystemBase {
 
@@ -50,7 +53,6 @@ public class Elevator extends SubsystemBase {
   private TrapezoidProfile.State currentState = new TrapezoidProfile.State();
 
   private boolean keyHeld = false;
-
 
   // Timer for trapezoid profile
   private final Timer timer = new Timer();
@@ -131,19 +133,44 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command goToPosition(double position) {
-    return this.startRun(() -> {
-      setElevatorSetpoint(position);
-    }, () -> {
-      currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
-      setMotorOutput(currentState.position, currentState.velocity);
-    }).until(() -> elevatorTrapezoidProfile.isFinished(timer.get()))
-        ;
+    return goToPosition(position, "Position");
   }
 
-  // Commands to go to various pre-defined positions
+  // Reminder: negative elevator value = up
+
+  // For going up, use with arm.facingUpwards()
+  public Command goToPositionClampUpward(double position, BooleanSupplier armFacingUpwards, String positionName) {
+    if (armFacingUpwards.getAsBoolean())
+      return goToPosition(MathUtil.clamp(position, kUpwardsSafePosition, 1000), positionName + " (Upwards Clamp)");
+    else
+      return goToPosition(position, positionName);
+  }
   
+  // For going up, use with arm.facingUpwards()
+  public Command goToPositionClampUpward(double position, BooleanSupplier armFacingUpwards) {
+    return goToPositionClampUpward(position, armFacingUpwards, "Position");
+  }
+
+  // For going down, use with arm.facingDownwards()
+  public Command goToPositionClampDownward(double position, BooleanSupplier armFacingDownwards, String positionName) {
+    if (armFacingDownwards.getAsBoolean())
+      return goToPosition(MathUtil.clamp(position, -1000, kDownwardsSafePosition), positionName + " (Downwards Clamp)");
+    else
+      return goToPosition(position, positionName);
+  }
+  
+  // For going down, use with arm.facingDownwards()
+  public Command goToPositionClampDownward(double position, BooleanSupplier armFacingDownwards) {
+    return goToPositionClampDownward(position, armFacingDownwards, "Position");
+  }
+
+
+
+  // Commands to go to various pre-defined positions
+
   // public Command goToL1(int reef,int L) {
-  //   return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()-> reefData.update(reef,L,false));
+  // return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()->
+  // reefData.update(reef,L,false));
   // }
 
   public Command goToL2() {
@@ -158,55 +185,62 @@ public class Elevator extends SubsystemBase {
     return goToPosition(kSetpointL4, "L4");
   }
 
+  public Command goToL4(BooleanSupplier goingUpwards) {
+    return goToPositionClampUpward(kSetpointL4, goingUpwards, "L4");
+  }
+
   public Command goToFeed() {
     return goToPosition(kSetpointFeed, "Feed");
   }
 
-  public Command algaeStow(){
+  public Command algaeStow() {
     return goToPosition(Constants.ElevatorConstants.setPoints.get(
-      Constants.robotStates.pivotElevatorStates.ALGAESTOW
-  ));
+        Constants.robotStates.pivotElevatorStates.ALGAESTOW));
   }
-  
-  public Command coralStow(){
-    return goToPosition(Constants.ElevatorConstants.setPoints.get(
-                Constants.robotStates.pivotElevatorStates.CORALSTOW
-            ));
+
+  public Command coralStow() {
+    // return goToPosition(Constants.ElevatorConstants.setPoints.get(
+    // Constants.robotStates.pivotElevatorStates.CORALSTOW
+    return goToPosition(kSetpointStowCoral, "Stow Coral");
   }
-  public Command emptyStow(){
-    return goToPosition(Constants.ElevatorConstants.setPoints.get(
-      Constants.robotStates.pivotElevatorStates.EMPTYSTOW
-  ));
+
+  public Command coralStow(BooleanSupplier goingDownwards) {
+    return goToPositionClampDownward(kSetpointStowCoral, goingDownwards, "Stow Coral");
   }
-  public Command goToNet(){
+
+  public Command emptyStow() {
     return goToPosition(Constants.ElevatorConstants.setPoints.get(
-      Constants.robotStates.pivotElevatorStates.NET
-    ));
+        Constants.robotStates.pivotElevatorStates.EMPTYSTOW));
+  }
+
+  public Command goToNet() {
+    return goToPosition(Constants.ElevatorConstants.setPoints.get(
+        Constants.robotStates.pivotElevatorStates.NET));
   }
 
   public Command goToStow() {
     return goToPosition(kSetpointStow, "Stow");
   }
 
-  public Command goToProcessor(){
-    return goToPosition(Constants.ElevatorConstants.setPoints.get(
-      Constants.robotStates.pivotElevatorStates.PROCESSOR
-    ));
+  public Command goToStow(BooleanSupplier goingDownwards) {
+    return goToPositionClampDownward(kSetpointStow, goingDownwards, "Stow");
   }
 
-  public Command reefAlgaeHigh(){
-    return goToPosition(
-      Constants.ElevatorConstants.setPoints.get(
-        Constants.robotStates.pivotElevatorStates.REEFALGAEHIGH
-      )
-    );
+  public Command goToProcessor() {
+    return goToPosition(Constants.ElevatorConstants.setPoints.get(
+        Constants.robotStates.pivotElevatorStates.PROCESSOR));
   }
-  public Command reefAlgaeLow(){
+
+  public Command reefAlgaeHigh() {
     return goToPosition(
-      Constants.ElevatorConstants.setPoints.get(
-        Constants.robotStates.pivotElevatorStates.REEFALGAELOW
-      )
-    );
+        Constants.ElevatorConstants.setPoints.get(
+            Constants.robotStates.pivotElevatorStates.REEFALGAEHIGH));
+  }
+
+  public Command reefAlgaeLow() {
+    return goToPosition(
+        Constants.ElevatorConstants.setPoints.get(
+            Constants.robotStates.pivotElevatorStates.REEFALGAELOW));
   }
 
   public void zeroEncoder() {
@@ -214,23 +248,23 @@ public class Elevator extends SubsystemBase {
     isZeroed = true;
   }
 
-  public double LtoSetPoint(Constants.reef.reefLs L){
-    if(L.equals(Constants.reef.reefLs.lL1) || L.equals(Constants.reef.reefLs.rL1)){
+  public double LtoSetPoint(Constants.reef.reefLs L) {
+    if (L.equals(Constants.reef.reefLs.lL1) || L.equals(Constants.reef.reefLs.rL1)) {
       return kSetpointL1;
     }
-    if(L.equals(Constants.reef.reefLs.lL2) || L.equals(Constants.reef.reefLs.rL2)){
+    if (L.equals(Constants.reef.reefLs.lL2) || L.equals(Constants.reef.reefLs.rL2)) {
       return kSetpointL2;
     }
-    if(L.equals(Constants.reef.reefLs.lL3) || L.equals(Constants.reef.reefLs.rL3)){
+    if (L.equals(Constants.reef.reefLs.lL3) || L.equals(Constants.reef.reefLs.rL3)) {
       return kSetpointL3;
     }
-    if(L.equals(Constants.reef.reefLs.lL4) || L.equals(Constants.reef.reefLs.rL4)){
+    if (L.equals(Constants.reef.reefLs.lL4) || L.equals(Constants.reef.reefLs.rL4)) {
       return kSetpointL4;
     }
     return 0;
   }
 
-  public Command goToL(Constants.reef.reefLs L,int reef){
+  public Command goToL(Constants.reef.reefLs L, int reef) {
     return this.startRun(() -> {
       setElevatorSetpoint(Constants.ElevatorConstants.setPoints.get(Constants.reef.reefToState.get(L)));
     }, () -> {
@@ -238,12 +272,9 @@ public class Elevator extends SubsystemBase {
       setMotorOutput(currentState.position, currentState.velocity);
     }).until(() -> elevatorTrapezoidProfile.isFinished(timer.get()))
         .withName("Go to " + L.name());
-    //return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()-> reefData.update(reef,L,false));
+    // return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()->
+    // reefData.update(reef,L,false));
   }
-
-  
-
-  
 
   public Command autoZeroEncoder() {
     return run(() -> setMotorVoltage(1.5))
@@ -258,26 +289,22 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
-  
+
     SmartDashboard.putData(this);
     // List<Integer> keyDown = new ArrayList<>();
     // keyDown = keypad.keys;
-     //keypad.keyMode mode = keypad.mode;
-     //int reef =0;
-     //Constants.reef.reefLs L = Constants.reef.reefLs.STOW;
+    // keypad.keyMode mode = keypad.mode;
+    // int reef =0;
+    // Constants.reef.reefLs L = Constants.reef.reefLs.STOW;
     // for(int i : keyDown){
-    //   if(Constants.reef.rMap.containsKey(i)){
-    //     reef = Constants.reef.rMap.get(i);
-    //   } else if(Constants.reef.lMap.containsKey(i)){
-    //     L = Constants.reef.lMap.get(i);
-    //   }
+    // if(Constants.reef.rMap.containsKey(i)){
+    // reef = Constants.reef.rMap.get(i);
+    // } else if(Constants.reef.lMap.containsKey(i)){
+    // L = Constants.reef.lMap.get(i);
+    // }
     // }
 
-    // 
-    
-    
-    
-
+    //
 
   }
 
@@ -340,9 +367,6 @@ public class Elevator extends SubsystemBase {
 
     builder.addBooleanProperty("Limit Switch State", () -> elevatorLimitSwitchBottom.get(), null);
     builder.addBooleanProperty("Is Zeroed", () -> isZeroed, null);
-    
-
-    
 
   }
 

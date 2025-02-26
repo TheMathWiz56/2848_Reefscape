@@ -368,6 +368,9 @@ public final class Constants {
             public static final double kSetpointStow = -0.065;
             public static final double kSetpointStowCoral = -6.130;
 
+            // These are guesses
+            public static final double kUpwardsSafePosition = -30.0;
+            public static final double kDownwardsSafePosition = -10.0;
             /*
              * public static final double kSetpointL1 = -1;
              * public static final double kSetpointL2 = -10;
