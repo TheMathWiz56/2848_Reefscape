@@ -83,7 +83,7 @@ public class RobotContainer {
 
     //public final Lights lights = new Lights();
     public final Arm arm = new Arm();
-    //public final Ascender ascender = new Ascender();
+    public final Ascender ascender = new Ascender();
     //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
     public final Pincer pincer = null; //new Pincer();
@@ -110,6 +110,7 @@ public class RobotContainer {
         private final Command reefAlgaeLowCMD = commandFactory.reefAlgaeLow();
         private final Command netCMD = commandFactory.net();
         private final Command processorCMD = commandFactory.processor();
+        private final Command groundAlgaeCMD = commandFactory.groundAlgae();
         
 
     /* Path follower */
@@ -152,12 +153,16 @@ public class RobotContainer {
 
 
 
-       /*
-        //scoreReefTrigger.onTrue(commandFactory.scoreL(pad.getReefL(),pad.getReef()));
-        pad.button(1).onTrue(scorelL4CMD);
+       
+         pad.button(1).onTrue(scorelL4CMD);
         pad.button(2).onTrue(scorelL3CMD);
         pad.button(3).onTrue(scorelL2CMD);
         pad.button(4).onTrue(scorelL1CMD);
+        
+        pad.button(5).onTrue(scorerL4CMD);
+        pad.button(6).onTrue(scorerL3CMD);
+        pad.button(7).onTrue(scorerL2CMD);
+        pad.button(8).onTrue(scorerL1CMD);
 
         //pad.button(20).onTrue(feedCMD);
         pad.button(22).onTrue(stowCMD);
@@ -173,8 +178,7 @@ public class RobotContainer {
         pad.button(26).onTrue(reefAlgaeLowCMD);
         pad.button(29).onTrue(feedCMD);
         pad.button(30).onTrue(groundAlgaeCMD);
-
-         */
+         
 
         //scoreReefTrigger.onTrue(scoreLCMD);
         //feedTrigger.onTrue(feedCMD);

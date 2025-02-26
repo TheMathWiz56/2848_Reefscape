@@ -33,7 +33,7 @@ public class Pincer extends SubsystemBase{
     private final SparkMax intakeMotor = new SparkMax(kIntakeMotorId, MotorType.kBrushless);
     private final SparkMaxConfig intakeConfig  = new SparkMaxConfig();
 
-    //private final LaserCan laserCan = new LaserCan(kLaserCanId);
+    private final LaserCan laserCan = new LaserCan(kLaserCanId);
 
     // Use current sensing for the algae
 
@@ -120,7 +120,7 @@ public class Pincer extends SubsystemBase{
     }
 
     public boolean hasCoral(){
-        return true;
+        return laserCan.getMeasurement().distance_mm < 100;
     }
 
     /**@return True if the intake photogate is tripped

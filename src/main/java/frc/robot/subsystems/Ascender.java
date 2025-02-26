@@ -40,6 +40,11 @@ public class Ascender extends SubsystemBase {
         //return run(() -> { if(ascenderLimitSwitch.get()) ascenderMotor.set(input.getAsDouble() * 0.5); else ascenderMotor.set(0); });
         return run(() -> ascenderMotor.set(input.getAsDouble() * 0.5));
     }
+
+    //TODO: fill in start and stop
+    public void start(){
+
+    }
     public void stop() {
         
     }
