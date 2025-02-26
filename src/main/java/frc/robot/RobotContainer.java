@@ -164,16 +164,9 @@ public class RobotContainer {
         //reefAlgaeHighTrigger.onTrue(reefAlgaeHighCMD);
         //reefAlgaeLowTrigger.onTrue(reefAlgaeLowCMD);
 
-        
-
-
-
         driverJoystick.a().onTrue(elevator.goToFeed());
         driverJoystick.b().onTrue(elevator.goToL3());
-        driverJoystick.x().onTrue(elevator.goToStow(() -> arm.facingDownwards()));
-
-
-        
+        driverJoystick.x().onTrue(elevator.goToStow(() -> arm.facingDownwards()));        
 
        //driverJoystick.a().onTrue(elevator.goToL(Constants.reef.reefLs.lL3,1));
        //driverJoystick.b().onTrue(arm.pivotToL2L3());

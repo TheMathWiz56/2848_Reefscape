@@ -369,8 +369,8 @@ public class Arm extends SubsystemBase {
 
     // True if pivot is facing down or moving to face down
     public boolean facingDownwards() {
-        return pivotAbsEncoder.getPosition() >= kFacingUpPosition || pivotSetpoint >= kFacingUpPosition
-                || goalState.position >= kFacingUpPosition;
+        return pivotAbsEncoder.getPosition() >= kFacingDownPosition || pivotSetpoint >= kFacingDownPosition
+                || goalState.position >= kFacingDownPosition;
     }
 
 }
