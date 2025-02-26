@@ -5,6 +5,9 @@ import static frc.robot.Constants.PincerConstants.*;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import au.grapplerobotics.LaserCan;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -30,9 +33,7 @@ public class Pincer extends SubsystemBase{
     private final SparkMax intakeMotor = new SparkMax(kIntakeMotorId, MotorType.kBrushless);
     private final SparkMaxConfig intakeConfig  = new SparkMaxConfig();
 
-    // Photogate (beam break), may have another
-    //private final DigitalInput intakePhotogate = new DigitalInput(kIntakePhotogateId);
-    // private final DigitalInput intakePhotogate = new DigitalInput(kIntakePhotogateId);
+    //private final LaserCan laserCan = new LaserCan(kLaserCanId);
 
     // Use current sensing for the algae
 

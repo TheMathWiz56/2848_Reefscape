@@ -249,9 +249,7 @@ public final class Constants {
         // ID
         public static final int kPincerMotorId = 22; // Claw
         public static final int kIntakeMotorId = 23; // Wheels
-        // public static final int kIntakePhotogateId = 0;
-
-       
+        public static final int kLaserCanId = 0;
 
             public static final HashMap<robotStates.pincerStates, Double> setPoints = new HashMap<>() {
                 {
