@@ -97,7 +97,7 @@ public class RobotContainer {
     //public final Ascender ascender = new Ascender();
     //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
-    //public final Pincer pincer = null; //new Pincer();
+    public final Pincer pincer = null; //new Pincer();
  
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         public final Elevator elevator = new Elevator();
@@ -149,6 +149,35 @@ public class RobotContainer {
        arm.setDefaultCommand(arm.holdState());
 
 
+       // Default commands
+       elevator.setDefaultCommand(elevator.holdState());
+       arm.setDefaultCommand(arm.holdState());
+
+
+
+       /*
+        //scoreReefTrigger.onTrue(commandFactory.scoreL(pad.getReefL(),pad.getReef()));
+        pad.button(1).onTrue(scorelL4CMD);
+        pad.button(2).onTrue(scorelL3CMD);
+        pad.button(3).onTrue(scorelL2CMD);
+        pad.button(4).onTrue(scorelL1CMD);
+
+        //pad.button(20).onTrue(feedCMD);
+        pad.button(22).onTrue(stowCMD);
+        pad.button(20).onTrue(new InstantCommand(() -> pincer.intake(),pincer));
+        pad.button(21).onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
+        pad.button(28).onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
+        pad.button(19).onTrue(new InstantCommand(()-> CommandScheduler.getInstance().cancel(netCMD,processorCMD,elevator.getCurrentCommand())));
+        pad.button(27).onTrue(netCMD);
+        //TODO: add climb stop and do it in code
+        pad.button(23).onTrue(new InstantCommand(() ->ascender.start(),ascender));
+        pad.button(24).onTrue(new InstantCommand(() ->ascender.stop(),ascender));
+        pad.button(25).onTrue(reefAlgaeHighCMD);
+        pad.button(26).onTrue(reefAlgaeLowCMD);
+        pad.button(29).onTrue(feedCMD);
+        pad.button(30).onTrue(groundAlgaeCMD);
+
+         */
 
         //scoreReefTrigger.onTrue(scoreLCMD);
         //feedTrigger.onTrue(feedCMD);
@@ -266,7 +295,7 @@ public class RobotContainer {
     public Command climbSequence() {
             return elevator.goToStow().andThen(ascender.climb()); // climb() returns null for now
     }
-
+*/
     public Command scoreLevel(int level) {
             Command armPivot, elevatorPivot;
             switch (level) {
@@ -299,13 +328,13 @@ public class RobotContainer {
                             armPivot,
                             pincer.exhaust(),
                             Commands.waitSeconds(0.3),
-                            pincer.stopIntake(),
-                            elevator.goToStow(),
-                            arm.stowPivot()
+                            pincer.stopIntake()//,
+                            //elevator.goToStow(),
+                            //arm.stowPivot()
 
             );
     }
-
+    /*
     public Command processor() {
             return new SequentialCommandGroup(
                             groundAlgaePivot.goToScore(),

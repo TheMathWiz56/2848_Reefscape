@@ -173,6 +173,10 @@ public class Elevator extends SubsystemBase {
   // reefData.update(reef,L,false));
   // }
 
+  public Command goToL1() {
+    return goToPosition(kSetpointL1, "L1");
+  }
+
   public Command goToL2() {
     return goToPosition(kSetpointL2, "L2");
   }
