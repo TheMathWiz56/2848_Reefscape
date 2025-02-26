@@ -207,7 +207,7 @@ public final class Constants {
         public static final FeedbackSensor kPivotMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
         public static final double kPivotMotorMinOutput = -1;
         public static final double kPivotMotorMaxOutput = 1;
-        public static final double kPivotMotorAbsoluteEncoderOffset = 0.3179724;
+        public static final double kPivotMotorAbsoluteEncoderOffset = 0.0252905;
         public static final boolean kPivotMotorAbsoluteEncoderZeroCentered = true;
         public static double kPivotMotorks = 0.0;
         public static double kPivotMotorkg = -0.33;
@@ -222,6 +222,7 @@ public final class Constants {
         public static final double kPivotMaxAngle = 0.25;
         // Position Conversion Factor for soft limits. Should be in units of Arm
         // rotations, ie. the gear ratio.
+
         // Periodically set the current position to the absolute position since it uses
         // the internal encoder
         public static final double kPositionConversionFactor = 1;

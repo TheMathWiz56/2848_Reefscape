@@ -93,8 +93,8 @@ public class RobotContainer {
     // Subsystem Instances
 
     //public final Lights lights = new Lights();
-    //public final Arm arm = new Arm();
-    public final Ascender ascender = new Ascender();
+    public final Arm arm = new Arm();
+    //public final Ascender ascender = new Ascender();
     //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
     //public final Pincer pincer = null; //new Pincer();
@@ -261,8 +261,10 @@ public class RobotContainer {
         // ???
         // drivetrain.registerTelemetry(logger::telemeterize);
 
-        ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
-        
+        //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
+        arm.setDefaultCommand(arm.holdState());
+        operatorJoystick.a().onTrue(arm.pivotToFeed());
+        operatorJoystick.b().onTrue(arm.pivotToL2L3());
     }
 
     // Command compositions (there is probably a better place for these)
