@@ -3,8 +3,12 @@ package frc.robot.commands;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Lights;
+
+import java.util.function.Supplier;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
@@ -27,17 +31,144 @@ public class CommandFactory {
         this.lights = lights;
     }
 /*Moves only elevator, pivot and intake to score on reef */
-    public Command scoreL(Constants.reef.reefLs L,int reef){
-        return elevator.goToL(L,reef)
+    // public Command scoreL(Supplier<Constants.reef.reefLs> L,Supplier<Integer> reef){
+    //     return elevator.goToL(L.get(),reef.get())
+    //         // .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+    //         //     Constants.reef.reefToState.get(L.get())
+    //         // )))
+    //         .andThen(pincer.exhaust())
+    //          .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+    //         .finallyDo((interrupted) ->{
+    //               pincer.stopIntake().schedule();
+    //             });
+    // }
+    // public Command scoreL(Constants.reef.reefLs L,int reef){
+    //     return elevator.goToL(L,reef)
+    //         // .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+    //         //     Constants.reef.reefToState.get(L)
+    //         // )))
+    //         .andThen(pincer.exhaust())
+    //          .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+    //         .finallyDo((interrupted) ->{
+    //               pincer.stopIntake().schedule();
+    //             });
+    // }
+
+    public Command scorelL1(){
+        return elevator.goToL(Constants.reef.reefLs.lL1)
+        .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+            Constants.reef.reefToState.get(
+                Constants.reef.reefLs.lL1
+            )
+        )))
+        .andThen(pincer.exhaust())
+         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+        .finallyDo((interrupted) ->{
+              pincer.stopIntake().schedule();
+            });
+    }
+    public Command scorelL2(){
+        return elevator.goToL(Constants.reef.reefLs.lL2)
+        .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+            Constants.reef.reefToState.get(
+                Constants.reef.reefLs.lL2
+            )
+        )))
+        .andThen(pincer.exhaust())
+         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+        .finallyDo((interrupted) ->{
+              pincer.stopIntake().schedule();
+            });
+    }
+    public Command scorelL3(){
+        return elevator.goToL(Constants.reef.reefLs.lL3)
+        .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+            Constants.reef.reefToState.get(
+                Constants.reef.reefLs.lL3
+            )
+        )))
+        .andThen(pincer.exhaust())
+         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+        .finallyDo((interrupted) ->{
+              pincer.stopIntake().schedule();
+            });
+        }
+        public Command scorelL4(){
+            return elevator.goToL(Constants.reef.reefLs.lL4)
             .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
-                Constants.reef.reefToState.get(L)
+                Constants.reef.reefToState.get(
+                    Constants.reef.reefLs.lL4
+                )
             )))
             .andThen(pincer.exhaust())
              .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
             .finallyDo((interrupted) ->{
                   pincer.stopIntake().schedule();
                 });
-    }
+            }
+            public Command scorerL1(){
+                return elevator.goToL(Constants.reef.reefLs.rL1)
+                .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+                    Constants.reef.reefToState.get(
+                        Constants.reef.reefLs.rL1
+                    )
+                )))
+                .andThen(pincer.exhaust())
+                 .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+                .finallyDo((interrupted) ->{
+                      pincer.stopIntake().schedule();
+                    });
+            }
+            public Command scorerL2(){
+                return elevator.goToL(Constants.reef.reefLs.rL2)
+                .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+                    Constants.reef.reefToState.get(
+                        Constants.reef.reefLs.rL2
+                    )
+                )))
+                .andThen(pincer.exhaust())
+                 .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+                .finallyDo((interrupted) ->{
+                      pincer.stopIntake().schedule();
+                    });
+            }
+            public Command scorerL3(){
+                return elevator.goToL(Constants.reef.reefLs.rL3)
+                .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+                    Constants.reef.reefToState.get(
+                        Constants.reef.reefLs.rL3
+                    )
+                )))
+                .andThen(pincer.exhaust())
+                 .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+                .finallyDo((interrupted) ->{
+                      pincer.stopIntake().schedule();
+                    });
+                }
+                public Command scorerL4(){
+                    return elevator.goToL(Constants.reef.reefLs.rL4)
+                    .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+                        Constants.reef.reefToState.get(
+                            Constants.reef.reefLs.rL4
+                        )
+                    )))
+                    .andThen(pincer.exhaust())
+                     .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+                    .finallyDo((interrupted) ->{
+                          pincer.stopIntake().schedule();
+                        });
+                    }
+    // public Command scoreL(){
+    //     return new WaitUntilCommand(()->elevator.isDone())
+    //         .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+    //             Constants.reef.reefToState.get(L.get())
+    //         )))
+    //         .andThen(pincer.exhaust())
+    //          .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+    //         .finallyDo((interrupted) ->{
+    //               pincer.stopIntake().schedule();
+    //             });
+    // }
 /*stows. Uses sensor to determine which stow */
     public Command stow(){
         if(pincer.hasCoral()){
@@ -91,6 +222,14 @@ public class CommandFactory {
     public Command processor(){
         return elevator.goToProcessor()
         .andThen(arm.goToProcessor())
+        .andThen(pincer.exhaust())
+        .finallyDo((interrupted) ->{
+            pincer.stopIntake().schedule();
+          });
+    }
+    public Command groundAlgae(){
+        return elevator.goToGroundAlgae()
+        .andThen(arm.goToGroundAlgae())
         .andThen(pincer.exhaust())
         .finallyDo((interrupted) ->{
             pincer.stopIntake().schedule();

@@ -64,25 +64,14 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
-    
+    private final CommandGenericHID pad = new CommandGenericHID(1);
     private final CommandXboxController operatorJoystick = new CommandXboxController(2);
 
     //private final Pincer pincer = new Pincer();
 
-    private final keypad pad = new keypad();
+    
 
-    private final Trigger scoreReefTrigger = new Trigger(() ->pad.scoreReef());
-    private final Trigger feedTrigger = new Trigger(() -> pad.feed());
-    private final Trigger stowTrigger = new Trigger(() -> pad.stow());
-    private final Trigger intakeStartTrigger = new Trigger(() -> pad.intakeStart());
-    private final Trigger intakeStopTrigger = new Trigger(() -> pad.intakeStop());
-    private final Trigger intakeExhaustTrigger = new Trigger(() -> pad.intakeExhaust());
-    private final Trigger cancelScoreTrigger = new Trigger(() -> pad.cancelScore());
-    private final Trigger netTrigger = new Trigger(() -> pad.net());
-    private final Trigger climbTrigger = new Trigger(() -> pad.climb());
-    private final Trigger climbCancelTrigger = new Trigger(() ->pad.climbCancel());
-    private final Trigger reefAlgaeHighTrigger = new Trigger(()-> pad.reefAlgaeHigh());
-    private final Trigger reefAlgaeLowTrigger = new Trigger(() ->pad.reefAlgaeLow());
+    
 //intakes, climb, cancel
    
 
@@ -101,19 +90,27 @@ public class RobotContainer {
  
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         public final Elevator elevator = new Elevator();
-        //public final Lights lights = null;//new Lights();
+        public final Lights lights = null;//new Lights();
 
-        //public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
+        public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
 
-        //private final Command scoreLCMD = commandFactory.scoreL(pad.getReefL(), pad.getReef());
-        // private final Command stowCMD = commandFactory.stow();
-        // private final Command feedCMD = commandFactory.feed();
-        // private final Command reefAlgaeHighCMD = commandFactory.reefAlgaeHigh();
-        // private final Command reefAlgaeLowCMD = commandFactory.reefAlgaeLow();
-        // private final Command netCMD = commandFactory.net();
-        // private final Command processorCMD = commandFactory.processor();
-        // private final Command scoreL3CMD = commandFactory.scoreL(Constants.reef.reefLs.lL3,1);
-        // private final Command scoreL2CMD = commandFactory.scoreL(Constants.reef.reefLs.lL2,1);
+        private final Command scorerL1CMD = commandFactory.scorerL1();
+        private final Command scorerL2CMD = commandFactory.scorerL2();
+        private final Command scorerL3CMD = commandFactory.scorerL3();
+        private final Command scorerL4CMD = commandFactory.scorerL4();
+
+        private final Command scorelL1CMD = commandFactory.scorelL1();
+        private final Command scorelL2CMD = commandFactory.scorelL2();
+        private final Command scorelL3CMD = commandFactory.scorelL3();
+        private final Command scorelL4CMD = commandFactory.scorelL4();
+
+        private final Command stowCMD = commandFactory.stow();
+        private final Command feedCMD = commandFactory.feed();
+        private final Command reefAlgaeHighCMD = commandFactory.reefAlgaeHigh();
+        private final Command reefAlgaeLowCMD = commandFactory.reefAlgaeLow();
+        private final Command netCMD = commandFactory.net();
+        private final Command processorCMD = commandFactory.processor();
+        
 
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;

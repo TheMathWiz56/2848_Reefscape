@@ -176,19 +176,19 @@ public final class Constants {
 
         public static final HashMap<robotStates.pivotElevatorStates, Double> setPoints = new HashMap<>() {
             {
-                put(robotStates.pivotElevatorStates.ALGAESTOW, 0.0);
-                put(robotStates.pivotElevatorStates.CORALSTOW, 0.243);
-                put(robotStates.pivotElevatorStates.EMPTYSTOW, -.249);
-                put(robotStates.pivotElevatorStates.L1, 0.0);
-                put(robotStates.pivotElevatorStates.L2, 0.109);
-                put(robotStates.pivotElevatorStates.L3, 0.109);
-                put(robotStates.pivotElevatorStates.L4, 0.139);
-                put(robotStates.pivotElevatorStates.FEED, -.104);
-                put(robotStates.pivotElevatorStates.REEFALGAEHIGH, 0.0);
-                put(robotStates.pivotElevatorStates.REEFALGAELOW, 0.0);
-                put(robotStates.pivotElevatorStates.GROUNDALGAE, 0.0);
-                put(robotStates.pivotElevatorStates.PROCESSOR, 0.0);
-                put(robotStates.pivotElevatorStates.NET, 0.0);
+                put(robotStates.pivotElevatorStates.ALGAESTOW, kStowAlgaePosition);
+                put(robotStates.pivotElevatorStates.CORALSTOW, kStowCoralPosition);
+                put(robotStates.pivotElevatorStates.EMPTYSTOW, kStowPosition);
+                put(robotStates.pivotElevatorStates.L1, kL1Position);
+                put(robotStates.pivotElevatorStates.L2, kL2L3Position);
+                put(robotStates.pivotElevatorStates.L3, kL2L3Position);
+                put(robotStates.pivotElevatorStates.L4, kL4Position);
+                put(robotStates.pivotElevatorStates.FEED, kFeedPosition);
+                put(robotStates.pivotElevatorStates.REEFALGAEHIGH, kReefAlgaeHighPosition);
+                put(robotStates.pivotElevatorStates.REEFALGAELOW, kReefAlgaeLowPosition);
+                put(robotStates.pivotElevatorStates.GROUNDALGAE, kGroundAlgaePosition);
+                put(robotStates.pivotElevatorStates.PROCESSOR, kProcessorPosition);
+                put(robotStates.pivotElevatorStates.NET, kNetPosition);
             }
         };
 
@@ -230,10 +230,16 @@ public final class Constants {
         // Setpoints (rotations)
         public static final double kStowPosition = -0.249;
         public static final double kStowCoralPosition = 0.243;
+        public static final double kStowAlgaePosition = 0.0;
         public static final double kFeedPosition = -0.104;
         public static final double kL1Position = 0.0; // Placeholder
         public static final double kL2L3Position = 0.109;
         public static final double kL4Position = 0.139;
+        public static final double kReefAlgaeHighPosition = 0.0;
+        public static final double kReefAlgaeLowPosition = 0.0;
+        public static final double kGroundAlgaePosition = 0.0;
+        public static final double kProcessorPosition = 0.0;
+        public static final double kNetPosition = -.1;
 
         public static final double kFacingUpPosition = -0.2;
         public static final double kFacingDownPosition = 0.1;
@@ -320,19 +326,19 @@ public final class Constants {
 
             public static final HashMap<robotStates.pivotElevatorStates, Double> setPoints = new HashMap<>() {
                 {
-                    put(robotStates.pivotElevatorStates.ALGAESTOW, 0.0);
-                    put(robotStates.pivotElevatorStates.CORALSTOW, -6.130);
-                    put(robotStates.pivotElevatorStates.EMPTYSTOW, -.065);
-                    put(robotStates.pivotElevatorStates.L1, -7.5); // placeholder
-                    put(robotStates.pivotElevatorStates.L2, -17.145);
-                    put(robotStates.pivotElevatorStates.L3, -26.844);
-                    put(robotStates.pivotElevatorStates.L4, -41.289);
-                    put(robotStates.pivotElevatorStates.FEED, -12.312);
-                    put(robotStates.pivotElevatorStates.REEFALGAEHIGH, 0.0);
-                    put(robotStates.pivotElevatorStates.REEFALGAELOW, 0.0);
-                    put(robotStates.pivotElevatorStates.GROUNDALGAE, 0.0);
-                    put(robotStates.pivotElevatorStates.PROCESSOR, 0.0);
-                    put(robotStates.pivotElevatorStates.NET, 0.0);
+                    put(robotStates.pivotElevatorStates.ALGAESTOW, kSetpointStowAlgae);
+                    put(robotStates.pivotElevatorStates.CORALSTOW, kSetpointStowCoral);//-6.130);
+                    put(robotStates.pivotElevatorStates.EMPTYSTOW, -kSetpointStow);
+                    put(robotStates.pivotElevatorStates.L1, kSetpointL1); // placeholder
+                    put(robotStates.pivotElevatorStates.L2, kSetpointL2);
+                    put(robotStates.pivotElevatorStates.L3, kSetpointL3);
+                    put(robotStates.pivotElevatorStates.L4, kSetpointL4);
+                    put(robotStates.pivotElevatorStates.FEED, kSetpointFeed);
+                    put(robotStates.pivotElevatorStates.REEFALGAEHIGH, kSetpointReefAlgaeHigh);
+                    put(robotStates.pivotElevatorStates.REEFALGAELOW, kSetpointReefAlgaeLow);
+                    put(robotStates.pivotElevatorStates.GROUNDALGAE, kSetpointGroundAlgae);
+                    put(robotStates.pivotElevatorStates.PROCESSOR, kSetpointProcessor);
+                    put(robotStates.pivotElevatorStates.NET, kSetpointNet);
                 }
             };
 
@@ -366,7 +372,13 @@ public final class Constants {
             public static final double kSetpointL4 = -41.289;
             public static final double kSetpointFeed = -12.312;
             public static final double kSetpointStow = -0.065;
-            public static final double kSetpointStowCoral = -6.130;
+            public static final double kSetpointStowCoral = -12.0;//-6.130;
+            public static final double kSetpointStowAlgae = -5.0;
+            public static final double kSetpointReefAlgaeHigh = -20.0;
+            public static final double kSetpointReefAlgaeLow = -15.0;
+            public static final double kSetpointGroundAlgae = -5.0;
+            public static final double kSetpointProcessor = -5.0;
+            public static final double kSetpointNet = -40.0;
 
             // These are guesses
             public static final double kUpwardsSafePosition = -30.0;

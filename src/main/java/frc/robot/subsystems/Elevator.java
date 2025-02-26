@@ -247,6 +247,26 @@ public class Elevator extends SubsystemBase {
             Constants.robotStates.pivotElevatorStates.REEFALGAELOW));
   }
 
+  public Command goToGroundAlgae(){
+    return goToPosition(
+      Constants.ElevatorConstants.setPoints.get(
+        Constants.robotStates.pivotElevatorStates.GROUNDALGAE
+      )
+    );
+  }
+  public Command goToL(Constants.reef.reefLs L){
+    return this.startRun(() -> {
+      setElevatorSetpoint(Constants.ElevatorConstants.setPoints.get(Constants.reef.reefToState.get(L)));
+      //setElevatorSetpoint(-26);
+    }, () -> {
+      currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
+      setMotorOutput(currentState.position, currentState.velocity);
+    }).until(() -> elevatorTrapezoidProfile.isFinished(timer.get()))
+        .withName("Go to " + L.name());
+    //return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()-> reefData.update(reef,L,false));
+  }
+
+
   public void zeroEncoder() {
     elevatorMotor.setPosition(0.0);
     isZeroed = true;
