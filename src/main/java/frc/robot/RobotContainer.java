@@ -94,7 +94,7 @@ public class RobotContainer {
 
     //public final Lights lights = new Lights();
     //public final Arm arm = new Arm();
-    public final Ascender ascender = null;//new Ascender();
+    public final Ascender ascender = new Ascender();
     //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
     //public final Pincer pincer = null; //new Pincer();
@@ -266,7 +266,7 @@ public class RobotContainer {
     }
 
     // Command compositions (there is probably a better place for these)
-    // Missing: limelight functionality
+    // Missing: limelighfunctionality
 /*
     public Command climbSequence() {
             return elevator.goToStow().andThen(ascender.climb()); // climb() returns null for now
