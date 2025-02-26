@@ -318,7 +318,7 @@ public final class Constants {
             public static final HashMap<robotStates.pivotElevatorStates, Double> setPoints = new HashMap<>() {
                 {
                     put(robotStates.pivotElevatorStates.ALGAESTOW, -2.0);
-                    put(robotStates.pivotElevatorStates.CORALSTOW, -6.130);
+                    put(robotStates.pivotElevatorStates.CORALSTOW, -12.0);//-6.130);
                     put(robotStates.pivotElevatorStates.EMPTYSTOW, -.065);
                     put(robotStates.pivotElevatorStates.L1, -7.5); // placeholder
                     put(robotStates.pivotElevatorStates.L2, -17.145);
