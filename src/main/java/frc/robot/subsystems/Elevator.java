@@ -218,6 +218,13 @@ public class Elevator extends SubsystemBase {
       )
     );
   }
+  public Command goToGroundAlgae(){
+    return goToPosition(
+      Constants.ElevatorConstants.setPoints.get(
+        Constants.robotStates.pivotElevatorStates.GROUNDALGAE
+      )
+    );
+  }
 
   public void zeroEncoder() {
     elevatorMotor.setPosition(0.0);
@@ -241,6 +248,19 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command goToL(Constants.reef.reefLs L,int reef){
+    lastL = L;
+    return this.startRun(() -> {
+      setElevatorSetpoint(Constants.ElevatorConstants.setPoints.get(Constants.reef.reefToState.get(L)));
+      //setElevatorSetpoint(-26);
+    }, () -> {
+      currentState = elevatorTrapezoidProfile.calculate(timer.get(), startState, goalState);
+      setMotorOutput(currentState.position, currentState.velocity);
+    }).until(() -> elevatorTrapezoidProfile.isFinished(timer.get()))
+        .withName("Go to " + L.name())
+        .finallyDo(()-> commandRan++);
+    //return this.startEnd(()->goToPosition(kSetpointL1, "L1"),()-> reefData.update(reef,L,false));
+  }
+  public Command goToL(Constants.reef.reefLs L){
     lastL = L;
     return this.startRun(() -> {
       setElevatorSetpoint(Constants.ElevatorConstants.setPoints.get(Constants.reef.reefToState.get(L)));

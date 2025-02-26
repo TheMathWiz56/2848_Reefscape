@@ -64,6 +64,8 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driverJoystick = new CommandXboxController(0);
+
+    private final CommandGenericHID pad = new CommandGenericHID(1);
     
     private final CommandXboxController operatorJoystick = new CommandXboxController(2);
 
@@ -80,36 +82,45 @@ public class RobotContainer {
     // Subsystem Instances
 
     //public final Lights lights = new Lights();
-    public final Arm arm = null;//new Arm();
-    public final Ascender ascender = null;//new Ascender();
+    public final Arm arm = new Arm();
+    public final Ascender ascender = new Ascender();
     //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
     public final Pincer pincer = new Pincer();
-    private final keypad pad = new keypad();
+    
  
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         public final Elevator elevator = new Elevator();
-        public final Lights lights = null;//new Lights();
+        public final Lights lights = new Lights();
         
 
         //TODO: if whativer i just did doesnt work. pass elevator and scoreL to pad and schedule from there
 
         public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
 
-        private final Command scoreLCMD = commandFactory.scoreL(()->pad.getReefL(),()->pad.getReef());
-       
-        // private final Command stowCMD = commandFactory.stow();
-        // private final Command feedCMD = commandFactory.feed();
-        // private final Command reefAlgaeHighCMD = commandFactory.reefAlgaeHigh();
-        // private final Command reefAlgaeLowCMD = commandFactory.reefAlgaeLow();
-        // private final Command netCMD = commandFactory.net();
-        // private final Command processorCMD = commandFactory.processor();
-        //private final Command scoreL3CMD = commandFactory.scoreL(Constants.reef.reefLs.lL3,1);
-        //private final Command scoreL2CMD = commandFactory.scoreL(Constants.reef.reefLs.lL2,1);
+        private final Command scorerL1CMD = commandFactory.scorerL1();
+        private final Command scorerL2CMD = commandFactory.scorerL2();
+        private final Command scorerL3CMD = commandFactory.scorerL3();
+        private final Command scorerL4CMD = commandFactory.scorerL4();
+
+        private final Command scorelL1CMD = commandFactory.scorelL1();
+        private final Command scorelL2CMD = commandFactory.scorelL2();
+        private final Command scorelL3CMD = commandFactory.scorelL3();
+        private final Command scorelL4CMD = commandFactory.scorelL4();
+
 
        
+        private final Command stowCMD = commandFactory.stow();
+        private final Command feedCMD = commandFactory.feed();
+        private final Command groundAlgaeCMD = commandFactory.groundAlgae();
+        private final Command reefAlgaeHighCMD = commandFactory.reefAlgaeHigh();
+        private final Command reefAlgaeLowCMD = commandFactory.reefAlgaeLow();
+        private final Command netCMD = commandFactory.net();
+        private final Command processorCMD = commandFactory.processor();
+       
+       
 
-    private final Trigger scoreReefTrigger = new Trigger(() ->pad.scoreReef());
+//    private final Trigger scoreReefTrigger = new Trigger(() ->pad.scoreReef());
 //     private final Trigger feedTrigger = new Trigger(() -> pad.feed());
 //     private final Trigger stowTrigger = new Trigger(() -> pad.stow());
 //     private final Trigger intakeStartTrigger = new Trigger(() -> pad.intakeStart());
@@ -146,31 +157,44 @@ public class RobotContainer {
         Timer.delay(3);
         
 
-        CommandScheduler.getInstance().registerSubsystem(pad);
-        //CommandScheduler.getInstance().registerSubsystem(arm);
+        
+        CommandScheduler.getInstance().registerSubsystem(arm);
         
     }
 
     private void configureBindings() {
         // Default commands
        elevator.setDefaultCommand(elevator.holdState());
-       //arm.setDefaultCommand(arm.holdState());
+       arm.setDefaultCommand(arm.holdState());
 
 
 
-        scoreReefTrigger.onTrue(commandFactory.scoreL(pad.getReefL(),pad.getReef()));
-        //feedTrigger.onTrue(feedCMD);
-        //stowTrigger.onTrue(stowCMD);
-        //intakeStartTrigger.onTrue(new InstantCommand(() -> pincer.intake(),pincer));
-        //intakeStopTrigger.onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
-        //intakeExhaustTrigger.onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
-        //cancelScoreTrigger.onTrue(new InstantCommand(()-> CommandScheduler.getInstance().cancel(netCMD,processorCMD,scoreLCMD)));
-        //netTrigger.onTrue(netCMD);
+        //scoreReefTrigger.onTrue(commandFactory.scoreL(pad.getReefL(),pad.getReef()));
+        pad.button(1).onTrue(scorelL4CMD);
+        pad.button(2).onTrue(scorelL3CMD);
+        pad.button(3).onTrue(scorelL2CMD);
+        pad.button(4).onTrue(scorelL1CMD);
+        
+        pad.button(5).onTrue(scorerL4CMD);
+        pad.button(6).onTrue(scorerL3CMD);
+        pad.button(7).onTrue(scorerL2CMD);
+        pad.button(8).onTrue(scorerL1CMD);
+
+        //pad.button(20).onTrue(feedCMD);
+        pad.button(22).onTrue(stowCMD);
+        pad.button(20).onTrue(new InstantCommand(() -> pincer.intake(),pincer));
+        pad.button(21).onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
+        pad.button(28).onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
+        pad.button(19).onTrue(new InstantCommand(()-> CommandScheduler.getInstance().cancel(netCMD,processorCMD,elevator.getCurrentCommand())));
+        pad.button(27).onTrue(netCMD);
         //TODO: add climb stop and do it in code
-        //climbTrigger.onTrue(new InstantCommand(() ->ascender.climb()),ascender);
-        //climbCancelTrigger.onTrue(new InstantCommand() ->ascender.st)
-        //reefAlgaeHighTrigger.onTrue(reefAlgaeHighCMD);
-        //reefAlgaeLowTrigger.onTrue(reefAlgaeLowCMD);
+        pad.button(23).onTrue(new InstantCommand(() ->ascender.start(),ascender));
+        pad.button(24).onTrue(new InstantCommand(() ->ascender.stop(),ascender));
+        pad.button(25).onTrue(reefAlgaeHighCMD);
+        pad.button(26).onTrue(reefAlgaeLowCMD);
+        pad.button(29).onTrue(feedCMD);
+        pad.button(30).onTrue(groundAlgaeCMD);
+
 
         
 

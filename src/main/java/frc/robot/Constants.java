@@ -179,7 +179,7 @@ public final class Constants {
                 put(robotStates.pivotElevatorStates.ALGAESTOW, 0.0);
                 put(robotStates.pivotElevatorStates.CORALSTOW, 0.243);
                 put(robotStates.pivotElevatorStates.EMPTYSTOW, -.249);
-                put(robotStates.pivotElevatorStates.L1, 0.0);
+                put(robotStates.pivotElevatorStates.L1, 0.05);
                 put(robotStates.pivotElevatorStates.L2, 0.109);
                 put(robotStates.pivotElevatorStates.L3, 0.109);
                 put(robotStates.pivotElevatorStates.L4, 0.139);
@@ -207,7 +207,7 @@ public final class Constants {
         public static final FeedbackSensor kPivotMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
         public static final double kPivotMotorMinOutput = -1;
         public static final double kPivotMotorMaxOutput = 1;
-        public static final double kPivotMotorAbsoluteEncoderOffset = 0.3179724;
+        public static final double kPivotMotorAbsoluteEncoderOffset = 0.0252905;
         public static final boolean kPivotMotorAbsoluteEncoderZeroCentered = true;
         public static double kPivotMotorks = 0.0;
         public static double kPivotMotorkg = -0.33;
@@ -317,7 +317,7 @@ public final class Constants {
 
             public static final HashMap<robotStates.pivotElevatorStates, Double> setPoints = new HashMap<>() {
                 {
-                    put(robotStates.pivotElevatorStates.ALGAESTOW, 0.0);
+                    put(robotStates.pivotElevatorStates.ALGAESTOW, -2.0);
                     put(robotStates.pivotElevatorStates.CORALSTOW, -6.130);
                     put(robotStates.pivotElevatorStates.EMPTYSTOW, -.065);
                     put(robotStates.pivotElevatorStates.L1, -7.5); // placeholder
@@ -327,8 +327,8 @@ public final class Constants {
                     put(robotStates.pivotElevatorStates.FEED, -12.312);
                     put(robotStates.pivotElevatorStates.REEFALGAEHIGH, 0.0);
                     put(robotStates.pivotElevatorStates.REEFALGAELOW, 0.0);
-                    put(robotStates.pivotElevatorStates.GROUNDALGAE, 0.0);
-                    put(robotStates.pivotElevatorStates.PROCESSOR, 0.0);
+                    put(robotStates.pivotElevatorStates.GROUNDALGAE, -2.0);
+                    put(robotStates.pivotElevatorStates.PROCESSOR, -2.0);
                     put(robotStates.pivotElevatorStates.NET, 0.0);
                 }
             };

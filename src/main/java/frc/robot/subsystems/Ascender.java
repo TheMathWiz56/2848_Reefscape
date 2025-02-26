@@ -41,6 +41,9 @@ public class Ascender extends SubsystemBase {
     public void stop() {
         
     }
+    public void start(){
+        
+    }
 
     @Override
     public void periodic() {

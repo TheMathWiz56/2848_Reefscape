@@ -338,6 +338,11 @@ public class Arm extends SubsystemBase {
           Constants.robotStates.pivotElevatorStates.PROCESSOR
         ));
       }
+      public Command goToGroundAlgae(){
+        return pivotToSetpoint(Constants.ArmConstants.setPoints.get(
+            Constants.robotStates.pivotElevatorStates.GROUNDALGAE
+        ));
+      }
 
     /**
      * Sets the PID setpoint with the calculated feedforward to the pivot motor
