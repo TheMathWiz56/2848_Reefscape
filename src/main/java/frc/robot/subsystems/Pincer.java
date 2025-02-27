@@ -95,6 +95,8 @@ public class Pincer extends SubsystemBase{
         builder.addDoubleProperty("Pincer kP", () -> kPincerP, value -> { kPincerP = value; pincerPIDUpdated = true;});
         builder.addDoubleProperty("Pincer kI", () -> kPincerI, value -> { kPincerI = value; pincerPIDUpdated = true;});
         builder.addDoubleProperty("Pincer kD", () -> kPincerD, value -> { kPincerD = value; pincerPIDUpdated = true;});
+
+        builder.addBooleanProperty("has coral",()->hasCoral(),null);
     }
 
     @Override
@@ -120,7 +122,7 @@ public class Pincer extends SubsystemBase{
     }
 
     public boolean hasCoral(){
-        return laserCan.getMeasurement().distance_mm < 100;
+        return laserCan.getMeasurement().distance_mm < 25;
     }
 
     /**@return True if the intake photogate is tripped

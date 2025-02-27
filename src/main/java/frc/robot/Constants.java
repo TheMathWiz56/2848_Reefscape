@@ -228,7 +228,7 @@ public final class Constants {
         public static final double kPositionConversionFactor = 1;
 
         // Setpoints (rotations)
-        public static final double kStowPosition = -0.249;
+        public static final double kStowPosition = -0.220;
         public static final double kStowCoralPosition = 0.243;
         public static final double kStowAlgaePosition = 0.0;
         public static final double kFeedPosition = -0.104;
@@ -260,7 +260,7 @@ public final class Constants {
         // ID
         public static final int kPincerMotorId = 22; // Claw
         public static final int kIntakeMotorId = 23; // Wheels
-        public static final int kLaserCanId = 0;
+        public static final int kLaserCanId = 10;
 
             public static final HashMap<robotStates.pincerStates, Double> setPoints = new HashMap<>() {
                 {

@@ -7,6 +7,7 @@ import frc.robot.subsystems.Lights;
 import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
@@ -172,25 +173,30 @@ public class CommandFactory {
 /*stows. Uses sensor to determine which stow */
     public Command stow(){
         if(pincer.hasCoral()){
-            return arm.coralStow()
+            return new InstantCommand(()->pincer.stopIntake(),pincer)
+            .andThen(arm.coralStow())
             .andThen(elevator.coralStow()
             );
         }
         if(pincer.hasAlgae()){
-            return arm.algaeStow()
+            return new InstantCommand(()->pincer.stopIntake(),pincer)
+            .andThen(arm.algaeStow())
             .andThen(elevator.algaeStow());
         }
-        return arm.emptyStow()
-            .andThen(elevator.emptyStow());
+        return new InstantCommand(()->pincer.stopIntake(),pincer)
+        .andThen(arm.emptyStow())
+        .andThen(elevator.emptyStow());
 
     }
     /*move claw, pivot, elevator to intake */
     public Command feed(){
-        return pincer.pincerFunnel()
-        .andThen(elevator.goToFeed())
-        .andThen(arm.pivotToFeed())
-        .andThen(pincer.intake())
-        .until(()->pincer.hasCoral());
+        return //pincer.pincerFunnel()
+        elevator.goToFeed()
+         .andThen(arm.pivotToFeed())
+         .andThen(pincer.intake())
+         .andThen(pincer.holdState())
+         .until(()->pincer.hasCoral())
+         .finallyDo(()-> pincer.stopIntake().schedule());
     }
 
     public Command reefAlgaeHigh(){

@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 
+import au.grapplerobotics.CanBridge;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,6 +24,8 @@ public class Robot extends TimedRobot {
     //SignalLogger.setPath("/media/sda1/");
     //DataLogManager.start(); // /logs folder in sda1   // Logs Network Table information
     //SignalLogger.start();
+
+    CanBridge.runTCP();
   }
 
   @Override

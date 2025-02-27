@@ -86,7 +86,7 @@ public class RobotContainer {
     public final Ascender ascender = new Ascender();
     //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
-    public final Pincer pincer = null; //new Pincer();
+    public final Pincer pincer = new Pincer();
  
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         public final Elevator elevator = new Elevator();
@@ -145,12 +145,7 @@ public class RobotContainer {
         // Default commands
        elevator.setDefaultCommand(elevator.holdState());
        arm.setDefaultCommand(arm.holdState());
-
-
-       // Default commands
-       elevator.setDefaultCommand(elevator.holdState());
-       arm.setDefaultCommand(arm.holdState());
-
+       pincer.setDefaultCommand(pincer.holdState());
 
 
        
