@@ -14,6 +14,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -34,6 +35,7 @@ public class Pincer extends SubsystemBase{
     private final SparkMaxConfig intakeConfig  = new SparkMaxConfig();
 
     private final LaserCan laserCan = new LaserCan(kLaserCanId);
+    private final Debouncer laserCanDebouncer = new Debouncer(0.1);
 
     // Use current sensing for the algae
 
@@ -122,7 +124,7 @@ public class Pincer extends SubsystemBase{
     }
 
     public boolean hasCoral(){
-        return laserCan.getMeasurement().distance_mm < 25;
+        return laserCanDebouncer.calculate(laserCan.getMeasurement().distance_mm < 25);
     }
 
     /**@return True if the intake photogate is tripped
