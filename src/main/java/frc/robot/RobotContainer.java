@@ -147,9 +147,13 @@ public class RobotContainer {
        arm.setDefaultCommand(arm.holdState());
        pincer.setDefaultCommand(pincer.holdState());
 
+       operatorJoystick.a().onTrue(scorelL1CMD);
+       operatorJoystick.b().onTrue(scorelL2CMD);
+       operatorJoystick.x().onTrue(scorelL3CMD);
+       operatorJoystick.y().onTrue(scorelL4CMD);
 
-       
-         pad.button(1).onTrue(scorelL4CMD);
+        /*
+        pad.button(1).onTrue(scorelL4CMD);
         pad.button(2).onTrue(scorelL3CMD);
         pad.button(3).onTrue(scorelL2CMD);
         pad.button(4).onTrue(scorelL1CMD);
@@ -158,7 +162,7 @@ public class RobotContainer {
         pad.button(6).onTrue(scorerL3CMD);
         pad.button(7).onTrue(scorerL2CMD);
         pad.button(8).onTrue(scorerL1CMD);
-
+ 
         //pad.button(20).onTrue(feedCMD);
         pad.button(22).onTrue(stowCMD);
         pad.button(20).onTrue(new InstantCommand(() -> pincer.intake(),pincer));
@@ -173,65 +177,12 @@ public class RobotContainer {
         pad.button(26).onTrue(reefAlgaeLowCMD);
         pad.button(29).onTrue(feedCMD);
         pad.button(30).onTrue(groundAlgaeCMD);
-         
-
-        //scoreReefTrigger.onTrue(scoreLCMD);
-        //feedTrigger.onTrue(feedCMD);
-        //stowTrigger.onTrue(stowCMD);
-        //intakeStartTrigger.onTrue(new InstantCommand(() -> pincer.intake(),pincer));
-        //intakeStopTrigger.onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
-        //intakeExhaustTrigger.onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
-        //cancelScoreTrigger.onTrue(new InstantCommand(()-> CommandScheduler.getInstance().cancel(netCMD,processorCMD,scoreLCMD)));
-        //netTrigger.onTrue(netCMD);
-        //TODO: add climb stop and do it in code
-        //climbTrigger.onTrue(new InstantCommand(() ->ascender.climb()),ascender);
-        //climbCancelTrigger.onTrue(new InstantCommand() ->ascender.st)
-        //reefAlgaeHighTrigger.onTrue(reefAlgaeHighCMD);
-        //reefAlgaeLowTrigger.onTrue(reefAlgaeLowCMD);
-
-        driverJoystick.a().onTrue(elevator.goToFeed());
-        driverJoystick.b().onTrue(elevator.goToL3());
-        driverJoystick.x().onTrue(elevator.goToStow(() -> arm.facingDownwards()));        
-
-       //driverJoystick.a().onTrue(elevator.goToL(Constants.reef.reefLs.lL3,1));
-       //driverJoystick.b().onTrue(arm.pivotToL2L3());
-       //driverJoystick.a().onTrue(arm.pivotToFeed());
-       //driverJoystick.a().onTrue(scoreL2CMD);
-       //driverJoystick.b().onTrue(scoreL3CMD);
-
-       /*
-
-
-         */
-
-        // driverJoystick.b().onTrue(elevator.goToL2());
-        // driverJoystick.x().onTrue(elevator.goToL3());
-        // driverJoystick.y().onTrue(elevator.goToL4());
-
-        // operatorJoystick.a().onTrue(arm.pivotToFeed());
-
-
-        /*
-        arm.setDefaultCommand(arm.holdState());
-        pincer.setDefaultCommand(pincer.holdState());
-
-        // Manual cycling testing code
-
-        driverJoystick.a().onTrue(elevator.goToL3());
-        driverJoystick.b().onTrue(arm.pivotToL2L3());
-
-        driverJoystick.x().onTrue(elevator.goToFeed());
-        driverJoystick.y().onTrue(arm.pivotToFeed());
-
+        */
         
-        driverJoystick.leftBumper().onTrue(pincer.intake());
-        driverJoystick.leftBumper().onFalse(pincer.stopIntake());
-        driverJoystick.rightBumper().onTrue(pincer.exhaust());
-        driverJoystick.rightBumper().onFalse(pincer.stopIntake());
 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        */
+        
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive
@@ -279,19 +230,11 @@ public class RobotContainer {
         // ???
         // drivetrain.registerTelemetry(logger::telemeterize);
 
-        //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
-        arm.setDefaultCommand(arm.holdState());
-        operatorJoystick.a().onTrue(arm.pivotToFeed());
-        operatorJoystick.b().onTrue(arm.pivotToL2L3());
     }
 
     // Command compositions (there is probably a better place for these)
     // Missing: limelighfunctionality
-/*
-    public Command climbSequence() {
-            return elevator.goToStow().andThen(ascender.climb()); // climb() returns null for now
-    }
-*/
+
     public Command scoreLevel(int level) {
             Command armPivot, elevatorPivot;
             switch (level) {
