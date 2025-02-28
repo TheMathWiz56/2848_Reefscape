@@ -82,17 +82,18 @@ public class RobotContainer {
     // Subsystem Instances
 
     //public final Lights lights = new Lights();
-    //public final Arm arm = new Arm();
+        public final Arm arm = new Arm();
     //public final Ascender ascender = new Ascender();
     //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
     public final Pincer pincer = new Pincer();
  
-        //public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-        //public final Elevator elevator = new Elevator();
-        //public final Lights lights = null;//new Lights();
+        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+        public final Elevator elevator = new Elevator();
+        public final Lights lights = null;//new Lights();
 
-        /* 
+        
+        
         public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
 
         private final Command scorerL1CMD = commandFactory.scorerL1();
@@ -112,7 +113,7 @@ public class RobotContainer {
         private final Command netCMD = commandFactory.net();
         private final Command processorCMD = commandFactory.processor();
         private final Command groundAlgaeCMD = commandFactory.groundAlgae();
-        */
+        
 
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;
@@ -154,10 +155,6 @@ public class RobotContainer {
 
        pincer.setDefaultCommand(pincer.holdState());
 
-        driverJoystick.a().onTrue(pincer.stowPincer());
-        driverJoystick.b().onTrue(pincer.pincerAlgae());
-        driverJoystick.x().onTrue(pincer.pincerFunnel());
-
        /*
        operatorJoystick.a().onTrue(scorelL1CMD);
        operatorJoystick.b().onTrue(scorelL2CMD);
@@ -165,7 +162,7 @@ public class RobotContainer {
        operatorJoystick.y().onTrue(scorelL4CMD);
          */
 
-        /*
+        
         pad.button(1).onTrue(scorelL4CMD);
         pad.button(2).onTrue(scorelL3CMD);
         pad.button(3).onTrue(scorelL2CMD);
@@ -177,25 +174,24 @@ public class RobotContainer {
         pad.button(8).onTrue(scorerL1CMD);
  
         //pad.button(20).onTrue(feedCMD);
-        pad.button(22).onTrue(stowCMD);
+        pad.button(22).onTrue(commandFactory.stow());
         pad.button(20).onTrue(new InstantCommand(() -> pincer.intake(),pincer));
         pad.button(21).onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
         pad.button(28).onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
         pad.button(19).onTrue(new InstantCommand(()-> CommandScheduler.getInstance().cancel(netCMD,processorCMD,elevator.getCurrentCommand())));
         pad.button(27).onTrue(netCMD);
         //TODO: add climb stop and do it in code
-        pad.button(23).onTrue(new InstantCommand(() ->ascender.start(),ascender));
-        pad.button(24).onTrue(new InstantCommand(() ->ascender.stop(),ascender));
+        //pad.button(23).onTrue(new InstantCommand(() ->ascender.start(),ascender));
+        //pad.button(24).onTrue(new InstantCommand(() ->ascender.stop(),ascender));
         pad.button(25).onTrue(reefAlgaeHighCMD);
         pad.button(26).onTrue(reefAlgaeLowCMD);
         pad.button(29).onTrue(feedCMD);
         pad.button(30).onTrue(groundAlgaeCMD);
-        */
+        
         
 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        /*
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive
@@ -206,7 +202,6 @@ public class RobotContainer {
                         .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with
                                                                                           // negative X (left)
                 ));
-         */       
         // Other drivebase code, could be used later?
 /*
         driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
@@ -236,7 +231,7 @@ public class RobotContainer {
         driverJoystick.start().and(driverJoystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 */
         // reset the field-centric heading on back press
-        //driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         // reset the pose
         //driverJoystick.rightBumper().onTrue(drivetrain.runOnce(() -> drivetrain.resetToVision(true)));
 

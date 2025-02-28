@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 
 public class Pincer extends SubsystemBase{
 
+    
     private final SparkMax pincerMotor = new SparkMax(kPincerMotorId, MotorType.kBrushless);
     private final AbsoluteEncoder pincerAbsEncoder;
     private final SparkMaxConfig pincerConfig  = new SparkMaxConfig();
@@ -80,7 +81,7 @@ public class Pincer extends SubsystemBase{
         //Constants.kMotorBurnDelay();
         //pincerSetpoint = kStowPosition;
 
-        pincerController.setReference(kStowPosition, SparkMax.ControlType.kPosition);
+        //pincerController.setReference(kStowPosition, SparkMax.ControlType.kPosition);
     }
 
     @Override
@@ -149,7 +150,7 @@ public class Pincer extends SubsystemBase{
     // }
 
     public void setPincerOutput(double setpoint) {
-        pincerController.setReference(setpoint, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0);        
+        //pincerController.setReference(setpoint, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0);        
     } 
 
     /** Moves the pincer to the specified setpoint
@@ -215,9 +216,12 @@ public class Pincer extends SubsystemBase{
     }
     
     public Command holdState(){
+        /*
         return run(() -> {
             setPincerOutput(pincerSetpoint);
-        }).withName("Hold State");
+        }).withName("Hold State"); */
+
+        return Commands.idle(this);
     }
 
 }
