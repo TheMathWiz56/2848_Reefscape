@@ -202,9 +202,16 @@ public class RobotContainer {
                                                                                                          // negative Y
                                                                                                          // (forward)
                         .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * (elevator.isHigh().getAsBoolean() ? 0.5 : 1.0)) // Drive left with negative X (left)
-                        .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with
+                        .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate * (elevator.isHigh().getAsBoolean() ? 0.5 : 1.0)) // Drive counterclockwise with
                                                                                           // negative X (left)
                 ));
+
+        // Small adjustments code
+        driverJoystick.pov(90)
+                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.2))); //right
+        driverJoystick.pov(270)
+                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(0.2))); //left
+
         // Other drivebase code, could be used later?
 /*
         driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
