@@ -4,8 +4,10 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Lights;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -171,14 +173,14 @@ public class CommandFactory {
     //             });
     // }
 /*stows. Uses sensor to determine which stow */
-    public Command stow(){
-        if(pincer.hasCoral()){
+    public Command stow(BooleanSupplier hasCoral, BooleanSupplier hasAlgae){
+        if(hasCoral.getAsBoolean()){
             return new InstantCommand(()->pincer.stopIntake(),pincer)
             .andThen(arm.coralStow())
             .andThen(elevator.coralStow()
             );
         }
-        if(pincer.hasAlgae()){
+        if(hasAlgae.getAsBoolean()){
             return new InstantCommand(()->pincer.stopIntake(),pincer)
             .andThen(arm.algaeStow())
             .andThen(elevator.algaeStow());
@@ -244,8 +246,6 @@ public class CommandFactory {
 
     
     
-    
-
 
 
 }

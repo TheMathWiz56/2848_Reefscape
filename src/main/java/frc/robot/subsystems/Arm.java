@@ -150,19 +150,6 @@ public class Arm extends SubsystemBase {
             pivotPIDUpdated = true;
         });
 
-        builder.addDoubleProperty("Pivot kP", () -> kPivotP, value -> {
-            kPivotP = value;
-            pivotPIDUpdated = true;
-        });
-        builder.addDoubleProperty("Pivot kI", () -> kPivotI, value -> {
-            kPivotI = value;
-            pivotPIDUpdated = true;
-        });
-        builder.addDoubleProperty("Pivot kD", () -> kPivotD, value -> {
-            kPivotD = value;
-            pivotPIDUpdated = true;
-        });
-
         builder.addDoubleProperty("Pivot Feedforward Output", () -> FF, null);
     }
 

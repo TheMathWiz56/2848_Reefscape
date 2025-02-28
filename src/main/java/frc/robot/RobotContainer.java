@@ -8,6 +8,9 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -106,7 +109,7 @@ public class RobotContainer {
         private final Command scorelL3CMD = commandFactory.scorelL3();
         private final Command scorelL4CMD = commandFactory.scorelL4();
 
-        private final Command stowCMD = commandFactory.stow();
+        //private final Command stowCMD = commandFactory.stow();
         private final Command feedCMD = commandFactory.feed();
         private final Command reefAlgaeHighCMD = commandFactory.reefAlgaeHigh();
         private final Command reefAlgaeLowCMD = commandFactory.reefAlgaeLow();
@@ -148,9 +151,9 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Default commands
-       //elevator.setDefaultCommand(elevator.holdState());
-       //arm.setDefaultCommand(arm.holdState());
-       //pincer.setDefaultCommand(pincer.holdState());
+       elevator.setDefaultCommand(elevator.holdState());
+       arm.setDefaultCommand(arm.holdState());
+       pincer.setDefaultCommand(pincer.holdState());
        //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
 
        pincer.setDefaultCommand(pincer.holdState());
@@ -174,7 +177,9 @@ public class RobotContainer {
         pad.button(8).onTrue(scorerL1CMD);
  
         //pad.button(20).onTrue(feedCMD);
-        pad.button(22).onTrue(commandFactory.stow());
+        pad.button(22).and(() -> pincer.hasCoral()).onTrue(commandFactory.stow(() -> true, () -> false));
+        pad.button(22).and(() -> pincer.hasAlgae()).onTrue(commandFactory.stow(() -> false, () -> true));
+        pad.button(22).and(() -> (!pincer.hasCoral()) && (!pincer.hasAlgae())).onTrue(commandFactory.stow(() -> false, () -> false));
         pad.button(20).onTrue(new InstantCommand(() -> pincer.intake(),pincer));
         pad.button(21).onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
         pad.button(28).onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
@@ -187,18 +192,16 @@ public class RobotContainer {
         pad.button(26).onTrue(reefAlgaeLowCMD);
         pad.button(29).onTrue(feedCMD);
         pad.button(30).onTrue(groundAlgaeCMD);
-        
-        
 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive
+                drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed * (elevator.isHigh().getAsBoolean() ? 0.5 : 1.0)) // Drive
                                                                                                          // forward with
                                                                                                          // negative Y
                                                                                                          // (forward)
-                        .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                        .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * (elevator.isHigh().getAsBoolean() ? 0.5 : 1.0)) // Drive left with negative X (left)
                         .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with
                                                                                           // negative X (left)
                 ));
@@ -298,5 +301,9 @@ public class RobotContainer {
         /* Run the path selected from the auto chooser */
         //return autoChooser.getSelected();
         return null;
+    }
+
+    public void setMaxSpeed(double metersPerSecond) {
+        MaxSpeed = metersPerSecond;
     }
 }

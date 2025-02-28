@@ -394,4 +394,8 @@ public class Elevator extends SubsystemBase {
 
   }
 
+  public BooleanSupplier isHigh() {
+    return () -> elevatorMotor.getPosition().getValueAsDouble() < -20;
+  }
+
 }
