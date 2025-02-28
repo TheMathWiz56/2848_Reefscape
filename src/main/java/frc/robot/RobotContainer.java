@@ -127,6 +127,9 @@ public class RobotContainer {
 
         reefData.reset();
 
+        CommandScheduler.getInstance().registerSubsystem(pincer);
+        
+
         
 
         
@@ -148,6 +151,8 @@ public class RobotContainer {
        //arm.setDefaultCommand(arm.holdState());
        //pincer.setDefaultCommand(pincer.holdState());
        //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
+
+       pincer.setDefaultCommand(pincer.holdState());
 
         driverJoystick.a().onTrue(pincer.stowPincer());
         driverJoystick.b().onTrue(pincer.pincerAlgae());

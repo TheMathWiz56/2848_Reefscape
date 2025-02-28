@@ -11,6 +11,7 @@ import au.grapplerobotics.LaserCan;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -36,6 +37,8 @@ public class Pincer extends SubsystemBase{
 
     private final LaserCan laserCan = new LaserCan(kLaserCanId);
     private final Debouncer laserCanDebouncer = new Debouncer(0.1);
+
+    public double pincerSetpoint = kStowPosition;
 
     // Use current sensing for the algae
 
@@ -75,6 +78,9 @@ public class Pincer extends SubsystemBase{
         //Constants.kMotorBurnDelay();
         intakeMotor.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         //Constants.kMotorBurnDelay();
+        //pincerSetpoint = kStowPosition;
+
+        pincerController.setReference(kStowPosition, SparkMax.ControlType.kPosition);
     }
 
     @Override
@@ -93,17 +99,18 @@ public class Pincer extends SubsystemBase{
         builder.addDoubleProperty("Intake Motor Temperature", () -> intakeMotor.getMotorTemperature(), null);
         builder.addDoubleProperty("Intake Motor Output Current", () -> intakeMotor.getOutputCurrent(), null);
 
+        builder.addDoubleProperty("Pincer Setpoint", () -> pincerSetpoint, null);
+
         // PID Tuning
         builder.addDoubleProperty("Pincer kP", () -> kPincerP, value -> { kPincerP = value; pincerPIDUpdated = true;});
         builder.addDoubleProperty("Pincer kI", () -> kPincerI, value -> { kPincerI = value; pincerPIDUpdated = true;});
         builder.addDoubleProperty("Pincer kD", () -> kPincerD, value -> { kPincerD = value; pincerPIDUpdated = true;});
 
-        builder.addBooleanProperty("has coral",()->hasCoral(),null);
+        builder.addBooleanProperty("has coral",() -> hasCoral(),null);
     }
 
     @Override
     public void periodic(){
-
 
         if (pincerPIDUpdated){
             pincerConfig
@@ -115,6 +122,10 @@ public class Pincer extends SubsystemBase{
         
 
         SmartDashboard.putData(this);
+    }
+
+    public double getPincerSetpoint(){
+        return pincerSetpoint;
     }
 
     /**@return True if the current draw on the intake motor is over the algae threshold
@@ -137,12 +148,16 @@ public class Pincer extends SubsystemBase{
     //     return intakePhotogate.get();
     // }
 
+    public void setPincerOutput(double setpoint) {
+        pincerController.setReference(setpoint, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0);        
+    } 
+
     /** Moves the pincer to the specified setpoint
      * @param setpoint The desired position for the pincer
      * @return Command
      */
     private Command pincerToSetpoint(double setpoint) {
-        return runOnce(() -> pincerController.setReference(setpoint, SparkMax.ControlType.kPosition));
+        return runOnce(() -> pincerSetpoint = setpoint);
     }
 
     /** Moves the pincer to the algae-grabbing position
@@ -200,7 +215,9 @@ public class Pincer extends SubsystemBase{
     }
     
     public Command holdState(){
-        return Commands.idle(this);
+        return run(() -> {
+            setPincerOutput(pincerSetpoint);
+        }).withName("Hold State");
     }
 
 }
