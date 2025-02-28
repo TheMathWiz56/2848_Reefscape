@@ -306,9 +306,9 @@ public final class Constants {
             public static final double kPositionConversionFactor = 1.0;
 
             // Pincer Setpoints
-            public static final double kStowPosition = 0.0;
-            public static final double kFunnelPosition = 0.0;
-            public static final double kAlgaePosition = 0.0;
+            public static final double kStowPosition = 0.266;
+            public static final double kFunnelPosition = 0.633;
+            public static final double kAlgaePosition = 0.320;
 
             // Intake Setpoints
             public static final double kIntakeSpeed = -0.33;

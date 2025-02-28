@@ -82,16 +82,17 @@ public class RobotContainer {
     // Subsystem Instances
 
     //public final Lights lights = new Lights();
-    public final Arm arm = new Arm();
-    public final Ascender ascender = new Ascender();
+    //public final Arm arm = new Arm();
+    //public final Ascender ascender = new Ascender();
     //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
     //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
     public final Pincer pincer = new Pincer();
  
-        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-        public final Elevator elevator = new Elevator();
-        public final Lights lights = null;//new Lights();
+        //public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+        //public final Elevator elevator = new Elevator();
+        //public final Lights lights = null;//new Lights();
 
+        /* 
         public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
 
         private final Command scorerL1CMD = commandFactory.scorerL1();
@@ -111,7 +112,7 @@ public class RobotContainer {
         private final Command netCMD = commandFactory.net();
         private final Command processorCMD = commandFactory.processor();
         private final Command groundAlgaeCMD = commandFactory.groundAlgae();
-        
+        */
 
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;
@@ -143,14 +144,21 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Default commands
-       elevator.setDefaultCommand(elevator.holdState());
-       arm.setDefaultCommand(arm.holdState());
-       pincer.setDefaultCommand(pincer.holdState());
+       //elevator.setDefaultCommand(elevator.holdState());
+       //arm.setDefaultCommand(arm.holdState());
+       //pincer.setDefaultCommand(pincer.holdState());
+       //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
 
+        driverJoystick.a().onTrue(pincer.stowPincer());
+        driverJoystick.b().onTrue(pincer.pincerAlgae());
+        driverJoystick.x().onTrue(pincer.pincerFunnel());
+
+       /*
        operatorJoystick.a().onTrue(scorelL1CMD);
        operatorJoystick.b().onTrue(scorelL2CMD);
        operatorJoystick.x().onTrue(scorelL3CMD);
        operatorJoystick.y().onTrue(scorelL4CMD);
+         */
 
         /*
         pad.button(1).onTrue(scorelL4CMD);
@@ -182,7 +190,7 @@ public class RobotContainer {
 
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        
+        /*
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed) // Drive
@@ -193,7 +201,7 @@ public class RobotContainer {
                         .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate) // Drive counterclockwise with
                                                                                           // negative X (left)
                 ));
-                 
+         */       
         // Other drivebase code, could be used later?
 /*
         driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
@@ -223,7 +231,7 @@ public class RobotContainer {
         driverJoystick.start().and(driverJoystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 */
         // reset the field-centric heading on back press
-        driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        //driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         // reset the pose
         //driverJoystick.rightBumper().onTrue(drivetrain.runOnce(() -> drivetrain.resetToVision(true)));
 
@@ -235,6 +243,7 @@ public class RobotContainer {
     // Command compositions (there is probably a better place for these)
     // Missing: limelighfunctionality
 
+    /*
     public Command scoreLevel(int level) {
             Command armPivot, elevatorPivot;
             switch (level) {
@@ -272,7 +281,7 @@ public class RobotContainer {
                             //arm.stowPivot()
 
             );
-    }
+    } */
     /*
     public Command processor() {
             return new SequentialCommandGroup(
