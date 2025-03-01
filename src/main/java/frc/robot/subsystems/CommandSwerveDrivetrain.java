@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -22,6 +23,8 @@ import com.pathplanner.lib.path.Waypoint;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -37,9 +40,12 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+
 import frc.robot.LimelightHelpers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
@@ -74,6 +80,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     /** Swerve request to apply during robot-centric path following */
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+
+    /** Swerve request to apply during field-centric PIDpath following */
+    SwerveRequest.FieldCentric pathPIDRequest = new SwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    PIDController pathPIDTranslationController = new PIDController(TunerConstants.pathPID_Translation_P, TunerConstants.pathPID_Translation_I, TunerConstants.pathPID_Translation_D);
+    PIDController pathPIDRotationController = new PIDController(TunerConstants.pathPID_Rotation_P, TunerConstants.pathPID_Rotation_I, TunerConstants.pathPID_Rotation_D);
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -473,5 +485,25 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         SmartDashboard.putNumberArray("Vision Standard Deviations", TunerConstants.visionStandardDeviation.getData());
         SmartDashboard.putString("Limelight Used", limelightUsed);
+    }
+
+    public boolean LLHasTag(){
+        return LimelightHelpers.getTargetCount(limelightUsed) > 0;
+    }
+
+    public Command pathPIDTo(Pose2d pose){
+        pathPIDTranslationController.setSetpoint(kNumConfigAttempts);
+        pathPIDRotationController.setSetpoint(kNumConfigAttempts);
+
+        pathPIDTranslationController.calculate(kNumConfigAttempts);
+        pathPIDRotationController.setSetpoint(kNumConfigAttempts);
+
+        return this.startRun(()->{
+            pathPIDTranslationController.setSetpoint(kNumConfigAttempts);
+            pathPIDRotationController.setSetpoint(kNumConfigAttempts);}, () -> {
+
+            }, () -> {
+                
+            });
     }
 }

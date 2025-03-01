@@ -8,49 +8,30 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.fasterxml.jackson.databind.introspect.AnnotationCollector.OneAnnotation;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
-import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.operatorConstants;
 import frc.robot.commands.CommandFactory;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Ascender;
-import frc.robot.subsystems.Arm;
-import frc.robot.subsystems.Ascender;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.GroundAlgaePivot;
-import frc.robot.subsystems.GroundAlgaeWheels;
 import frc.robot.subsystems.Pincer;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-
 import frc.robot.subsystems.Lights;
-import frc.robot.subsystems.Pincer;
-import frc.robot.subsystems.keypad;
 
 
 public class RobotContainer {
@@ -73,26 +54,12 @@ public class RobotContainer {
     private final CommandGenericHID pad = new CommandGenericHID(1);
     private final CommandXboxController operatorJoystick = new CommandXboxController(2);
 
-    //private final Pincer pincer = new Pincer();
-
-    
-
-    
-//intakes, climb, cancel
-   
-
-    
-
-    
-
     // Subsystem Instances
-
-    //public final Lights lights = new Lights();
         public final Arm arm = new Arm();
-    //public final Ascender ascender = new Ascender();
-    //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
-    //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
-    public final Pincer pincer = new Pincer();
+        //public final Ascender ascender = new Ascender();
+        //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
+        //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
+        public final Pincer pincer = new Pincer();
  
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         public final Elevator elevator = new Elevator();
@@ -119,6 +86,9 @@ public class RobotContainer {
         private final Command netCMD = commandFactory.net();
         private final Command processorCMD = commandFactory.processor();
         private final Command groundAlgaeCMD = commandFactory.groundAlgae();
+
+        // Custom Triggers
+        Trigger LLHasTag = new Trigger(() -> drivetrain.LLHasTag());
         
 
     /* Path follower */
@@ -136,11 +106,6 @@ public class RobotContainer {
 
         CommandScheduler.getInstance().registerSubsystem(pincer);
         
-
-        
-
-        
-
         // Warmup path follower
         PathfindingCommand.warmupCommand().schedule();
         Timer.delay(3);
@@ -150,24 +115,39 @@ public class RobotContainer {
 
         //CommandScheduler.getInstance().registerSubsystem(pad);
         //CommandScheduler.getInstance().registerSubsystem(arm);
+
+        // Vision setup
+        // Configure AprilTag detection
+        if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{6, 7, 8, 9, 10, 11}); // Only track these tag IDs
+        }
+        else if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
+                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{17, 18, 19, 20, 21, 22}); // Only track these tag IDs
+        }
+        else{
+                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22}); // Only track these tag IDs
+        }
+        LimelightHelpers.SetFiducialDownscalingOverride("limelight-front", 2.0f); // Process at half resolution for improved framerate and reduced range
     }
 
     private void configureBindings() {
         // Default commands
-       elevator.setDefaultCommand(elevator.holdState());
-       arm.setDefaultCommand(arm.holdState());
-       pincer.setDefaultCommand(pincer.holdState());
-       //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
-
-       pincer.setDefaultCommand(pincer.holdState());
-
-       /*
-       operatorJoystick.a().onTrue(scorelL1CMD);
-       operatorJoystick.b().onTrue(scorelL2CMD);
-       operatorJoystick.x().onTrue(scorelL3CMD);
-       operatorJoystick.y().onTrue(scorelL4CMD);
-         */
-
+                // Note that X is defined as forward according to WPILib convention,
+                // and Y is defined as to the left according to WPILib convention.
+                drivetrain.setDefaultCommand(
+                        // Drivetrain will execute this command periodically
+                        drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed * (elevator.isHigh().getAsBoolean() ? 0.15 : 1.0)) // Drive
+                                                                                                                // forward with
+                                                                                                                // negative Y
+                                                                                                                // (forward)
+                                .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * (elevator.isHigh().getAsBoolean() ? 0.15 : 1.0)) // Drive left with negative X (left)
+                                .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate * (elevator.isHigh().getAsBoolean() ? 0.15 : 1.0)) // Drive counterclockwise with
+                                                                                                // negative X (left)
+                        ));
+                elevator.setDefaultCommand(elevator.holdState());
+                arm.setDefaultCommand(arm.holdState());
+                pincer.setDefaultCommand(pincer.holdState());
+                //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
         
         pad.button(1).onTrue(scorelL4CMD);
         pad.button(2).onTrue(scorelL3CMD);
@@ -196,18 +176,7 @@ public class RobotContainer {
         pad.button(29).onTrue(feedCMD);
         pad.button(30).onTrue(groundAlgaeCMD);
 
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(
-                // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed * (elevator.isHigh().getAsBoolean() ? 0.15 : 1.0)) // Drive
-                                                                                                         // forward with
-                                                                                                         // negative Y
-                                                                                                         // (forward)
-                        .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * (elevator.isHigh().getAsBoolean() ? 0.15 : 1.0)) // Drive left with negative X (left)
-                        .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate * (elevator.isHigh().getAsBoolean() ? 0.15 : 1.0)) // Drive counterclockwise with
-                                                                                          // negative X (left)
-                ));
+        
 
         // Small adjustments code
         driverJoystick.pov(90)
@@ -224,6 +193,10 @@ public class RobotContainer {
         driverJoystick.leftBumper().whileTrue(pincer.manualIntake());
         driverJoystick.rightBumper().whileTrue(pincer.manualExhaust());
 
+        LLHasTag
+                .onTrue(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 1)))
+                .onFalse(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 0)));
+
         // Other drivebase code, could be used later?
 /*
         driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
@@ -233,127 +206,53 @@ public class RobotContainer {
                                                                                                                 // this
                                                                                                                 // is
                                                                                                                 // useful
-
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        driverJoystick.pov(0)
-                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));
-        driverJoystick.pov(180)
-                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
-
-        /*
-         * Run SysId routines when holding back/start and X/Y.
-         * Note that each routine should be run exactly once in a single log.
-         * Disable for competition
-         */
-        /*
-        driverJoystick.back().and(driverJoystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        driverJoystick.back().and(driverJoystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        driverJoystick.start().and(driverJoystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        driverJoystick.start().and(driverJoystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 */
         // reset the field-centric heading on back press
         driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         // reset the pose
-        //driverJoystick.rightBumper().onTrue(drivetrain.runOnce(() -> drivetrain.resetToVision(true)));
-
-        // ???
-        // drivetrain.registerTelemetry(logger::telemeterize);
+        driverJoystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.resetToVision(true)));
+        // Logging / Telemetry
+        drivetrain.registerTelemetry(logger::telemeterize);
 
 
         // Operator Joystick Bindings
-        //Scoring Commands
-        operatorJoystick.a().onTrue(commandFactory.scorelL1());
-        operatorJoystick.y().onTrue(commandFactory.scorelL2());
-        operatorJoystick.rightBumper().onTrue(commandFactory.scorelL3());
-        operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold)
-                .and(()-> !arm.facingDownwards())
-                        .onTrue(commandFactory.scorelL4(false));
-        operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold)
-                .and(()-> arm.facingDownwards())
-                        .onTrue(commandFactory.scorelL4(true));
-        
-        // Feed Commands
-        operatorJoystick.pov(0).onTrue(commandFactory.feed());
+                //Scoring Commands
+                operatorJoystick.a().onTrue(commandFactory.scorelL1());
+                operatorJoystick.y().onTrue(commandFactory.scorelL2());
+                operatorJoystick.rightBumper().onTrue(commandFactory.scorelL3());
+                operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold)
+                        .and(()-> !arm.facingDownwards())
+                                .onTrue(commandFactory.scorelL4(false));
+                operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold)
+                        .and(()-> arm.facingDownwards())
+                                .onTrue(commandFactory.scorelL4(true));
+                
+                // Feed Commands
+                operatorJoystick.pov(0).onTrue(commandFactory.feed());
 
-        // Stow Commands
-        operatorJoystick.pov(90)
-                .and(elevator.isNearTop())
-                .and(() -> !pincer.hasCoral())
-                .and(() -> !pincer.hasAlgae())
-                        .onTrue(commandFactory.stow(false, false, true, false));
-        operatorJoystick.pov(90)
-                .and(() ->pincer.hasCoral())
-                .and(() -> !elevator.isLow().getAsBoolean())
-                        .onTrue(commandFactory.stow(true, false, false, false));
-        operatorJoystick.pov(90).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
-        operatorJoystick.pov(90)
-                .and(elevator.isLow())
-                .and(() -> pincer.hasCoral())
-                        .onTrue(commandFactory.stow(true, false, false, true));
-        operatorJoystick.pov(90)
-                .and(() -> !elevator.isNearTop().getAsBoolean())
-                .and(() -> !pincer.hasCoral())
-                .and(() -> !pincer.hasAlgae())
-                        .onTrue(commandFactory.stow(false, false, false, false));
-
+                // Stow Commands
+                operatorJoystick.pov(90)
+                        .and(elevator.isNearTop())
+                        .and(() -> !pincer.hasCoral())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(false, false, true, false));
+                operatorJoystick.pov(90)
+                        .and(() ->pincer.hasCoral())
+                        .and(() -> !elevator.isLow().getAsBoolean())
+                                .onTrue(commandFactory.stow(true, false, false, false));
+                operatorJoystick.pov(90).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+                operatorJoystick.pov(90)
+                        .and(elevator.isLow())
+                        .and(() -> pincer.hasCoral())
+                                .onTrue(commandFactory.stow(true, false, false, true));
+                operatorJoystick.pov(90)
+                        .and(() -> !elevator.isNearTop().getAsBoolean())
+                        .and(() -> !pincer.hasCoral())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(false, false, false, false));
 
     }
 
-    // Command compositions (there is probably a better place for these)
-    // Missing: limelighfunctionality
-
-    /*
-    public Command scoreLevel(int level) {
-            Command armPivot, elevatorPivot;
-            switch (level) {
-                    case 1:
-                            armPivot = arm.pivotToL1();
-                            elevatorPivot = elevator.goToL1();
-                            break;
-
-                    case 2:
-                            armPivot = arm.pivotToL2L3();
-                            elevatorPivot = elevator.goToL2();
-                            break;
-
-                    case 3:
-                            armPivot = arm.pivotToL2L3();
-                            elevatorPivot = elevator.goToL3();
-                            break;
-
-                    case 4:
-                            armPivot = arm.pivotToL4();
-                            elevatorPivot = elevator.goToL4();
-                            break;
-
-                    default:
-                            return Commands.none();
-            }
-
-            return new SequentialCommandGroup(
-                            elevatorPivot,
-                            armPivot,
-                            pincer.exhaust(),
-                            Commands.waitSeconds(0.3),
-                            pincer.stopIntake()//,
-                            //elevator.goToStow(),
-                            //arm.stowPivot()
-
-            );
-    } */
-    /*
-    public Command processor() {
-            return new SequentialCommandGroup(
-                            groundAlgaePivot.goToScore(),
-                            groundAlgaeWheels.outtakeAlgae(),
-                            groundAlgaePivot.goToStow());
-    }
-
-    public Command reefAlgae() {
-            return null;
-    }
-  */
     public Command getAutonomousCommand() {
         /* Run the path selected from the auto chooser */
         //return autoChooser.getSelected();

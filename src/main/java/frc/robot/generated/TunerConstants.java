@@ -56,6 +56,18 @@ public class TunerConstants {
         return std;
     }
 
+    public static double pathPID_Translation_P = 0.0;
+    public static double pathPID_Translation_I = 0.0;
+    public static double pathPID_Translation_D = 0.0;
+    public static double pathPID_Translation_maxV = 0.0;
+    public static double pathPID_Translation_MaxAR = 0.0;
+
+    public static double pathPID_Rotation_P = 0.0;
+    public static double pathPID_Rotation_I = 0.0;
+    public static double pathPID_Rotation_D = 0.0;
+    public static double pathPID_Rotation_maxV = 0.0;
+    public static double pathPID_Rotation_MaxAR = 0.0;
+
 // Both sets of gains need to be tuned to your individual robot.
 
     // The steer motor uses any SwerveModule.SteerRequestType control request with the
