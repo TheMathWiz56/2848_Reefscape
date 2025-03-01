@@ -50,9 +50,9 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    private final CommandXboxController driverJoystick = new CommandXboxController(0);
-    private final CommandGenericHID pad = new CommandGenericHID(1);
-    private final CommandXboxController operatorJoystick = new CommandXboxController(2);
+    public final CommandXboxController driverJoystick = new CommandXboxController(0);
+    public final CommandGenericHID pad = new CommandGenericHID(1);
+    public final CommandXboxController operatorJoystick = new CommandXboxController(2);
 
     // Subsystem Instances
         public final Arm arm = new Arm();
@@ -193,6 +193,8 @@ public class RobotContainer {
         driverJoystick.leftBumper().whileTrue(pincer.manualIntake());
         driverJoystick.rightBumper().whileTrue(pincer.manualExhaust());
 
+        // Limelight
+        driverJoystick.start().and(LLHasTag).onTrue(Commands.runOnce(() -> drivetrain.resetToVision(true)));
         LLHasTag
                 .onTrue(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 1)))
                 .onFalse(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 0)));
@@ -262,4 +264,5 @@ public class RobotContainer {
     public void setMaxSpeed(double metersPerSecond) {
         MaxSpeed = metersPerSecond;
     }
+
 }

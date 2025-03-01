@@ -84,8 +84,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /** Swerve request to apply during field-centric PIDpath following */
     SwerveRequest.FieldCentric pathPIDRequest = new SwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    PIDController pathPIDTranslationController = new PIDController(TunerConstants.pathPID_Translation_P, TunerConstants.pathPID_Translation_I, TunerConstants.pathPID_Translation_D);
-    PIDController pathPIDRotationController = new PIDController(TunerConstants.pathPID_Rotation_P, TunerConstants.pathPID_Rotation_I, TunerConstants.pathPID_Rotation_D);
+    ProfiledPIDController pathPIDXController = new ProfiledPIDController(TunerConstants.pathPID_Translation_P, TunerConstants.pathPID_Translation_I, TunerConstants.pathPID_Translation_D, 
+                                                                                    new TrapezoidProfile.Constraints(TunerConstants.pathPID_Translation_maxV, TunerConstants.pathPID_Translation_MaxA));
+    ProfiledPIDController pathPIDYController = new ProfiledPIDController(TunerConstants.pathPID_Translation_P, TunerConstants.pathPID_Translation_I, TunerConstants.pathPID_Translation_D, 
+                                                                                    new TrapezoidProfile.Constraints(TunerConstants.pathPID_Translation_maxV, TunerConstants.pathPID_Translation_MaxA));
+    ProfiledPIDController pathPIDRotationController = new ProfiledPIDController(TunerConstants.pathPID_Rotation_P, TunerConstants.pathPID_Rotation_I, TunerConstants.pathPID_Rotation_D, 
+                                                                                    new TrapezoidProfile.Constraints(TunerConstants.pathPID_Rotation_maxV, TunerConstants.pathPID_Rotation_MaxA));
 
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -316,6 +320,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         
         NamedCommands.registerCommand("Score_L2", new WaitCommand(2)); // Placeholder for now
         NamedCommands.registerCommand("Score_L4", new WaitCommand(2)); // Placeholder for now
+
+        // Configure PID controllers
+        pathPIDXController.setTolerance(TunerConstants.pathPID_Translation_Tol);
+        pathPIDYController.setTolerance(TunerConstants.pathPID_Translation_Tol);
+        pathPIDRotationController.setTolerance(TunerConstants.pathPID_Rotation_Tol);
+        pathPIDRotationController.enableContinuousInput(-180, 180);
     }
 
     // Move to constants or another java file
@@ -350,7 +360,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         // Fused Pose Estimate Telemetry 
         Pose2d currentPose = getState().Pose;
-        m_field.setRobotPose(currentPose);
+        m_field.setRobotPose(new Pose2d(currentPose.getTranslation().getX(), currentPose.getTranslation().getY(), new Rotation2d(currentPose.getRotation().getRadians())));
         Double[] fusedPose = Pose2dToDoubleArray(currentPose);
         SmartDashboard.putData("Field", m_field);
         SmartDashboard.putNumberArray("Fused PoseDBL", fusedPose);
@@ -389,6 +399,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (LLPoseEstimate != null) {
             // needs to be converted to a current time timestamp for it to be combined properly with the odometry pose estimate
             SmartDashboard.putNumber("Odometry Update Timestamp", Utils.fpgaToCurrentTime(LLPoseEstimate.timestampSeconds)); 
+            SmartDashboard.putNumberArray("Incoming Pose Estimate", Pose2dToDoubleArray(LLPoseEstimate.pose));
             addVisionMeasurement(LLPoseEstimate.pose, Utils.fpgaToCurrentTime(LLPoseEstimate.timestampSeconds), TunerConstants.visionStandardDeviation);
         }
     }
@@ -491,19 +502,31 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return LimelightHelpers.getTargetCount(limelightUsed) > 0;
     }
 
+    
     public Command pathPIDTo(Pose2d pose){
-        pathPIDTranslationController.setSetpoint(kNumConfigAttempts);
-        pathPIDRotationController.setSetpoint(kNumConfigAttempts);
-
-        pathPIDTranslationController.calculate(kNumConfigAttempts);
-        pathPIDRotationController.setSetpoint(kNumConfigAttempts);
-
         return this.startRun(()->{
-            pathPIDTranslationController.setSetpoint(kNumConfigAttempts);
-            pathPIDRotationController.setSetpoint(kNumConfigAttempts);}, () -> {
+            this.resetPose(new Pose2d(0, 0, new Rotation2d(0)));
 
+            Pose2d currentPose2d = this.getState().Pose;
+
+            pathPIDXController.reset(currentPose2d.getX());
+            pathPIDYController.reset(currentPose2d.getY());
+            pathPIDRotationController.reset(currentPose2d.getRotation().getDegrees());
+
+            pathPIDXController.setGoal(pose.getX());
+            pathPIDYController.setGoal(pose.getY());
+            pathPIDRotationController.setGoal(pose.getRotation().getDegrees());
+        
             }, () -> {
-                
-            });
+                Pose2d currentPose2d = this.getState().Pose;
+
+                pathPIDRequest
+                    .withVelocityX(pathPIDXController.calculate(currentPose2d.getX()))
+                    .withVelocityY(pathPIDYController.calculate(currentPose2d.getY()))
+                    .withRotationalRate(pathPIDRotationController.calculate(currentPose2d.getRotation().getDegrees()));
+
+                this.applyRequest(() -> pathPIDRequest);
+
+            }).until(() -> pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal());
     }
 }
