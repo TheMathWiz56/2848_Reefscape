@@ -19,6 +19,7 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.cscore.VideoSource.ConnectionStrategy;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.operatorConstants;
 import frc.robot.commands.CommandFactory;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
@@ -107,7 +109,7 @@ public class RobotContainer {
         private final Command scorelL1CMD = commandFactory.scorelL1();
         private final Command scorelL2CMD = commandFactory.scorelL2();
         private final Command scorelL3CMD = commandFactory.scorelL3();
-        private final Command scorelL4CMD = commandFactory.scorelL4();
+        private final Command scorelL4CMD = commandFactory.scorelL4(false);
 
         //private final Command stowCMD = commandFactory.stow();
         private final Command feedCMD = commandFactory.feed();
@@ -177,9 +179,9 @@ public class RobotContainer {
         pad.button(8).onTrue(scorerL1CMD);
  
         //pad.button(20).onTrue(feedCMD);
-        pad.button(22).and(() -> pincer.hasCoral()).onTrue(commandFactory.stow(() -> true, () -> false, elevator.isNearTop()));
-        pad.button(22).and(() -> pincer.hasAlgae()).onTrue(commandFactory.stow(() -> false, () -> true, elevator.isNearTop()));
-        pad.button(22).and(() -> (!pincer.hasCoral()) && (!pincer.hasAlgae())).onTrue(commandFactory.stow(() -> false, () -> false, elevator.isNearTop()));
+        pad.button(22).and(() -> pincer.hasCoral()).onTrue(commandFactory.stow(true, false, elevator.isNearTop().getAsBoolean(), false));
+        pad.button(22).and(() -> pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, elevator.isNearTop().getAsBoolean(), false));
+        pad.button(22).and(() -> (!pincer.hasCoral()) && (!pincer.hasAlgae())).onTrue(commandFactory.stow(false,false, elevator.isNearTop().getAsBoolean(), false));
         pad.button(20).onTrue(new InstantCommand(() -> pincer.intake(),pincer));
         pad.button(21).onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
         pad.button(28).onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
@@ -256,6 +258,40 @@ public class RobotContainer {
 
         // ???
         // drivetrain.registerTelemetry(logger::telemeterize);
+
+
+        // Operator Joystick Bindings
+        operatorJoystick.a().onTrue(commandFactory.scorelL1());
+        operatorJoystick.y().onTrue(commandFactory.scorelL2());
+        operatorJoystick.rightBumper().onTrue(commandFactory.scorelL3());
+        operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold)
+                .and(()-> !arm.facingDownwards())
+                        .onTrue(commandFactory.scorelL4(false));
+        operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold)
+                .and(()-> arm.facingDownwards())
+                        .onTrue(commandFactory.scorelL4(true));
+
+
+        operatorJoystick.pov(90)
+                .and(elevator.isNearTop())
+                .and(() -> !pincer.hasCoral())
+                .and(() -> !pincer.hasAlgae())
+                        .onTrue(commandFactory.stow(false, false, true, false));
+        operatorJoystick.pov(90)
+                .and(() ->pincer.hasCoral())
+                .and(() -> !elevator.isLow().getAsBoolean())
+                        .onTrue(commandFactory.stow(true, false, false, false));
+        operatorJoystick.pov(90).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+        operatorJoystick.pov(90)
+                .and(elevator.isLow())
+                .and(() -> pincer.hasCoral())
+                        .onTrue(commandFactory.stow(true, false, false, true));
+        operatorJoystick.pov(90)
+                .and(() -> !elevator.isNearTop().getAsBoolean())
+                .and(() -> !pincer.hasCoral())
+                .and(() -> !pincer.hasAlgae())
+                        .onTrue(commandFactory.stow(false, false, false, false));
+
 
     }
 

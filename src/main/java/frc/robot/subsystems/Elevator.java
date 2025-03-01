@@ -403,4 +403,8 @@ public class Elevator extends SubsystemBase {
     return () -> elevatorMotor.getPosition().getValueAsDouble() < -35;
   }
 
+  public BooleanSupplier isLow(){
+    return () -> elevatorMotor.getPosition().getValueAsDouble() > -12;
+  }
+
 }

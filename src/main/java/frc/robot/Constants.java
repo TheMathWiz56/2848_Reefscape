@@ -22,6 +22,10 @@ import frc.robot.Util.fieldPoly;
 
 public final class Constants {
 
+    public static final class operatorConstants{
+        public static final double triggerBooleanThreshold = 0.5;
+    }
+
     /**
      * I don't think we need this - the description of the function configureAsync()
      * says it will configure without waiting for a response, so the regular
