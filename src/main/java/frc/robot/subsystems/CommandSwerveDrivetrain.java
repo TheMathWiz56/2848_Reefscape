@@ -502,8 +502,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             pathPIDTranslationController.setSetpoint(kNumConfigAttempts);
             pathPIDRotationController.setSetpoint(kNumConfigAttempts);}, () -> {
 
-            }, () -> {
-                
             });
     }
 }
