@@ -14,6 +14,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -249,6 +251,8 @@ public class RobotContainer {
                 .onTrue(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 1)))
                 .onFalse(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 0)));
 
+        driverJoystick.a().onTrue(drivetrain.pathPIDTo(new Pose2d(0,1, new Rotation2d(0))));
+
         // Other drivebase code, could be used later?
 /*
         driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
@@ -261,8 +265,6 @@ public class RobotContainer {
 */
         // reset the field-centric heading on back press
         driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        // reset the pose
-        driverJoystick.start().onTrue(drivetrain.runOnce(() -> drivetrain.resetToVision(true)));
         // Logging / Telemetry
         drivetrain.registerTelemetry(logger::telemeterize);
 

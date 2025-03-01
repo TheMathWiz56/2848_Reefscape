@@ -32,6 +32,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -364,10 +365,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Double[] fusedPose = Pose2dToDoubleArray(currentPose);
         SmartDashboard.putData("Field", m_field);
         SmartDashboard.putNumberArray("Fused PoseDBL", fusedPose);
-       
-    }
 
-    
+    }
 
 
     // ___________________________________________________ Vision Code ___________________________________________________
@@ -525,7 +524,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     .withVelocityY(pathPIDYController.calculate(currentPose2d.getY()))
                     .withRotationalRate(pathPIDRotationController.calculate(currentPose2d.getRotation().getDegrees()));
 
-                this.applyRequest(() -> pathPIDRequest);
+                this.setControl(pathPIDRequest);
+
+                SmartDashboard.putNumber("X PID Position Error", pathPIDXController.getPositionError());
+                SmartDashboard.putNumber("X PID Velocity Error", pathPIDXController.getVelocityError());
+                SmartDashboard.putNumber("X PID Output", pathPIDXController.calculate(currentPose2d.getX()));
+
+                SmartDashboard.putNumber("Y PID Position Error", pathPIDYController.getPositionError());
+                SmartDashboard.putNumber("Y PID Velocity Error", pathPIDYController.getVelocityError());
+                SmartDashboard.putNumber("Y PID Output", pathPIDYController.calculate(currentPose2d.getY()));
+
+                SmartDashboard.putNumber("Rotation PID Position Error", pathPIDRotationController.getPositionError());
+                SmartDashboard.putNumber("Rotation PID Velocity Error", pathPIDRotationController.getVelocityError());
+                SmartDashboard.putNumber("Rotation PID Output", pathPIDRotationController.calculate(currentPose2d.getRotation().getDegrees()));
 
             }).until(() -> pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal());
     }
