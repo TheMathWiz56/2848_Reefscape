@@ -316,7 +316,7 @@ public final class Constants {
             public static final double kAlgaePosition = 0.320;
 
             // Intake Setpoints
-            public static final double kIntakeSpeed = -0.44;
+            public static final double kIntakeSpeed = -0.6;
             public static final double kExhaustSpeed = 0.44;
         }
 

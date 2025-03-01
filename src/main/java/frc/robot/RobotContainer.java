@@ -12,6 +12,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.fasterxml.jackson.databind.introspect.AnnotationCollector.OneAnnotation;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
@@ -261,6 +262,7 @@ public class RobotContainer {
 
 
         // Operator Joystick Bindings
+        //Scoring Commands
         operatorJoystick.a().onTrue(commandFactory.scorelL1());
         operatorJoystick.y().onTrue(commandFactory.scorelL2());
         operatorJoystick.rightBumper().onTrue(commandFactory.scorelL3());
@@ -270,8 +272,11 @@ public class RobotContainer {
         operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold)
                 .and(()-> arm.facingDownwards())
                         .onTrue(commandFactory.scorelL4(true));
+        
+        // Feed Commands
+        operatorJoystick.pov(0).onTrue(commandFactory.feed());
 
-
+        // Stow Commands
         operatorJoystick.pov(90)
                 .and(elevator.isNearTop())
                 .and(() -> !pincer.hasCoral())
