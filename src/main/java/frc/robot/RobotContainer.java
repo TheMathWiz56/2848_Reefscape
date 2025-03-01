@@ -148,7 +148,7 @@ public class RobotContainer {
                 arm.setDefaultCommand(arm.holdState());
                 pincer.setDefaultCommand(pincer.holdState());
                 //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
-        
+        /*
         pad.button(1).onTrue(scorelL4CMD);
         pad.button(2).onTrue(scorelL3CMD);
         pad.button(3).onTrue(scorelL2CMD);
@@ -158,11 +158,16 @@ public class RobotContainer {
         pad.button(6).onTrue(scorerL3CMD);
         pad.button(7).onTrue(scorerL2CMD);
         pad.button(8).onTrue(scorerL1CMD);
- 
+  
+         */
         //pad.button(20).onTrue(feedCMD);
+
+        /*
         pad.button(22).and(() -> pincer.hasCoral()).onTrue(commandFactory.stow(true, false, elevator.isNearTop().getAsBoolean(), false));
         pad.button(22).and(() -> pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, elevator.isNearTop().getAsBoolean(), false));
         pad.button(22).and(() -> (!pincer.hasCoral()) && (!pincer.hasAlgae())).onTrue(commandFactory.stow(false,false, elevator.isNearTop().getAsBoolean(), false));
+         */
+        
         pad.button(20).onTrue(new InstantCommand(() -> pincer.intake(),pincer));
         pad.button(21).onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
         pad.button(28).onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
@@ -173,10 +178,55 @@ public class RobotContainer {
         //pad.button(24).onTrue(new InstantCommand(() ->ascender.stop(),ascender));
         pad.button(25).onTrue(reefAlgaeHighCMD);
         pad.button(26).onTrue(reefAlgaeLowCMD);
-        pad.button(29).onTrue(feedCMD);
+        //pad.button(29).onTrue(feedCMD);
         pad.button(30).onTrue(groundAlgaeCMD);
 
-        
+        //Keyad commands
+        //Scoring Commands (left)
+        pad.button(4).onTrue(commandFactory.scorelL1());
+        pad.button(3).onTrue(commandFactory.scorelL2());
+        pad.button(2).onTrue(commandFactory.scorelL3());
+        pad.button(1)
+                .and(()-> !arm.facingDownwards())
+                        .onTrue(commandFactory.scorelL4(false));
+        pad.button(1)
+                .and(()-> arm.facingDownwards())
+                        .onTrue(commandFactory.scorelL4(true));
+
+        //Scoring Commands (right)
+        pad.button(8).onTrue(commandFactory.scorelL1());
+        pad.button(7).onTrue(commandFactory.scorelL2());
+        pad.button(6).onTrue(commandFactory.scorelL3());
+        pad.button(5)
+                .and(()-> !arm.facingDownwards())
+                        .onTrue(commandFactory.scorelL4(false));
+        pad.button(5)
+                .and(()-> arm.facingDownwards())
+                        .onTrue(commandFactory.scorelL4(true));                        
+
+        // Feed Commands
+        pad.button(29).onTrue(commandFactory.feed());
+
+                // Stow Commands
+        pad.button(22)
+                .and(elevator.isNearTop())
+                .and(() -> !pincer.hasCoral())
+                .and(() -> !pincer.hasAlgae())
+                        .onTrue(commandFactory.stow(false, false, true, false));
+        pad.button(22)
+                .and(() ->pincer.hasCoral())
+                .and(() -> !elevator.isLow().getAsBoolean())
+                        .onTrue(commandFactory.stow(true, false, false, false));
+        pad.button(22).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+        pad.button(22)
+                .and(elevator.isLow())
+                .and(() -> pincer.hasCoral())
+                        .onTrue(commandFactory.stow(true, false, false, true));
+        pad.button(22)
+                .and(() -> !elevator.isNearTop().getAsBoolean())
+                .and(() -> !pincer.hasCoral())
+                .and(() -> !pincer.hasAlgae())
+                        .onTrue(commandFactory.stow(false, false, false, false));
 
         // Small adjustments code
         driverJoystick.pov(90)
