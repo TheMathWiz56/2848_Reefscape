@@ -238,7 +238,7 @@ public final class Constants {
         public static final double kFeedPosition = -0.104; 
         public static final double kL1Position = 0.0; // Placeholder
         public static final double kL2L3Position = 0.1; //0.109;
-        public static final double kL4Position = 0.15; //0.139;
+        public static final double kL4Position = 0.125; //0.139;
         public static final double kReefAlgaeHighPosition = 0.0;
         public static final double kReefAlgaeLowPosition = 0.0;
         public static final double kGroundAlgaePosition = 0.0;
@@ -317,7 +317,7 @@ public final class Constants {
 
             // Intake Setpoints
             public static final double kIntakeSpeed = -0.6;
-            public static final double kExhaustSpeed = 0.44;
+            public static final double kExhaustSpeed = 0.66;
         }
 
         public static class AscenderConstants {

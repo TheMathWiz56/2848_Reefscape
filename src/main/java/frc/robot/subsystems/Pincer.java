@@ -194,6 +194,14 @@ public class Pincer extends SubsystemBase{
         ));
     }
 
+    public void holdIntake() {
+        if(hasAlgae()) {
+            intakeMotor.set(-0.05);
+        }else{
+            intakeMotor.stopMotor();
+        }
+    }
+
     /** Runs the intake motor at the intake speed
      * @return Command
      */
@@ -209,18 +217,18 @@ public class Pincer extends SubsystemBase{
     }
 
     public Command manualIntake() {
-        return runEnd(() -> intakeMotor.set(kIntakeSpeed), () -> intakeMotor.stopMotor());
+        return runEnd(() -> intakeMotor.set(kIntakeSpeed), () -> holdIntake());
     } 
 
     public Command manualExhaust() {
-        return runEnd(() -> intakeMotor.set(kExhaustSpeed), () -> intakeMotor.stopMotor());
+        return runEnd(() -> intakeMotor.set(kExhaustSpeed), () -> holdIntake());
     } 
 
     /** Stops the intake motor
      * @return Command
      */
     public Command stopIntake() {
-        return runOnce(() -> intakeMotor.stopMotor());
+        return runOnce(() -> holdIntake());
     }
     
     public Command holdState(){
