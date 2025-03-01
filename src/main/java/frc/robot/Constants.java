@@ -282,11 +282,11 @@ public final class Constants {
             // Motor Controller Settings
             public static final boolean kPincerMotorInverted = false;
             public static final IdleMode kPincerMotorIdleMode = IdleMode.kCoast;
-            public static final int kPincerMotorSmartCurrentLimit = 40;
+            public static final int kPincerMotorSmartCurrentLimit = 30;
 
             public static final boolean kIntakeMotorInverted = false;
             public static final IdleMode kIntakeMotorIdleMode = IdleMode.kCoast;
-            public static final int kIntakeMotorSmartCurrentLimit = 40;
+            public static final int kIntakeMotorSmartCurrentLimit = 30;
 
             /** Current Threshold for determining if we have an algae */
             public static final int kIntakeAlgaeCurrentThreshold = 20;
