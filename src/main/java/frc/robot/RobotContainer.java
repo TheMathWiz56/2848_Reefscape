@@ -177,9 +177,9 @@ public class RobotContainer {
         pad.button(8).onTrue(scorerL1CMD);
  
         //pad.button(20).onTrue(feedCMD);
-        pad.button(22).and(() -> pincer.hasCoral()).onTrue(commandFactory.stow(() -> true, () -> false));
-        pad.button(22).and(() -> pincer.hasAlgae()).onTrue(commandFactory.stow(() -> false, () -> true));
-        pad.button(22).and(() -> (!pincer.hasCoral()) && (!pincer.hasAlgae())).onTrue(commandFactory.stow(() -> false, () -> false));
+        pad.button(22).and(() -> pincer.hasCoral()).onTrue(commandFactory.stow(() -> true, () -> false, elevator.isNearTop()));
+        pad.button(22).and(() -> pincer.hasAlgae()).onTrue(commandFactory.stow(() -> false, () -> true, elevator.isNearTop()));
+        pad.button(22).and(() -> (!pincer.hasCoral()) && (!pincer.hasAlgae())).onTrue(commandFactory.stow(() -> false, () -> false, elevator.isNearTop()));
         pad.button(20).onTrue(new InstantCommand(() -> pincer.intake(),pincer));
         pad.button(21).onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
         pad.button(28).onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
@@ -197,12 +197,12 @@ public class RobotContainer {
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed * (elevator.isHigh().getAsBoolean() ? 0.5 : 1.0)) // Drive
+                drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed * (elevator.isHigh().getAsBoolean() ? 0.15 : 1.0)) // Drive
                                                                                                          // forward with
                                                                                                          // negative Y
                                                                                                          // (forward)
-                        .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * (elevator.isHigh().getAsBoolean() ? 0.5 : 1.0)) // Drive left with negative X (left)
-                        .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate * (elevator.isHigh().getAsBoolean() ? 0.5 : 1.0)) // Drive counterclockwise with
+                        .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * (elevator.isHigh().getAsBoolean() ? 0.15 : 1.0)) // Drive left with negative X (left)
+                        .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate * (elevator.isHigh().getAsBoolean() ? 0.15 : 1.0)) // Drive counterclockwise with
                                                                                           // negative X (left)
                 ));
 
@@ -211,6 +211,15 @@ public class RobotContainer {
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.2))); //right
         driverJoystick.pov(270)
                 .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(0.2))); //left
+        driverJoystick.pov(0)
+                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.2).withVelocityY(0)));
+        driverJoystick.pov(180)
+                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.2).withVelocityY(0)));
+
+
+        // Driver joystick manual intake/exhaust wheels
+        driverJoystick.leftBumper().whileTrue(pincer.manualIntake());
+        driverJoystick.rightBumper().whileTrue(pincer.manualExhaust());
 
         // Other drivebase code, could be used later?
 /*

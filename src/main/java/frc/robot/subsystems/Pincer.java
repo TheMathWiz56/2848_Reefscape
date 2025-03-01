@@ -208,6 +208,14 @@ public class Pincer extends SubsystemBase{
         return runOnce(() -> intakeMotor.set(kExhaustSpeed));
     }
 
+    public Command manualIntake() {
+        return runEnd(() -> intakeMotor.set(kIntakeSpeed), () -> intakeMotor.stopMotor());
+    } 
+
+    public Command manualExhaust() {
+        return runEnd(() -> intakeMotor.set(kExhaustSpeed), () -> intakeMotor.stopMotor());
+    } 
+
     /** Stops the intake motor
      * @return Command
      */

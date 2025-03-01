@@ -97,7 +97,10 @@ public class CommandFactory {
             });
         }
         public Command scorelL4(){
-            return elevator.goToL(Constants.reef.reefLs.lL4)
+            // Added transition to avoid ramming into elevator top
+            return elevator.goToL3()
+            .andThen(arm.goStraightOn())
+            .andThen(elevator.goToL(Constants.reef.reefLs.lL4))
             .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
                 Constants.reef.reefToState.get(
                     Constants.reef.reefLs.lL4
@@ -173,22 +176,32 @@ public class CommandFactory {
     //             });
     // }
 /*stows. Uses sensor to determine which stow */
-    public Command stow(BooleanSupplier hasCoral, BooleanSupplier hasAlgae){
+    public Command stow(BooleanSupplier hasCoral, BooleanSupplier hasAlgae, BooleanSupplier isNearTop){
+        Command output;
         if(hasCoral.getAsBoolean()){
-            return new InstantCommand(()->pincer.stopIntake(),pincer)
+            output = new InstantCommand(()->pincer.stopIntake(),pincer)
             .andThen(arm.coralStow())
             .andThen(elevator.coralStow()
             );
         }
         if(hasAlgae.getAsBoolean()){
-            return new InstantCommand(()->pincer.stopIntake(),pincer)
+            output = new InstantCommand(()->pincer.stopIntake(),pincer)
             .andThen(arm.algaeStow())
             .andThen(elevator.algaeStow());
-        }
-        return new InstantCommand(()->pincer.stopIntake(),pincer)
+        }else{
+        output = new InstantCommand(()->pincer.stopIntake(),pincer)
         .andThen(arm.emptyStow())
         .andThen(elevator.emptyStow());
+        }
 
+        if (isNearTop.getAsBoolean()) {
+            return new InstantCommand(() -> pincer.stopIntake(), pincer)
+                .andThen(arm.goStraightOn())
+                .andThen(elevator.goToL3())
+                .andThen(output);
+        }
+
+        return output;
     }
     /*move claw, pivot, elevator to intake */
     public Command feed(){

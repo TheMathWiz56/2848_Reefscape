@@ -29,6 +29,7 @@ import static frc.robot.Constants.PincerConstants.kStowPosition;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 
 public class Elevator extends SubsystemBase {
 
@@ -396,6 +397,10 @@ public class Elevator extends SubsystemBase {
 
   public BooleanSupplier isHigh() {
     return () -> elevatorMotor.getPosition().getValueAsDouble() < -20;
+  }
+
+  public BooleanSupplier isNearTop() {
+    return () -> elevatorMotor.getPosition().getValueAsDouble() < -35;
   }
 
 }

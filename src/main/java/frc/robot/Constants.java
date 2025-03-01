@@ -231,7 +231,7 @@ public final class Constants {
         public static final double kStowPosition = -0.220;
         public static final double kStowCoralPosition = 0.243;
         public static final double kStowAlgaePosition = 0.0;
-        public static final double kFeedPosition = -0.104;
+        public static final double kFeedPosition = -0.104; 
         public static final double kL1Position = 0.0; // Placeholder
         public static final double kL2L3Position = 0.109;
         public static final double kL4Position = 0.139;
@@ -240,6 +240,7 @@ public final class Constants {
         public static final double kGroundAlgaePosition = 0.0;
         public static final double kProcessorPosition = 0.0;
         public static final double kNetPosition = -.1;
+        public static final double kStraightOnPosition = 0.0; 
 
         public static final double kFacingUpPosition = -0.2;
         public static final double kFacingDownPosition = 0.1;
@@ -311,8 +312,8 @@ public final class Constants {
             public static final double kAlgaePosition = 0.320;
 
             // Intake Setpoints
-            public static final double kIntakeSpeed = -0.33;
-            public static final double kExhaustSpeed = 0.33;
+            public static final double kIntakeSpeed = -0.44;
+            public static final double kExhaustSpeed = 0.44;
         }
 
         public static class AscenderConstants {
@@ -370,7 +371,7 @@ public final class Constants {
             public static final double kSetpointL2 = -17.145;
             public static final double kSetpointL3 = -26.844;
             public static final double kSetpointL4 = -41.289;
-            public static final double kSetpointFeed = -12.312;
+            public static final double kSetpointFeed = -13.5; //-12.312;
             public static final double kSetpointStow = -0.065;
             public static final double kSetpointStowCoral = -12.0;//-6.130;
             public static final double kSetpointStowAlgae = -5.0;

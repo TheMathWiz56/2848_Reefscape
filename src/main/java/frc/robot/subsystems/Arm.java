@@ -341,6 +341,10 @@ public class Arm extends SubsystemBase {
         ));
       }
 
+    public Command goStraightOn() {
+        return pivotToSetpoint(kStraightOnPosition);
+    }
+
     /**
      * Sets the PID setpoint with the calculated feedforward to the pivot motor
      * 
