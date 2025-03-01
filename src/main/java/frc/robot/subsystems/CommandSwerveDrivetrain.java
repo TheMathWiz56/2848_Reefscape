@@ -326,7 +326,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         pathPIDXController.setTolerance(TunerConstants.pathPID_Translation_Tol);
         pathPIDYController.setTolerance(TunerConstants.pathPID_Translation_Tol);
         pathPIDRotationController.setTolerance(TunerConstants.pathPID_Rotation_Tol);
-        pathPIDRotationController.enableContinuousInput(-180, 180);
+        pathPIDRotationController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     // Move to constants or another java file
@@ -365,7 +365,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Double[] fusedPose = Pose2dToDoubleArray(currentPose);
         SmartDashboard.putData("Field", m_field);
         SmartDashboard.putNumberArray("Fused PoseDBL", fusedPose);
-
     }
 
 
@@ -504,40 +503,55 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     
     public Command pathPIDTo(Pose2d pose){
         return this.startRun(()->{
-            this.resetPose(new Pose2d(0, 0, new Rotation2d(0)));
-
             Pose2d currentPose2d = this.getState().Pose;
 
             pathPIDXController.reset(currentPose2d.getX());
             pathPIDYController.reset(currentPose2d.getY());
-            pathPIDRotationController.reset(currentPose2d.getRotation().getDegrees());
+            pathPIDRotationController.reset(currentPose2d.getRotation().getRadians());
 
             pathPIDXController.setGoal(pose.getX());
             pathPIDYController.setGoal(pose.getY());
-            pathPIDRotationController.setGoal(pose.getRotation().getDegrees());
+            pathPIDRotationController.setGoal(pose.getRotation().getRadians());
         
             }, () -> {
                 Pose2d currentPose2d = this.getState().Pose;
 
                 pathPIDRequest
-                    .withVelocityX(pathPIDXController.calculate(currentPose2d.getX()))
-                    .withVelocityY(pathPIDYController.calculate(currentPose2d.getY()))
-                    .withRotationalRate(pathPIDRotationController.calculate(currentPose2d.getRotation().getDegrees()));
+                    .withVelocityX(pathPIDXController.calculate(currentPose2d.getX()) + pathPIDXController.getSetpoint().velocity)
+                    .withVelocityY(pathPIDYController.calculate(currentPose2d.getY())+ pathPIDYController.getSetpoint().velocity)
+                    .withRotationalRate(pathPIDRotationController.calculate(currentPose2d.getRotation().getRadians()) + pathPIDRotationController.getSetpoint().velocity)
+                    .withDeadband(0.05); // + pathPIDRotationController.getSetpoint().velocity
 
                 this.setControl(pathPIDRequest);
 
                 SmartDashboard.putNumber("X PID Position Error", pathPIDXController.getPositionError());
                 SmartDashboard.putNumber("X PID Velocity Error", pathPIDXController.getVelocityError());
+                SmartDashboard.putNumber("X PID Velocity setpoint", pathPIDXController.getSetpoint().velocity);
                 SmartDashboard.putNumber("X PID Output", pathPIDXController.calculate(currentPose2d.getX()));
 
                 SmartDashboard.putNumber("Y PID Position Error", pathPIDYController.getPositionError());
                 SmartDashboard.putNumber("Y PID Velocity Error", pathPIDYController.getVelocityError());
+                SmartDashboard.putNumber("Y PID Velocity setpoint", pathPIDYController.getSetpoint().velocity);
                 SmartDashboard.putNumber("Y PID Output", pathPIDYController.calculate(currentPose2d.getY()));
 
+                SmartDashboard.putNumber("Roation PID Position", currentPose2d.getRotation().getRadians());
                 SmartDashboard.putNumber("Rotation PID Position Error", pathPIDRotationController.getPositionError());
                 SmartDashboard.putNumber("Rotation PID Velocity Error", pathPIDRotationController.getVelocityError());
-                SmartDashboard.putNumber("Rotation PID Output", pathPIDRotationController.calculate(currentPose2d.getRotation().getDegrees()));
+                SmartDashboard.putNumber("Roation PID Velocity Setpoint", pathPIDRotationController.getSetpoint().velocity);
+                SmartDashboard.putNumber("Roation PID Position Setpoint", pathPIDRotationController.getSetpoint().position);
+                SmartDashboard.putNumber("Rotation PID Output", pathPIDRotationController.calculate(currentPose2d.getRotation().getRadians()));
 
-            }).until(() -> pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal());
+                SmartDashboard.putBoolean("X PID At Goal", pathPIDXController.atGoal());
+                SmartDashboard.putBoolean("Y PID At Goal", pathPIDYController.atGoal());
+                SmartDashboard.putBoolean("Rotation PID At Goal", pathPIDRotationController.atGoal());
+
+            })
+            .withName("PathPIDTo");
+
+            // .until(() -> pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal())
+    }
+
+    public boolean pathPADAtGoal (){
+        return pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal();
     }
 }

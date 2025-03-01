@@ -91,6 +91,7 @@ public class RobotContainer {
 
         // Custom Triggers
         Trigger LLHasTag = new Trigger(() -> drivetrain.LLHasTag());
+        Trigger pathPIDAligned = new Trigger(() -> drivetrain.pathPADAtGoal());
         
 
     /* Path follower */
@@ -251,7 +252,12 @@ public class RobotContainer {
                 .onTrue(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 1)))
                 .onFalse(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 0)));
 
-        driverJoystick.a().onTrue(drivetrain.pathPIDTo(new Pose2d(0,1, new Rotation2d(0))));
+        driverJoystick.a().and(() -> pincer.hasCoral()).onTrue(drivetrain.pathPIDTo(new Pose2d(3.96,5.17, new Rotation2d(-1.05))).until(() -> !pincer.hasCoral()));
+        pathPIDAligned.onTrue(commandFactory.scorelL2()).debounce(0.5);
+
+        // debounce path pid alinged
+        // add need coral for auto score
+
 
         // Other drivebase code, could be used later?
 /*
