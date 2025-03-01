@@ -139,12 +139,12 @@ public class RobotContainer {
                 // and Y is defined as to the left according to WPILib convention.
                 drivetrain.setDefaultCommand(
                         // Drivetrain will execute this command periodically
-                        drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed * (elevator.isHigh().getAsBoolean() ? 0.15 : 1.0)) // Drive
+                        drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive
                                                                                                                 // forward with
                                                                                                                 // negative Y
                                                                                                                 // (forward)
-                                .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * (elevator.isHigh().getAsBoolean() ? 0.15 : 1.0)) // Drive left with negative X (left)
-                                .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate * (elevator.isHigh().getAsBoolean() ? 0.15 : 1.0)) // Drive counterclockwise with
+                                .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive left with negative X (left)
+                                .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive counterclockwise with
                                                                                                 // negative X (left)
                         ));
                 elevator.setDefaultCommand(elevator.holdState());

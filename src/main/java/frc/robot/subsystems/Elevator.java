@@ -407,4 +407,9 @@ public class Elevator extends SubsystemBase {
     return () -> elevatorMotor.getPosition().getValueAsDouble() > -12;
   }
 
+  // At max speed (1.0) up to height of -20, then should go down linearly to 0.15 at height of -40
+  public DoubleSupplier getDrivetrainSpeedMultiplier() {
+    return () -> MathUtil.clamp(0.043 *  elevatorMotor.getPosition().getValueAsDouble() + 1.87, 0.15, 1);
+  }
+
 }

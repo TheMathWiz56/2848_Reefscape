@@ -237,8 +237,8 @@ public final class Constants {
         public static final double kStowAlgaePosition = 0.0;
         public static final double kFeedPosition = -0.104; 
         public static final double kL1Position = 0.0; // Placeholder
-        public static final double kL2L3Position = 0.109;
-        public static final double kL4Position = 0.139;
+        public static final double kL2L3Position = 0.1; //0.109;
+        public static final double kL4Position = 0.15; //0.139;
         public static final double kReefAlgaeHighPosition = 0.0;
         public static final double kReefAlgaeLowPosition = 0.0;
         public static final double kGroundAlgaePosition = 0.0;
@@ -282,11 +282,11 @@ public final class Constants {
             // Motor Controller Settings
             public static final boolean kPincerMotorInverted = false;
             public static final IdleMode kPincerMotorIdleMode = IdleMode.kCoast;
-            public static final int kPincerMotorSmartCurrentLimit = 40;
+            public static final int kPincerMotorSmartCurrentLimit = 30;
 
             public static final boolean kIntakeMotorInverted = false;
             public static final IdleMode kIntakeMotorIdleMode = IdleMode.kCoast;
-            public static final int kIntakeMotorSmartCurrentLimit = 40;
+            public static final int kIntakeMotorSmartCurrentLimit = 30;
 
             /** Current Threshold for determining if we have an algae */
             public static final int kIntakeAlgaeCurrentThreshold = 20;
@@ -374,7 +374,7 @@ public final class Constants {
             public static final double kSetpointL1 = -7.5; // Placeholder
             public static final double kSetpointL2 = -17.145;
             public static final double kSetpointL3 = -26.844;
-            public static final double kSetpointL4 = -41.289;
+            public static final double kSetpointL4 = -42.0; //-41.289;
             public static final double kSetpointFeed = -13.5; //-12.312;
             public static final double kSetpointStow = -0.065;
             public static final double kSetpointStowCoral = -12.0;//-6.130;
