@@ -340,7 +340,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Pose2d currentPose = getState().Pose;
         m_field.setRobotPose(currentPose);
         Double[] fusedPose = Pose2dToDoubleArray(currentPose);
-        SmartDashboard.putData("Field",m_field);
+        SmartDashboard.putData("Field", m_field);
         SmartDashboard.putNumberArray("Fused PoseDBL", fusedPose);
        
     }
@@ -357,8 +357,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public void resetToVision(boolean forceUpdate){
         chooseLL();
-        
-        LimelightHelpers.PoseEstimate poseEstimate = getManualLLEstimate(); // Might be able to switch to mt1 or 2. Needs testing if want to change
+        LimelightHelpers.PoseEstimate poseEstimate = getLLMegaTEstimate(false); // Might be able to switch to mt1 or 2. Needs testing if want to change
 
         if (poseEstimate != null) {
             if (forceUpdate || limelightBackAvgTagArea > 3){
@@ -373,8 +372,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     private void updateOdometry() {
         chooseLL();
-
-        LLPoseEstimate = getManualLLEstimate(); // Use manual until Limelight updates their OS and the getBotPoseEstimate_wpiBlue function works properly
+        LLPoseEstimate = getLLMegaTEstimate(true); 
 
         if (LLPoseEstimate != null) {
             // needs to be converted to a current time timestamp for it to be combined properly with the odometry pose estimate
@@ -389,7 +387,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param pose Pose to pathfind to
      * @param endVelocity Velocity at target pose
      */
-    public Command pathFindTo(Pose2d pose, LinearVelocity endVelocity){
+    public Command pathPlanTo(Pose2d pose, LinearVelocity endVelocity){
         return AutoBuilder.pathfindToPose(pose, TunerConstants.oTF_Constraints, endVelocity);
     }
 
@@ -400,6 +398,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private LimelightHelpers.PoseEstimate getLLMegaTEstimate(boolean useMegaTag2){
         doRejectUpdate = false;
         LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
+
+        LimelightHelpers.SetRobotOrientation("limelight-front", getState().Pose.getRotation().getDegrees(),
+        0, 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation("limelight-back", getState().Pose.getRotation().getDegrees(),
+        0, 0, 0, 0, 0);
+        
+
 
         if (useMegaTag2 == false) {
             poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightUsed);
@@ -420,19 +425,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     doRejectUpdate = true;
                     }
             }
-        } else if (useMegaTag2 == true) {
-            LimelightHelpers.SetRobotOrientation("limelight-front", getState().Pose.getRotation().getDegrees(),
-            0, 0, 0, 0, 0);
-            LimelightHelpers.SetRobotOrientation("limelight-back", getState().Pose.getRotation().getDegrees(),
-            0, 0, 0, 0, 0);
+        }
+        else{
             poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightUsed);
-
             if (poseEstimate == null) {
                 doRejectUpdate = true;
-            } else {
-                if (Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720) // if our angular velocity is greater than 720 degrees per second,
-                                                        // ignore vision updates. Might need to reduce to ~180
-                {
+            } 
+            else {
+                if (Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720){ // if our angular velocity is greater than 720 degrees per second,
                     doRejectUpdate = true;
                 }
                 if (poseEstimate.tagCount == 0) {
@@ -459,13 +459,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);   
 
         double translationSTD = TunerConstants.std02; // safe value
-        if(limelightFrontAvgTagArea > 
-            limelightBackAvgTagArea){
-                limelightUsed = "limelight-front";
-                translationSTD = TunerConstants.getVisionStd(limelightFrontAvgTagArea);
-            }else{
-                limelightUsed = "limelight-back";
-                translationSTD = TunerConstants.getVisionStd(limelightBackAvgTagArea);
+        if(limelightFrontAvgTagArea > limelightBackAvgTagArea){
+            limelightUsed = "limelight-front";
+            translationSTD = TunerConstants.getVisionStd(limelightFrontAvgTagArea);
+        }
+        else{
+            limelightUsed = "limelight-back";
+            translationSTD = TunerConstants.getVisionStd(limelightBackAvgTagArea);
                 
         }
         
@@ -473,28 +473,5 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         SmartDashboard.putNumberArray("Vision Standard Deviations", TunerConstants.visionStandardDeviation.getData());
         SmartDashboard.putString("Limelight Used", limelightUsed);
-    }
-
-    /**
-     * "Manually" computes the Limelight pose estimate since MT1 and 2 are broken in LimeLight OS 2024.10.2. 
-     * Broke because the field is 3ft longer in 2025.
-     * @return Estimated pose or null if no valid estimate
-     */
-    private LimelightHelpers.PoseEstimate getManualLLEstimate(){
-        LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
-        
-        double[] botPose = LimelightHelpers.getBotPose(limelightUsed);
-        SmartDashboard.putNumberArray("Botpose", botPose);
-        if (botPose.length != 0){
-            if (botPose[0] == 0){
-                return null;
-            }
-            poseEstimate.pose = new Pose2d(new Translation2d(botPose[0] + 8.7736 ,botPose[1] + 4.0257), new Rotation2d(Math.toRadians(botPose[5])));
-        }
-
-        Double[] pose = Pose2dToDoubleArray(poseEstimate.pose);
-        SmartDashboard.putNumberArray("Manual Limelight Pose", pose);
-        poseEstimate.timestampSeconds = Timer.getFPGATimestamp(); // botpose doesn't give a timestamp so pull timestamp now. Not really how this should be done.
-        return poseEstimate;
     }
 }
