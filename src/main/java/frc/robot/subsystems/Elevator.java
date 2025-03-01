@@ -393,6 +393,7 @@ public class Elevator extends SubsystemBase {
     builder.addBooleanProperty("Limit Switch State", () -> elevatorLimitSwitchBottom.get(), null);
     builder.addBooleanProperty("Is Zeroed", () -> isZeroed, null);
 
+    builder.addDoubleProperty("Drivetrain Speed Multiplier", getDrivetrainSpeedMultiplier(), null);
   }
 
   public BooleanSupplier isHigh() {
