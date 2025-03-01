@@ -70,7 +70,7 @@ public class Elevator extends SubsystemBase {
         .withNeutralMode(kMotorIdleMode);
 
     elevatorMotorConfig.CurrentLimits
-        .withSupplyCurrentLimit(kCurrentLimit);
+        .withSupplyCurrentLimit(kStallCurrent);
 
     // Missing feedback sensor, izone, imaxaccum, outputrange
     elevatorMotorConfig.Slot0
@@ -363,6 +363,9 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty("Profile Current Setpoint", () -> currentState.position, null);
 
     builder.addDoubleProperty("Velocity", () -> elevatorMotor.getVelocity().getValueAsDouble(), null);
+
+    builder.addDoubleProperty("Output", () -> elevatorMotor.get(), null);
+
     builder.addDoubleProperty("Profile Current Velocity", () -> currentState.velocity, null);
 
     builder.addDoubleProperty("Timer", () -> timer.get(), null);
@@ -394,6 +397,8 @@ public class Elevator extends SubsystemBase {
     builder.addBooleanProperty("Is Zeroed", () -> isZeroed, null);
 
     builder.addDoubleProperty("Drivetrain Speed Multiplier", getDrivetrainSpeedMultiplier(), null);
+
+    builder.addDoubleProperty("Velocity Error", () -> elevatorMotor.getVelocity().getValueAsDouble() - currentState.velocity, null);
   }
 
   public BooleanSupplier isHigh() {
