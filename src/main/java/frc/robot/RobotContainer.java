@@ -71,16 +71,6 @@ public class RobotContainer {
         
         public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
 
-        private final Command scorerL1CMD = commandFactory.scorerL1();
-        private final Command scorerL2CMD = commandFactory.scorerL2();
-        private final Command scorerL3CMD = commandFactory.scorerL3();
-        private final Command scorerL4CMD = commandFactory.scorerL4();
-
-        private final Command scorelL1CMD = commandFactory.scorelL1();
-        private final Command scorelL2CMD = commandFactory.scorelL2();
-        private final Command scorelL3CMD = commandFactory.scorelL3();
-        private final Command scorelL4CMD = commandFactory.scorelL4(false);
-
         //private final Command stowCMD = commandFactory.stow();
         private final Command feedCMD = commandFactory.feed();
         private final Command reefAlgaeHighCMD = commandFactory.reefAlgaeHigh();
@@ -90,9 +80,7 @@ public class RobotContainer {
         private final Command groundAlgaeCMD = commandFactory.groundAlgae();
 
         // Custom Triggers
-        Trigger LLHasTag = new Trigger(() -> drivetrain.LLHasTag());
-        Trigger pathPIDAligned = new Trigger(() -> drivetrain.pathPADAtGoal());
-        
+        Trigger LLHasTag = new Trigger(() -> drivetrain.LLHasTag());        
 
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;
@@ -114,23 +102,6 @@ public class RobotContainer {
         Timer.delay(3);
         FollowPathCommand.warmupCommand().schedule();
         Timer.delay(3);
-        
-
-        //CommandScheduler.getInstance().registerSubsystem(pad);
-        //CommandScheduler.getInstance().registerSubsystem(arm);
-
-        // Vision setup
-        // Configure AprilTag detection
-        if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
-                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{6, 7, 8, 9, 10, 11}); // Only track these tag IDs
-        }
-        else if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
-                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{17, 18, 19, 20, 21, 22}); // Only track these tag IDs
-        }
-        else{
-                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22}); // Only track these tag IDs
-        }
-        LimelightHelpers.SetFiducialDownscalingOverride("limelight-front", 2.0f); // Process at half resolution for improved framerate and reduced range
     }
 
     private void configureBindings() {
@@ -152,134 +123,99 @@ public class RobotContainer {
                 arm.setDefaultCommand(arm.holdState());
                 pincer.setDefaultCommand(pincer.holdState());
                 //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
-        /*
-        pad.button(1).onTrue(scorelL4CMD);
-        pad.button(2).onTrue(scorelL3CMD);
-        pad.button(3).onTrue(scorelL2CMD);
-        pad.button(4).onTrue(scorelL1CMD);
-        
-        pad.button(5).onTrue(scorerL4CMD);
-        pad.button(6).onTrue(scorerL3CMD);
-        pad.button(7).onTrue(scorerL2CMD);
-        pad.button(8).onTrue(scorerL1CMD);
-  
-         */
-        //pad.button(20).onTrue(feedCMD);
 
-        /*
-        pad.button(22).and(() -> pincer.hasCoral()).onTrue(commandFactory.stow(true, false, elevator.isNearTop().getAsBoolean(), false));
-        pad.button(22).and(() -> pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, elevator.isNearTop().getAsBoolean(), false));
-        pad.button(22).and(() -> (!pincer.hasCoral()) && (!pincer.hasAlgae())).onTrue(commandFactory.stow(false,false, elevator.isNearTop().getAsBoolean(), false));
-         */
-        
-        pad.button(20).onTrue(new InstantCommand(() -> pincer.intake(),pincer));
-        pad.button(21).onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
-        pad.button(28).onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
-        pad.button(19).onTrue(new InstantCommand(()-> CommandScheduler.getInstance().cancel(netCMD,processorCMD,elevator.getCurrentCommand())));
-        pad.button(27).onTrue(netCMD);
-        //TODO: add climb stop and do it in code
-        //pad.button(23).onTrue(new InstantCommand(() ->ascender.start(),ascender));
-        //pad.button(24).onTrue(new InstantCommand(() ->ascender.stop(),ascender));
-        pad.button(25).onTrue(reefAlgaeHighCMD);
-        pad.button(26).onTrue(reefAlgaeLowCMD);
-        //pad.button(29).onTrue(feedCMD);
-        pad.button(30).onTrue(groundAlgaeCMD);
+        // Keypad Bindings
+                pad.button(20).onTrue(new InstantCommand(() -> pincer.intake(),pincer));
+                pad.button(21).onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
+                pad.button(28).onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
+                pad.button(19).onTrue(new InstantCommand(()-> CommandScheduler.getInstance().cancel(netCMD,processorCMD,elevator.getCurrentCommand())));
+                pad.button(27).onTrue(netCMD);
+                //TODO: add climb stop and do it in code
+                //pad.button(23).onTrue(new InstantCommand(() ->ascender.start(),ascender));
+                //pad.button(24).onTrue(new InstantCommand(() ->ascender.stop(),ascender));
+                pad.button(25).onTrue(reefAlgaeHighCMD);
+                pad.button(26).onTrue(reefAlgaeLowCMD);
+                //pad.button(29).onTrue(feedCMD);
+                pad.button(30).onTrue(groundAlgaeCMD);
 
-        //Keyad commands
-        //Scoring Commands (left)
-        pad.button(4).onTrue(commandFactory.scorelL1());
-        pad.button(3).onTrue(commandFactory.scorelL2());
-        pad.button(2).onTrue(commandFactory.scorelL3());
-        pad.button(1)
-                .and(()-> !arm.facingDownwards())
-                        .onTrue(commandFactory.scorelL4(false));
-        pad.button(1)
-                .and(()-> arm.facingDownwards())
-                        .onTrue(commandFactory.scorelL4(true));
+                //Scoring Commands (left)
+                pad.button(4).onTrue(commandFactory.scorelL1());
+                pad.button(3).onTrue(commandFactory.scorelL2());
+                pad.button(2).onTrue(commandFactory.scorelL3());
+                pad.button(1)
+                        .and(()-> !arm.facingDownwards())
+                                .onTrue(commandFactory.scorelL4(false));
+                pad.button(1)
+                        .and(()-> arm.facingDownwards())
+                                .onTrue(commandFactory.scorelL4(true));
 
-        //Scoring Commands (right)
-        pad.button(8).onTrue(commandFactory.scorelL1());
-        pad.button(7).onTrue(commandFactory.scorelL2());
-        pad.button(6).onTrue(commandFactory.scorelL3());
-        pad.button(5)
-                .and(()-> !arm.facingDownwards())
-                        .onTrue(commandFactory.scorelL4(false));
-        pad.button(5)
-                .and(()-> arm.facingDownwards())
-                        .onTrue(commandFactory.scorelL4(true));                        
+                //Scoring Commands (right)
+                pad.button(8).onTrue(commandFactory.scorelL1());
+                pad.button(7).onTrue(commandFactory.scorelL2());
+                pad.button(6).onTrue(commandFactory.scorelL3());
+                pad.button(5)
+                        .and(()-> !arm.facingDownwards())
+                                .onTrue(commandFactory.scorelL4(false));
+                pad.button(5)
+                        .and(()-> arm.facingDownwards())
+                                .onTrue(commandFactory.scorelL4(true));                        
 
-        // Feed Commands
-        pad.button(29).onTrue(commandFactory.feed());
+                // Feed Commands
+                pad.button(29).onTrue(commandFactory.feed());
 
                 // Stow Commands
-        pad.button(22)
-                .and(elevator.isNearTop())
-                .and(() -> !pincer.hasCoral())
-                .and(() -> !pincer.hasAlgae())
-                        .onTrue(commandFactory.stow(false, false, true, false));
-        pad.button(22)
-                .and(() ->pincer.hasCoral())
-                .and(() -> !elevator.isLow().getAsBoolean())
-                        .onTrue(commandFactory.stow(true, false, false, false));
-        pad.button(22).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
-        pad.button(22)
-                .and(elevator.isLow())
-                .and(() -> pincer.hasCoral())
-                        .onTrue(commandFactory.stow(true, false, false, true));
-        pad.button(22)
-                .and(() -> !elevator.isNearTop().getAsBoolean())
-                .and(() -> !pincer.hasCoral())
-                .and(() -> !pincer.hasAlgae())
-                        .onTrue(commandFactory.stow(false, false, false, false));
+                pad.button(22)
+                        .and(elevator.isNearTop())
+                        .and(() -> !pincer.hasCoral())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(false, false, true, false));
+                pad.button(22)
+                        .and(() ->pincer.hasCoral())
+                        .and(() -> !elevator.isLow().getAsBoolean())
+                                .onTrue(commandFactory.stow(true, false, false, false));
+                pad.button(22).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+                pad.button(22)
+                        .and(elevator.isLow())
+                        .and(() -> pincer.hasCoral())
+                                .onTrue(commandFactory.stow(true, false, false, true));
+                pad.button(22)
+                        .and(() -> !elevator.isNearTop().getAsBoolean())
+                        .and(() -> !pincer.hasCoral())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(false, false, false, false));
 
-        // Small adjustments code
-        driverJoystick.pov(90)
-                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.125))); //right
-        driverJoystick.pov(270)
-                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(0.125))); //left
-        driverJoystick.pov(0)
-                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.125).withVelocityY(0)));
-        driverJoystick.pov(180)
-                .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.125).withVelocityY(0)));
+        // Drive Joystick Bindings
+                // Small adjustments code
+                driverJoystick.pov(90)
+                        .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.125))); //right
+                driverJoystick.pov(270)
+                        .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(0.125))); //left
+                driverJoystick.pov(0)
+                        .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.125).withVelocityY(0)));
+                driverJoystick.pov(180)
+                        .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.125).withVelocityY(0)));
 
+                // Driver joystick manual intake/exhaust wheels
+                driverJoystick.leftBumper().whileTrue(pincer.manualIntake());
+                driverJoystick.rightBumper().whileTrue(pincer.manualExhaust());
 
-        // Driver joystick manual intake/exhaust wheels
-        driverJoystick.leftBumper().whileTrue(pincer.manualIntake());
-        driverJoystick.rightBumper().whileTrue(pincer.manualExhaust());
+                // reset the field-centric pose to vision pose
+                driverJoystick.start().and(LLHasTag).onTrue(Commands.runOnce(() -> drivetrain.resetToVision(true)));
+                // reset the field-centric heading on back press
+                driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        // Limelight
-        driverJoystick.start().and(LLHasTag).onTrue(Commands.runOnce(() -> drivetrain.resetToVision(true)));
-        LLHasTag
-                .onTrue(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 1)))
-                .onFalse(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 0)));
-
-        /*
-        driverJoystick.a().and(() -> pincer.hasCoral()).onTrue(drivetrain.pathPIDTo(new Pose2d(3.97,5.22, new Rotation2d(-1.0472))).until(() -> !pincer.hasCoral()));
-        driverJoystick.y().and(() -> pincer.hasCoral()).onTrue(drivetrain.pathPIDTo(new Pose2d(3.97,5.22, new Rotation2d(-1.0472))).until(() -> !pincer.hasCoral()));
-
-        pathPIDAligned.and(driverJoystick.a()).onTrue(commandFactory.scorelL2()
-                .raceWith(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.125)), drivetrain)))
-                .debounce(0.5);
-        pathPIDAligned.and(driverJoystick.y()).onTrue(commandFactory.scorelL3()
-                .raceWith(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.125)), drivetrain)))
-                .debounce(0.5);*/
-
-        // debounce path pid alinged
-        // add need coral for auto score
+                LLHasTag.onTrue(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 1)))
+                        .onFalse(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 0)));
 
 
-        // Other drivebase code, could be used later?
-/*
-        driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
-        driverJoystick.b().whileTrue(drivetrain.applyRequest(() -> point
-                .withModuleDirection(new Rotation2d(-driverJoystick.getLeftY(), -driverJoystick.getLeftX())))); // idk
-                                                                                                                // if
-                                                                                                                // this
-                                                                                                                // is
-                                                                                                                // useful
-*/
-        // reset the field-centric heading on back press
-        driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+                // Auto Driving
+                // This should eventually be handled by the operator so that they can select which level to score on. For now, just align then manually score
+                driverJoystick.x().and(() -> pincer.hasCoral()).and(LLHasTag).onTrue(drivetrain.pathPIDToTagLeft());
+                driverJoystick.b().and(() -> pincer.hasCoral()).and(LLHasTag).onTrue(drivetrain.pathPIDToTagRight());
+
+                // driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
+        
+
         // Logging / Telemetry
         drivetrain.registerTelemetry(logger::telemeterize);
 

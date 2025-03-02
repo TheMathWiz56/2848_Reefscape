@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.*;
 
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -25,6 +26,8 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -94,7 +97,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                                                                                     new TrapezoidProfile.Constraints(TunerConstants.pathPID_Translation_maxV, TunerConstants.pathPID_Translation_MaxA));
     ProfiledPIDController pathPIDRotationController = new ProfiledPIDController(TunerConstants.pathPID_Rotation_P, TunerConstants.pathPID_Rotation_I, TunerConstants.pathPID_Rotation_D, 
                                                                                     new TrapezoidProfile.Constraints(TunerConstants.pathPID_Rotation_maxV, TunerConstants.pathPID_Rotation_MaxA));
-
+    private final Debouncer atGoalDebouncer = new Debouncer(TunerConstants.debounce_Time, DebounceType.kBoth);
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
@@ -182,7 +185,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configureAutoBuilder();
+        configureDrivebase();
     }
 
     /**
@@ -207,7 +210,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configureAutoBuilder();
+        configureDrivebase();
     }
 
     /**
@@ -240,7 +243,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configureAutoBuilder();
+        configureDrivebase();
     }
 
     /**
@@ -294,7 +297,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     //___________________________________________________ Custom Code ___________________________________________________
 
 
-    private void configureAutoBuilder() {
+    private void configureDrivebase() {
         try {
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
@@ -330,6 +333,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         pathPIDYController.setTolerance(TunerConstants.pathPID_Translation_Tol);
         pathPIDRotationController.setTolerance(TunerConstants.pathPID_Rotation_Tol);
         pathPIDRotationController.enableContinuousInput(-Math.PI, Math.PI);
+
+        // Vision setup
+        // Configure AprilTag detection
+        if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+            LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{6, 7, 8, 9, 10, 11}); // Only track these tag IDs
+        }
+        else if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
+                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{17, 18, 19, 20, 21, 22}); // Only track these tag IDs
+        }
+        else{
+                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22}); // Only track these tag IDs
+        }
+        LimelightHelpers.SetFiducialDownscalingOverride("limelight-front", 2.0f); // Process at half resolution for improved framerate and reduced range
     }
 
     // Move to constants or another java file
@@ -505,18 +521,29 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putString("Limelight Used", limelightUsed);
     }
 
+    /**
+     * @return {@code true} if an april tag is in sight, {@code false} otherwise
+     */
     public boolean LLHasTag(){
-        return LimelightHelpers.getTargetCount(limelightUsed) > 0;
+        return getTag() != -1;
     }
 
-    /** Returns the ID of the april tag that is currently visible
+    /**
+     * Returns the ID of the AprilTag currently visible by the Limelight camera.
      * 
-     * @return tag ID, -1 if no tag
+     * @return ID. Returns -1 if no tag is detected.
      */
-    public int getTag(){
+    public int getTag() {
         return (int) LimelightHelpers.getLimelightNTTableEntry(limelightUsed, "tid").getInteger(-1);
     }
 
+    /**
+     * Creates a command that moves the robot to the position of the AprilTag 
+     * detected by the Limelight camera, adjusted by the left branch transformation.
+     * 
+     * @return A {@link Command} that moves the robot to the transformed position of the detected tag. 
+     *         If no tag is visible, a command is returned that logs the absence of a tag.
+     */
     public Command pathPIDToTagLeft(){
         int ID = getTag();
 
@@ -525,6 +552,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
     }
 
+    /**
+     * Creates a command that moves the robot to the position of the AprilTag 
+     * detected by the Limelight camera, adjusted by the right branch transformation.
+     * 
+     * @return A {@link Command} that moves the robot to the transformed position of the detected tag. 
+     *         If no tag is visible, a command is returned that logs the absence of a tag.
+     */
     public Command pathPIDToTagRight(){
         int ID = getTag();
 
@@ -533,9 +567,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
     }
 
-    // Increase rotation deadzone and have setpoint inside the reef so the robot pushes against the reef to align
-    // move camera so it's always in sight of april tag
-    // apply rotation deadband
+    /**
+     * Creates a command that moves the robot to the specified {@link Pose2d} using PID controllers 
+     * for X, Y, and rotation. The command runs until all PID controllers reach their goals, 
+     * as determined by the debouncer.
+     * 
+     * @param pose The target {@link Pose2d} the robot should move to.
+     * @return A {@link Command} that moves the robot to the specified pose.
+     */
     private Command pathPIDTo(Pose2d pose){
         return this.startRun(()->{
             Pose2d currentPose2d = this.getState().Pose;
@@ -585,10 +624,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 SmartDashboard.putNumber("Y Total Output", pathPIDYController.calculate(currentPose2d.getY())+ pathPIDYController.getSetpoint().velocity);
                 SmartDashboard.putNumber("Rotation Total Output", pathPIDRotationController.calculate(currentPose2d.getRotation().getRadians()) + pathPIDRotationController.getSetpoint().velocity);
 
-            }).withName("PathPIDTo");
+            }).until(() -> pathPIDAtGoal()).withName("PathPIDTo");
     }
 
-    public boolean pathPADAtGoal (){
-        return pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal();
+    /**
+     * Checks if the PID path follower has been at the goal for the specified debouncer time.
+     * 
+     * @return {@code true} if the PID controllers for X, Y, and rotation have all been at the goal 
+     *         for at least {@code 0.5} seconds (the debouncer time), otherwise {@code false}.
+     */
+    public boolean pathPIDAtGoal (){
+        return atGoalDebouncer.calculate(pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal());
     }
 }

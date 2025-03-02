@@ -13,6 +13,8 @@ import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -74,6 +76,9 @@ public class TunerConstants {
     public static final double pathPID_Rotation_MaxA = .5; // rad/s/s
     public static final double pathPID_Rotation_Tol = 0.05; // rad
     public static final double pathPID_Rotation_Deadband = 0.02;
+
+    // At Goal Debouncer Time
+    public static final double debounce_Time = 0.5;
 
     // X is in the normal direction of the tag, Y is parallel to the tag 
     public static final Transform2d leftBranch = new Transform2d(0.46769, -0.14993, new Rotation2d(Math.PI));
