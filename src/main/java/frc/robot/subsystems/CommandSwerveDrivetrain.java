@@ -27,6 +27,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -48,8 +49,10 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 import frc.robot.LimelightHelpers;
+import frc.robot.reefData;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.Util.reef;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -370,8 +373,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         if (currentCommand != null){
             SmartDashboard.putString("Drivebase Current Command", currentCommand.getName());
-        }
-        
+        }        
     }
 
 
@@ -507,11 +509,34 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return LimelightHelpers.getTargetCount(limelightUsed) > 0;
     }
 
+    /** Returns the ID of the april tag that is currently visible
+     * 
+     * @return tag ID, -1 if no tag
+     */
+    public int getTag(){
+        return (int) LimelightHelpers.getLimelightNTTableEntry(limelightUsed, "tid").getInteger(-1);
+    }
+
+    public Command pathPIDToTagLeft(){
+        int ID = getTag();
+
+        if (ID != -1)
+            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.leftBranch));
+        return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
+    }
+
+    public Command pathPIDToTagRight(){
+        int ID = getTag();
+
+        if (ID != -1)
+            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch));
+        return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
+    }
 
     // Increase rotation deadzone and have setpoint inside the reef so the robot pushes against the reef to align
     // move camera so it's always in sight of april tag
     // apply rotation deadband
-    public Command pathPIDTo(Pose2d pose){
+    private Command pathPIDTo(Pose2d pose){
         return this.startRun(()->{
             Pose2d currentPose2d = this.getState().Pose;
 
@@ -526,20 +551,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             }, () -> {
                 Pose2d currentPose2d = this.getState().Pose;
 
-                /*
-                pathPIDRequest
-                    .withVelocityX(pathPIDXController.calculate(currentPose2d.getX()) + pathPIDXController.getSetpoint().velocity)
-                    .withVelocityY(pathPIDYController.calculate(currentPose2d.getY())+ pathPIDYController.getSetpoint().velocity)
-                    .withRotationalRate(pathPIDRotationController.calculate(currentPose2d.getRotation().getRadians()) + pathPIDRotationController.getSetpoint().velocity)
-                    .withDeadband(0.05)
-                    .withRotationalDeadband(0.075); // + pathPIDRotationController.getSetpoint().velocity */
-
                 pathPIDRequest
                     .withVelocityX(pathPIDXController.calculate(currentPose2d.getX()))
                     .withVelocityY(pathPIDYController.calculate(currentPose2d.getY()))
                     .withRotationalRate(pathPIDRotationController.calculate(currentPose2d.getRotation().getRadians()))
-                    .withDeadband(0.05)
-                    .withRotationalDeadband(0.02); // + pathPIDRotationController.getSetpoint().velocity
+                    .withDeadband(TunerConstants.pathPID_Translation_Deadband)
+                    .withRotationalDeadband(TunerConstants.pathPID_Rotation_Deadband);
 
                 this.setControl(pathPIDRequest);
 
@@ -569,8 +586,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 SmartDashboard.putNumber("Rotation Total Output", pathPIDRotationController.calculate(currentPose2d.getRotation().getRadians()) + pathPIDRotationController.getSetpoint().velocity);
 
             }).withName("PathPIDTo");
-
-            // .until(() -> pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal())
     }
 
     public boolean pathPADAtGoal (){
