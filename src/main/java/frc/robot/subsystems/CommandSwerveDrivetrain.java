@@ -365,6 +365,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Double[] fusedPose = Pose2dToDoubleArray(currentPose);
         SmartDashboard.putData("Field", m_field);
         SmartDashboard.putNumberArray("Fused PoseDBL", fusedPose);
+
+        Command currentCommand = this.getCurrentCommand();
+
+        if (currentCommand != null){
+            SmartDashboard.putString("Drivebase Current Command", currentCommand.getName());
+        }
+        
     }
 
 
@@ -500,7 +507,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return LimelightHelpers.getTargetCount(limelightUsed) > 0;
     }
 
-    
+
+    // Increase rotation deadzone and have setpoint inside the reef so the robot pushes against the reef to align
+    // move camera so it's always in sight of april tag
+    // apply rotation deadband
     public Command pathPIDTo(Pose2d pose){
         return this.startRun(()->{
             Pose2d currentPose2d = this.getState().Pose;
@@ -516,11 +526,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             }, () -> {
                 Pose2d currentPose2d = this.getState().Pose;
 
+                /*
                 pathPIDRequest
                     .withVelocityX(pathPIDXController.calculate(currentPose2d.getX()) + pathPIDXController.getSetpoint().velocity)
                     .withVelocityY(pathPIDYController.calculate(currentPose2d.getY())+ pathPIDYController.getSetpoint().velocity)
                     .withRotationalRate(pathPIDRotationController.calculate(currentPose2d.getRotation().getRadians()) + pathPIDRotationController.getSetpoint().velocity)
-                    .withDeadband(0.05); // + pathPIDRotationController.getSetpoint().velocity
+                    .withDeadband(0.05)
+                    .withRotationalDeadband(0.075); // + pathPIDRotationController.getSetpoint().velocity */
+
+                pathPIDRequest
+                    .withVelocityX(pathPIDXController.calculate(currentPose2d.getX()))
+                    .withVelocityY(pathPIDYController.calculate(currentPose2d.getY()))
+                    .withRotationalRate(pathPIDRotationController.calculate(currentPose2d.getRotation().getRadians()))
+                    .withDeadband(0.05)
+                    .withRotationalDeadband(0.02); // + pathPIDRotationController.getSetpoint().velocity
 
                 this.setControl(pathPIDRequest);
 
@@ -545,8 +564,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 SmartDashboard.putBoolean("Y PID At Goal", pathPIDYController.atGoal());
                 SmartDashboard.putBoolean("Rotation PID At Goal", pathPIDRotationController.atGoal());
 
-            })
-            .withName("PathPIDTo");
+                SmartDashboard.putNumber("X Total Output", pathPIDXController.calculate(currentPose2d.getX()) + pathPIDXController.getSetpoint().velocity);
+                SmartDashboard.putNumber("Y Total Output", pathPIDYController.calculate(currentPose2d.getY())+ pathPIDYController.getSetpoint().velocity);
+                SmartDashboard.putNumber("Rotation Total Output", pathPIDRotationController.calculate(currentPose2d.getRotation().getRadians()) + pathPIDRotationController.getSetpoint().velocity);
+
+            }).withName("PathPIDTo");
 
             // .until(() -> pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal())
     }

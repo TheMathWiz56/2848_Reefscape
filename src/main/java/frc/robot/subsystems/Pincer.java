@@ -7,6 +7,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import au.grapplerobotics.LaserCan;
+import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -40,6 +41,7 @@ public class Pincer extends SubsystemBase{
     private final Debouncer laserCanDebouncer = new Debouncer(0.1);
 
     public double pincerSetpoint = kStowPosition;
+    private double lastLaserCANReading = 100;
 
     // Use current sensing for the algae
 
@@ -136,7 +138,18 @@ public class Pincer extends SubsystemBase{
     }
 
     public boolean hasCoral(){
-        return laserCanDebouncer.calculate(laserCan.getMeasurement().distance_mm < 25);
+        Measurement measurement = laserCan.getMeasurement();
+        double distance_mm = 100;
+
+        if (measurement != null) { // Ensure the measurement is not null
+            distance_mm = measurement.distance_mm;
+            lastLaserCANReading = distance_mm;
+            // Do something with distance_mm
+        }
+        else{
+            distance_mm = lastLaserCANReading;
+        }
+        return laserCanDebouncer.calculate( distance_mm < 25);
     }
 
     /**@return True if the intake photogate is tripped

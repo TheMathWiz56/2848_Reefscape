@@ -211,7 +211,7 @@ public final class Constants {
         public static final FeedbackSensor kPivotMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
         public static final double kPivotMotorMinOutput = -1;
         public static final double kPivotMotorMaxOutput = 1;
-        public static final double kPivotMotorAbsoluteEncoderOffset = 0.0252905;
+        public static final double kPivotMotorAbsoluteEncoderOffset = 0.8643911;
         public static final boolean kPivotMotorAbsoluteEncoderZeroCentered = true;
         public static double kPivotMotorks = 0.0;
         public static double kPivotMotorkg = -0.33;
