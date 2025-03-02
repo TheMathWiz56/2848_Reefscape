@@ -253,10 +253,16 @@ public class RobotContainer {
                 .onTrue(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 1)))
                 .onFalse(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 0)));
 
+        /*
         driverJoystick.a().and(() -> pincer.hasCoral()).onTrue(drivetrain.pathPIDTo(new Pose2d(3.97,5.22, new Rotation2d(-1.0472))).until(() -> !pincer.hasCoral()));
-        pathPIDAligned.onTrue(commandFactory.scorelL2()
+        driverJoystick.y().and(() -> pincer.hasCoral()).onTrue(drivetrain.pathPIDTo(new Pose2d(3.97,5.22, new Rotation2d(-1.0472))).until(() -> !pincer.hasCoral()));
+
+        pathPIDAligned.and(driverJoystick.a()).onTrue(commandFactory.scorelL2()
                 .raceWith(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.125)), drivetrain)))
                 .debounce(0.5);
+        pathPIDAligned.and(driverJoystick.y()).onTrue(commandFactory.scorelL3()
+                .raceWith(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.125)), drivetrain)))
+                .debounce(0.5);*/
 
         // debounce path pid alinged
         // add need coral for auto score
