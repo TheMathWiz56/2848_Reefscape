@@ -4,9 +4,7 @@ import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Second;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -257,7 +255,7 @@ public final class Constants {
          * public static final double kFeedPosition = 0.0;
          * public static final double kL1Position = 0.1;
          * public static final double kL2L3Position = 0.2;
-         * public static final double kL4Position = 0.325;
+         * public static final double kL4Position = 0.325;o
          */
     }
 
@@ -298,7 +296,8 @@ public final class Constants {
             public static final FeedbackSensor kPincerMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
             public static final double kPincerMotorMinOutput = -1;
             public static final double kPincerMotorMaxOutput = 1;
-            public static final double kPincerMotorAbsoluteEncoderOffset = 0.0;
+            public static final double kPincerMotorAbsoluteEncoderOffset = 0.2731;
+            public static final boolean kPincerMotorZeroCentered = true;
 
             // Soft Limits
             public static final boolean kSoftLimitsEnabled = false;
@@ -311,9 +310,9 @@ public final class Constants {
             public static final double kPositionConversionFactor = 1.0;
 
             // Pincer Setpoints
-            public static final double kStowPosition = 0.266;
-            public static final double kFunnelPosition = 0.633;
-            public static final double kAlgaePosition = 0.320;
+            public static final double kStowPosition = -0.349;
+            public static final double kFunnelPosition = 0.298;
+            public static final double kAlgaePosition = -0.133;
 
             // Intake Setpoints
             public static final double kIntakeSpeed = -0.6;

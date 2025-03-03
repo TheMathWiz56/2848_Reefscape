@@ -63,7 +63,8 @@ public class Pincer extends SubsystemBase{
                 .outputRange(kPincerMotorMinOutput, kPincerMotorMaxOutput);
         pincerConfig
             .absoluteEncoder
-                .zeroOffset(kPincerMotorAbsoluteEncoderOffset);
+                .zeroOffset(kPincerMotorAbsoluteEncoderOffset)
+                .zeroCentered(kPincerMotorZeroCentered);
         pincerConfig
             .softLimit
                 .reverseSoftLimitEnabled(kSoftLimitsEnabled)
