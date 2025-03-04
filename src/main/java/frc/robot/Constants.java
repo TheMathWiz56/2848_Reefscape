@@ -326,7 +326,7 @@ public final class Constants {
 
         public static class ElevatorConstants {
             public static final int kMotorId = 20;
-            public static final int kLimitSwitchBottomId = 2;
+            public static final int kLimitSwitchBottomId = 1;
 
             public static final HashMap<robotStates.pivotElevatorStates, Double> setPoints = new HashMap<>() {
                 {
