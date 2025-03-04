@@ -290,7 +290,7 @@ public final class Constants {
             public static final int kIntakeAlgaeCurrentThreshold = 20;
 
             // PID Settings
-            public static double kPincerP = 0.5;
+            public static double kPincerP = 0.0; //1.0;
             public static double kPincerI = 0.0;
             public static double kPincerD = 0.0;
             public static final FeedbackSensor kPincerMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
@@ -326,7 +326,7 @@ public final class Constants {
 
         public static class ElevatorConstants {
             public static final int kMotorId = 20;
-            public static final int kLimitSwitchBottomId = 1;
+            public static final int kLimitSwitchBottomId = 2;
 
             public static final HashMap<robotStates.pivotElevatorStates, Double> setPoints = new HashMap<>() {
                 {
