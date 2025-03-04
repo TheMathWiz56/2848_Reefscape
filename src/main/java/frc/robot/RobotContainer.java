@@ -284,6 +284,7 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
 
 
+        /*
         // Operator Joystick Bindings
                 //Scoring Commands
                 operatorJoystick.a().onTrue(commandFactory.scorelL1());
@@ -319,7 +320,13 @@ public class RobotContainer {
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(false, false, false, false));
+                */
 
+        //Pincer testing code
+        operatorJoystick.a().onTrue(pincer.stowPincer());
+        operatorJoystick.b().onTrue(pincer.pincerAlgae());
+        operatorJoystick.x().onTrue(pincer.pincerFunnel());
+        operatorJoystick.y().toggleOnTrue(pincer.holdIntakeCmd());
     }
 
     public Command getAutonomousCommand() {

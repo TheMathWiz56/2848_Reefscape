@@ -32,7 +32,7 @@ public class Pincer extends SubsystemBase{
     private final SparkMaxConfig pincerConfig  = new SparkMaxConfig();
     private final SparkClosedLoopController pincerController;
 
-    private boolean pincerPIDUpdated = false;
+    private boolean pincerPIDUpdated = true;
 
     private final SparkMax intakeMotor = new SparkMax(kIntakeMotorId, MotorType.kBrushless);
     private final SparkMaxConfig intakeConfig  = new SparkMaxConfig();
@@ -84,7 +84,7 @@ public class Pincer extends SubsystemBase{
         //Constants.kMotorBurnDelay();
         //pincerSetpoint = kStowPosition;
 
-        //pincerController.setReference(kStowPosition, SparkMax.ControlType.kPosition);
+        pincerController.setReference(pincerSetpoint, SparkMax.ControlType.kPosition);
     }
 
     @Override
@@ -105,6 +105,8 @@ public class Pincer extends SubsystemBase{
 
         builder.addDoubleProperty("Pincer Setpoint", () -> pincerSetpoint, null);
 
+        builder.addDoubleProperty("Pincer .get()", () -> pincerMotor.get(), null);
+
         // PID Tuning
         builder.addDoubleProperty("Pincer kP", () -> kPincerP, value -> { kPincerP = value; pincerPIDUpdated = true;});
         builder.addDoubleProperty("Pincer kI", () -> kPincerI, value -> { kPincerI = value; pincerPIDUpdated = true;});
@@ -119,11 +121,9 @@ public class Pincer extends SubsystemBase{
         if (pincerPIDUpdated){
             pincerConfig
                 .closedLoop.pid(kPincerP, kPincerI, kPincerD);
-            pincerMotor.configure(pincerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+            pincerMotor.configure(pincerConfig, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
             pincerPIDUpdated = false;
         }
-
-        
 
         SmartDashboard.putData(this);
     }
@@ -164,7 +164,7 @@ public class Pincer extends SubsystemBase{
     // }
 
     public void setPincerOutput(double setpoint) {
-        //pincerController.setReference(setpoint, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0);        
+        pincerController.setReference(setpoint, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0);        
     } 
 
     /** Moves the pincer to the specified setpoint
@@ -210,10 +210,16 @@ public class Pincer extends SubsystemBase{
 
     public void holdIntake() {
         if(hasAlgae()) {
-            intakeMotor.set(-0.05);
+            intakeMotor.set(-0.25);
         }else{
             intakeMotor.stopMotor();
         }
+    }
+
+    
+
+    public Command holdIntakeCmd() {
+        return run(() -> holdIntake()).withName("Hold Algae in Intake");
     }
 
     /** Runs the intake motor at the intake speed
@@ -246,12 +252,11 @@ public class Pincer extends SubsystemBase{
     }
     
     public Command holdState(){
-        /*
         return run(() -> {
             setPincerOutput(pincerSetpoint);
-        }).withName("Hold State"); */
+        }).withName("Hold State");
 
-        return Commands.idle(this);
+        //return Commands.idle(this);
     }
 
 }

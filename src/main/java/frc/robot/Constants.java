@@ -290,7 +290,7 @@ public final class Constants {
             public static final int kIntakeAlgaeCurrentThreshold = 20;
 
             // PID Settings
-            public static double kPincerP = 0.005;
+            public static double kPincerP = 0.5;
             public static double kPincerI = 0.0;
             public static double kPincerD = 0.0;
             public static final FeedbackSensor kPincerMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
