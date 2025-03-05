@@ -301,25 +301,59 @@ public class RobotContainer {
                 operatorJoystick.pov(0).onTrue(commandFactory.feed());
 
                 // Stow Commands
+
+                //empty near top
                 operatorJoystick.pov(90)
                         .and(elevator.isNearTop())
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(false, false, true, false));
+                //coral not low
                 operatorJoystick.pov(90)
                         .and(() ->pincer.hasCoral())
                         .and(() -> !elevator.isLow().getAsBoolean())
                                 .onTrue(commandFactory.stow(true, false, false, false));
+                //all algae
                 operatorJoystick.pov(90).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+                //low coral
                 operatorJoystick.pov(90)
                         .and(elevator.isLow())
                         .and(() -> pincer.hasCoral())
                                 .onTrue(commandFactory.stow(true, false, false, true));
+                //not high empty
                 operatorJoystick.pov(90)
                         .and(() -> !elevator.isNearTop().getAsBoolean())
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(false, false, false, false));
+                
+
+                //reef algae
+
+                operatorJoystick.leftBumper().onTrue(
+                        commandFactory.reefAlgaeHigh()
+                );
+
+                operatorJoystick.leftTrigger(.5).onTrue(
+                        commandFactory.reefAlgaeLow()
+                );
+                
+
+                /*
+                accounted for i think
+
+                low coral
+                high coral - normal
+                normal - normal
+
+                low  algae - normal 
+                normal algae - normal 
+                high algae - normal 
+
+                low empty - normal
+                normal empty - normal
+                high empty - high empty
+                */                
                 
 
         //Pincer testing code

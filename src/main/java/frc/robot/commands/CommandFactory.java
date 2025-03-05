@@ -199,19 +199,19 @@ public class CommandFactory{
 /*stows. Uses sensor to determine which stow */
     public Command stow(boolean hasCoral, boolean hasAlgae, boolean isNearTop, boolean IsLow){
         Command output;
-        if(hasCoral && !IsLow){
+        if(hasCoral && !IsLow){ // coral not low
             output = new InstantCommand(()->pincer.stopIntake(),pincer)
             .andThen(arm.coralStow())
             .andThen(elevator.coralStow()
             ).andThen(pincer.pincerFunnel());
         }
-        else if(hasCoral && IsLow){
+        else if(hasCoral && IsLow){ // coral low
             output = new InstantCommand(()->pincer.stopIntake(),pincer)
             .andThen(elevator.coralStow()
             .andThen(arm.coralStow())
             ).andThen(pincer.pincerFunnel());
         }
-        else if(hasAlgae){
+        else if(hasAlgae){ // no coral -- algae or low
             output = new InstantCommand(()->pincer.stopIntake(),pincer)
             .andThen(arm.algaeStow())
             .andThen(elevator.algaeStow())
@@ -251,6 +251,7 @@ public class CommandFactory{
             .andThen(arm.reefAlgaeHigh())
             .andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
+            .andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
             .andThen(pincer.pincerAlgaeHold());
         }
         
@@ -261,6 +262,7 @@ public class CommandFactory{
             .andThen(arm.reefAlgaeLow())
             .andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
+            .andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
             .andThen(pincer.pincerAlgaeHold());
         
     }
