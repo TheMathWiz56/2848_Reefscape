@@ -17,6 +17,7 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -29,6 +30,9 @@ public class Pincer extends SubsystemBase{
     private final SparkClosedLoopController pincerController;
 
     private final Debouncer algaeDebouncer = new Debouncer(0.1);
+    private final Debouncer algaeDebouncer1 = new Debouncer(0.1);
+    private final Debouncer algaeDebouncer2 = new Debouncer(0.1);
+
 
     private boolean pincerPIDUpdated = true;
 
@@ -38,7 +42,7 @@ public class Pincer extends SubsystemBase{
     private final LaserCan laserCan = new LaserCan(kLaserCanId);
     private final Debouncer laserCanDebouncer = new Debouncer(0.1);
 
-    public double pincerSetpoint = kStowPosition;
+    public double pincerSetpoint = kFunnelPosition;
     private double lastLaserCANReading = 100;
 
     // Use current sensing for the algae
@@ -112,6 +116,9 @@ public class Pincer extends SubsystemBase{
 
         builder.addBooleanProperty("Has Coral",() -> hasCoral(),null);
         builder.addBooleanProperty("Has Algae",() -> hasAlgae(),null);
+    
+        //builder.addBooleanProperty("Has Algae (Pincer Amps)", () -> algaeDebouncer1.calculate(pincerMotor.getOutputCurrent() > kIntakeAlgaeCurrentThreshold), null);
+        //builder.addBooleanProperty("Has Algae (Encoder Velocity)", () -> algaeDebouncer2.calculate(Math.abs(pincerAbsEncoder.getVelocity()) < 0.1), null);
     }
 
     @Override
@@ -134,7 +141,7 @@ public class Pincer extends SubsystemBase{
     /**@return True if the current draw on the intake motor is over the algae threshold
      */
     public boolean hasAlgae(){
-        return algaeDebouncer.calculate(pincerMotor.getOutputCurrent() > kIntakeAlgaeCurrentThreshold);
+        return algaeDebouncer.calculate(Math.abs(pincerAbsEncoder.getVelocity()) < 0.1 && pincerAbsEncoder.getPosition() < 0.05);
     }
 
     public boolean hasCoral(){
@@ -215,10 +222,12 @@ public class Pincer extends SubsystemBase{
         }
     }
 
+    public void holdPincer() {
+        pincerMotor.set(-0.25);
+    }
     
-
-    public Command holdIntakeCmd() {
-        return pincerToSetpoint(kHoldAlgaePosition);
+    public Command pincerAlgaeHold() {
+        return run(() -> holdPincer()).andThen(Commands.idle(this)).until(() -> pincerAbsEncoder.getPosition() < -0.250);
     }
 
     /** Runs the intake motor at the intake speed

@@ -324,7 +324,7 @@ public class RobotContainer {
 
         //Pincer testing code
         
-                operatorJoystick.b().onTrue(pincer.pincerAlgae());
+                operatorJoystick.b().onTrue(pincer.pincerAlgaeHold());
                 operatorJoystick.x().onTrue(pincer.pincerFunnel());
         //operatorJoystick.y().toggleOnTrue(pincer.holdIntakeCmd()); */
     }

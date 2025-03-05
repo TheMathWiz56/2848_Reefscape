@@ -203,29 +203,32 @@ public class CommandFactory{
             output = new InstantCommand(()->pincer.stopIntake(),pincer)
             .andThen(arm.coralStow())
             .andThen(elevator.coralStow()
-            );
+            ).andThen(pincer.pincerFunnel());
         }
         else if(hasCoral && IsLow){
             output = new InstantCommand(()->pincer.stopIntake(),pincer)
             .andThen(elevator.coralStow()
             .andThen(arm.coralStow())
-            );
+            ).andThen(pincer.pincerFunnel());
         }
         else if(hasAlgae){
             output = new InstantCommand(()->pincer.stopIntake(),pincer)
             .andThen(arm.algaeStow())
-            .andThen(elevator.algaeStow());
+            .andThen(elevator.algaeStow())
+            .andThen(pincer.pincerAlgaeHold());
         }
         else if(isNearTop) {
             output =  new InstantCommand(() -> pincer.stopIntake(), pincer)
                 .andThen(arm.goStraightOn())
                 .andThen(elevator.emptyStow())
-                .andThen(arm.emptyStow());
+                .andThen(arm.emptyStow())
+                .andThen(pincer.pincerFunnel());
         }
         else{
             output = new InstantCommand(()->pincer.stopIntake(),pincer)
             .andThen(arm.emptyStow())
-            .andThen(elevator.emptyStow());
+            .andThen(elevator.emptyStow())
+            .andThen(pincer.pincerFunnel());
             }
 
         return output;
@@ -235,6 +238,7 @@ public class CommandFactory{
         return //pincer.pincerFunnel()
         elevator.goToFeed()
          .andThen(arm.pivotToFeed())
+         .andThen(pincer.pincerFunnel())
          .andThen(pincer.intake())
          .andThen(pincer.holdState())
          .until(()->pincer.hasCoral())
@@ -242,18 +246,22 @@ public class CommandFactory{
     }
 
     public Command reefAlgaeHigh(){
-            return elevator.reefAlgaeHigh()
+            return pincer.pincerAlgae()
+            .andThen(elevator.reefAlgaeHigh())
             .andThen(arm.reefAlgaeHigh())
             .andThen(pincer.reefAlgae())
-            .andThen(pincer.intake());
+            .andThen(pincer.intake())
+            .andThen(pincer.pincerAlgaeHold());
         }
         
     public Command reefAlgaeLow(){
         
-            return elevator.reefAlgaeLow()
+            return pincer.pincerAlgae()
+            .andThen(elevator.reefAlgaeLow())
             .andThen(arm.reefAlgaeLow())
             .andThen(pincer.reefAlgae())
-            .andThen(pincer.intake());
+            .andThen(pincer.intake())
+            .andThen(pincer.pincerAlgaeHold());
         
     }
 /*score net net */
