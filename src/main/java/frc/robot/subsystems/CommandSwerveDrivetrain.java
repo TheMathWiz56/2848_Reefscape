@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
@@ -46,6 +47,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -102,8 +104,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
-
-
     
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -390,6 +390,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (currentCommand != null){
             SmartDashboard.putString("Drivebase Current Command", currentCommand.getName());
         }        
+
+        SmartDashboard.putNumber("Tag ID", getTag());
+        SmartDashboard.putNumber("Tag ID RAW", NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("tid").getInteger(-1));
+        SmartDashboard.putBoolean("Has Tag", this.LLHasTag());
     }
 
 
@@ -534,7 +538,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @return ID. Returns -1 if no tag is detected.
      */
     public int getTag() {
-        return (int) LimelightHelpers.getLimelightNTTableEntry(limelightUsed, "tid").getInteger(-1);
+        return (int) NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("tid").getInteger(-1);
     }
 
     /**
@@ -544,8 +548,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @return A {@link Command} that moves the robot to the transformed position of the detected tag. 
      *         If no tag is visible, a command is returned that logs the absence of a tag.
      */
-    public Command pathPIDToTagLeft(){
-        int ID = getTag();
+    private Command pathPIDToTagLeft(int ID){
+        SmartDashboard.putNumber("Tag ID used", ID);
 
         if (ID != -1)
             return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.leftBranch));
@@ -559,13 +563,44 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @return A {@link Command} that moves the robot to the transformed position of the detected tag. 
      *         If no tag is visible, a command is returned that logs the absence of a tag.
      */
-    public Command pathPIDToTagRight(){
-        int ID = getTag();
+    private Command pathPIDToTagRight(int ID){
+        SmartDashboard.putNumber("Tag ID used", ID);
 
         if (ID != -1)
             return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch));
         return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
     }
+
+    private Command pathPIDToTagRightSelect = 
+    new SelectCommand<>(
+        Map.ofEntries(
+            Map.entry(17, this.pathPIDToTagRight(17)),
+            Map.entry(18, this.pathPIDToTagRight(18)),
+            Map.entry(19, this.pathPIDToTagRight(19)),
+            Map.entry(20, this.pathPIDToTagRight(20)),
+            Map.entry(21, this.pathPIDToTagRight(21)),
+            Map.entry(22, this.pathPIDToTagRight(22)))
+    , this::getTag);
+
+    private Command pathPIDToTagLeftSelect = 
+    new SelectCommand<>(
+        Map.ofEntries(
+            Map.entry(17, this.pathPIDToTagLeft(17)),
+            Map.entry(18, this.pathPIDToTagLeft(18)),
+            Map.entry(19, this.pathPIDToTagLeft(19)),
+            Map.entry(20, this.pathPIDToTagLeft(20)),
+            Map.entry(21, this.pathPIDToTagLeft(21)),
+            Map.entry(22, this.pathPIDToTagLeft(22)))
+    , this::getTag);
+
+    public Command pathPIDToTagRightSelect(){
+        return pathPIDToTagRightSelect;
+    }
+
+    public Command pathPIDToTagLeftSelect(){
+        return pathPIDToTagLeftSelect;
+    }
+    
 
     /**
      * Creates a command that moves the robot to the specified {@link Pose2d} using PID controllers 

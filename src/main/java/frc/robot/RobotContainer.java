@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -47,7 +48,7 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-    private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric()
+    private final SwerveRequest.RobotCentric preciseAdjustments = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
@@ -187,13 +188,13 @@ public class RobotContainer {
         // Drive Joystick Bindings
                 // Small adjustments code
                 driverJoystick.pov(90)
-                        .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.125))); //right
+                        .whileTrue(drivetrain.applyRequest(() -> preciseAdjustments.withVelocityX(0).withVelocityY(-0.125))); //right
                 driverJoystick.pov(270)
-                        .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(0.125))); //left
+                        .whileTrue(drivetrain.applyRequest(() -> preciseAdjustments.withVelocityX(0).withVelocityY(0.125))); //left
                 driverJoystick.pov(0)
-                        .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.125).withVelocityY(0)));
+                        .whileTrue(drivetrain.applyRequest(() -> preciseAdjustments.withVelocityX(0.125).withVelocityY(0)));
                 driverJoystick.pov(180)
-                        .whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.125).withVelocityY(0)));
+                        .whileTrue(drivetrain.applyRequest(() -> preciseAdjustments.withVelocityX(-0.125).withVelocityY(0)));
 
                 // Driver joystick manual intake/exhaust wheels
                 driverJoystick.leftBumper().whileTrue(pincer.manualIntake());
@@ -210,8 +211,18 @@ public class RobotContainer {
 
                 // Auto Driving
                 // This should eventually be handled by the operator so that they can select which level to score on. For now, just align then manually score
-                driverJoystick.x().and(() -> pincer.hasCoral()).and(LLHasTag).onTrue(drivetrain.pathPIDToTagLeft());
-                driverJoystick.b().and(() -> pincer.hasCoral()).and(LLHasTag).onTrue(drivetrain.pathPIDToTagRight());
+                driverJoystick.x()
+                        .and(() -> pincer.hasCoral())
+                        .and(LLHasTag)
+                                .onTrue(drivetrain.pathPIDToTagLeftSelect()
+                                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain)
+                                .raceWith(commandFactory.scorelL3())));
+                driverJoystick.b()
+                        .and(() -> pincer.hasCoral())
+                        .and(LLHasTag)
+                                .onTrue(drivetrain.pathPIDToTagRightSelect()
+                                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain)
+                                .raceWith(commandFactory.scorelL3())));
 
                 // driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
         

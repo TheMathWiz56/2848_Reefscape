@@ -61,12 +61,12 @@ public class TunerConstants {
         return std;
     }
 
-    public static final double pathPID_Translation_P = 1; // (m/s) / m error: 1
+    public static final double pathPID_Translation_P = 2; // (m/s) / m error: 1
     public static final double pathPID_Translation_I = 0; // (m/s) / m error
     public static final double pathPID_Translation_D = 0.0;
     public static final double pathPID_Translation_maxV = 0.25; // m/s
     public static final double pathPID_Translation_MaxA = 0.2;
-    public static final double pathPID_Translation_Tol = .015;
+    public static final double pathPID_Translation_Tol = .03;
     public static final double pathPID_Translation_Deadband = 0.05;
 
     public static final double pathPID_Rotation_P = 2; // (rad/s) / rad error : 2
