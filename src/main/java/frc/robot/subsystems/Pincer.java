@@ -16,6 +16,7 @@ import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -31,6 +32,8 @@ public class Pincer extends SubsystemBase{
     private final AbsoluteEncoder pincerAbsEncoder;
     private final SparkMaxConfig pincerConfig  = new SparkMaxConfig();
     private final SparkClosedLoopController pincerController;
+
+    private final Debouncer algaeDebouncer = new Debouncer(0.1);
 
     private boolean pincerPIDUpdated = true;
 
@@ -112,7 +115,8 @@ public class Pincer extends SubsystemBase{
         builder.addDoubleProperty("Pincer kI", () -> kPincerI, value -> { kPincerI = value; pincerPIDUpdated = true;});
         builder.addDoubleProperty("Pincer kD", () -> kPincerD, value -> { kPincerD = value; pincerPIDUpdated = true;});
 
-        builder.addBooleanProperty("has coral",() -> hasCoral(),null);
+        builder.addBooleanProperty("Has Coral",() -> hasCoral(),null);
+        builder.addBooleanProperty("Has Algae",() -> hasAlgae(),null);
     }
 
     @Override
@@ -135,7 +139,7 @@ public class Pincer extends SubsystemBase{
     /**@return True if the current draw on the intake motor is over the algae threshold
      */
     public boolean hasAlgae(){
-        return intakeMotor.getOutputCurrent() > kIntakeAlgaeCurrentThreshold;
+        return algaeDebouncer.calculate(pincerMotor.getOutputCurrent() > kIntakeAlgaeCurrentThreshold);
     }
 
     public boolean hasCoral(){

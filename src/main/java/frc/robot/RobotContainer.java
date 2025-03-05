@@ -323,11 +323,10 @@ public class RobotContainer {
                 
 
         //Pincer testing code
-        /*
-        operatorJoystick.a().onTrue(pincer.stowPincer());
-        operatorJoystick.b().onTrue(pincer.pincerAlgae());
-        operatorJoystick.x().onTrue(pincer.pincerFunnel());
-        operatorJoystick.y().toggleOnTrue(pincer.holdIntakeCmd()); */
+        
+                operatorJoystick.b().onTrue(pincer.pincerAlgae());
+                operatorJoystick.x().onTrue(pincer.pincerFunnel());
+        //operatorJoystick.y().toggleOnTrue(pincer.holdIntakeCmd()); */
     }
 
     public Command getAutonomousCommand() {
