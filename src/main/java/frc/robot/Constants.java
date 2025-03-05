@@ -313,6 +313,7 @@ public final class Constants {
             public static final double kStowPosition = -0.349;
             public static final double kFunnelPosition = 0.298;
             public static final double kAlgaePosition = -0.133;
+            public static final double kHoldAlgaePosition = -0.183; //guess
 
             // Intake Setpoints
             public static final double kIntakeSpeed = -0.6;
