@@ -35,6 +35,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Pincer;
 import frc.robot.subsystems.Lights;
+import frc.robot.subsystems.Ascender;
 
 
 public class RobotContainer {
@@ -59,7 +60,7 @@ public class RobotContainer {
 
     // Subsystem Instances
         public final Arm arm = new Arm();
-        //public final Ascender ascender = new Ascender();
+        public final Ascender ascender = new Ascender();
         //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
         //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
         public final Pincer pincer = new Pincer();
@@ -123,7 +124,7 @@ public class RobotContainer {
                 elevator.setDefaultCommand(elevator.holdState());
                 arm.setDefaultCommand(arm.holdState());
                 pincer.setDefaultCommand(pincer.holdState());
-                //ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
+                ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
 
         // Keypad Bindings
                 pad.button(20).onTrue(new InstantCommand(() -> pincer.intake(),pincer));

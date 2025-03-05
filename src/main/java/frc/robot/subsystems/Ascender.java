@@ -11,6 +11,7 @@ import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -37,8 +38,17 @@ public class Ascender extends SubsystemBase {
     } */
 
     public Command manualClimb(DoubleSupplier input) {
-        //return run(() -> { if(ascenderLimitSwitch.get()) ascenderMotor.set(input.getAsDouble() * 0.5); else ascenderMotor.set(0); });
-        return run(() -> ascenderMotor.set(input.getAsDouble() * 0.5));
+        return run(() -> ascenderMotor.set(getAscenderOutput(input)));
+    }
+
+    private double getAscenderOutput(DoubleSupplier input){
+      SmartDashboard.putBoolean("Is running", !(input.getAsDouble() < 0 && ascenderLimitSwitch.get()));
+      if (input.getAsDouble() < 0 && ascenderLimitSwitch.get()){
+        return 0;
+      }
+      else{
+        return input.getAsDouble() * 0.5;
+      }
     }
 
     //TODO: fill in start and stop
