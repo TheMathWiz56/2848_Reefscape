@@ -72,7 +72,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final Field2d m_field = new Field2d();
 
     // April tag variables
-    private static boolean useMegaTag2 = true; // set to false to use MegaTag1. Should test to see which one works better, 1 or 2? Or if they can be combined/we switch between them based on some conditions
+    private static boolean useMegaTag2 = false; // set to false to use MegaTag1. Should test to see which one works better, 1 or 2? Or if they can be combined/we switch between them based on some conditions
     private static boolean doRejectUpdate = false;
     private static String limelightUsed;
     private static LimelightHelpers.PoseEstimate LLPoseEstimate;
@@ -405,7 +405,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param forceUpdate Override the tag area requirement
      */
     public void resetToVision(boolean forceUpdate){
-        chooseLL();
+        chooseLL(false);
         LimelightHelpers.PoseEstimate poseEstimate = getLLMegaTEstimate(false); // Might be able to switch to mt1 or 2. Needs testing if want to change
 
         if (poseEstimate != null) {
@@ -420,8 +420,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * with the odometry pose estimate
      */
     private void updateOdometry() {
-        chooseLL();
-        LLPoseEstimate = getLLMegaTEstimate(true); 
+        chooseLL(useMegaTag2);
+        LLPoseEstimate = getLLMegaTEstimate(useMegaTag2); 
 
         if (LLPoseEstimate != null) {
             // needs to be converted to a current time timestamp for it to be combined properly with the odometry pose estimate
@@ -502,7 +502,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /**
      * Updates the currently used limelight based on which limelight has the largest average tag area.
      */
-    private static void chooseLL(){
+    private static void chooseLL(boolean useMegaTag2){
         limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
         limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
         SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
@@ -519,7 +519,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 
         }
         
-        TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 9999999); // Don't trust yaw, rely on Pigeon
+        if (useMegaTag2)
+            TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 9999999); // Don't trust yaw, rely on Pigeon
+        else
+            TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, .5); // Use vision yaw reading
+
 
         SmartDashboard.putNumberArray("Vision Standard Deviations", TunerConstants.visionStandardDeviation.getData());
         SmartDashboard.putString("Limelight Used", limelightUsed);
