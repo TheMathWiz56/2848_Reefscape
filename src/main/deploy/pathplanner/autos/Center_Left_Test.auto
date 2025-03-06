@@ -1,0 +1,62 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Stow_Coral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Reset_To_Vision"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Align_Right"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Score_L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Reef_Stall"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "H_Backup"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stow_Empty"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

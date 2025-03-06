@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -25,8 +27,11 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -42,14 +47,17 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 
 import frc.robot.LimelightHelpers;
+import frc.robot.reefData;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.Util.reef;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -91,13 +99,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                                                                                     new TrapezoidProfile.Constraints(TunerConstants.pathPID_Translation_maxV, TunerConstants.pathPID_Translation_MaxA));
     ProfiledPIDController pathPIDRotationController = new ProfiledPIDController(TunerConstants.pathPID_Rotation_P, TunerConstants.pathPID_Rotation_I, TunerConstants.pathPID_Rotation_D, 
                                                                                     new TrapezoidProfile.Constraints(TunerConstants.pathPID_Rotation_maxV, TunerConstants.pathPID_Rotation_MaxA));
-
+    private final Debouncer atGoalDebouncer = new Debouncer(TunerConstants.debounce_Time, DebounceType.kBoth);
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
-
-
     
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -179,7 +185,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configureAutoBuilder();
+        configureDrivebase();
     }
 
     /**
@@ -204,7 +210,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configureAutoBuilder();
+        configureDrivebase();
     }
 
     /**
@@ -237,7 +243,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (Utils.isSimulation()) {
             startSimThread();
         }
-        configureAutoBuilder();
+        configureDrivebase();
     }
 
     /**
@@ -291,7 +297,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     //___________________________________________________ Custom Code ___________________________________________________
 
 
-    private void configureAutoBuilder() {
+    private void configureDrivebase() {
         try {
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
@@ -318,15 +324,25 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         } catch (Exception ex) {
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
         }
-        
-        NamedCommands.registerCommand("Score_L2", new WaitCommand(2)); // Placeholder for now
-        NamedCommands.registerCommand("Score_L4", new WaitCommand(2)); // Placeholder for now
 
         // Configure PID controllers
         pathPIDXController.setTolerance(TunerConstants.pathPID_Translation_Tol);
         pathPIDYController.setTolerance(TunerConstants.pathPID_Translation_Tol);
         pathPIDRotationController.setTolerance(TunerConstants.pathPID_Rotation_Tol);
         pathPIDRotationController.enableContinuousInput(-Math.PI, Math.PI);
+
+        // Vision setup
+        // Configure AprilTag detection
+        if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+            LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{6, 7, 8, 9, 10, 11}); // Only track these tag IDs
+        }
+        else if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
+                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{17, 18, 19, 20, 21, 22}); // Only track these tag IDs
+        }
+        else{
+                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22}); // Only track these tag IDs
+        }
+        LimelightHelpers.SetFiducialDownscalingOverride("limelight-front", 2.0f); // Process at half resolution for improved framerate and reduced range
     }
 
     // Move to constants or another java file
@@ -370,8 +386,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         if (currentCommand != null){
             SmartDashboard.putString("Drivebase Current Command", currentCommand.getName());
-        }
-        
+        }        
+
+        SmartDashboard.putNumber("Tag ID", getTag());
+        SmartDashboard.putNumber("Tag ID RAW", NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("tid").getInteger(-1));
+        SmartDashboard.putBoolean("Has Tag", this.LLHasTag());
     }
 
 
@@ -383,7 +402,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param forceUpdate Override the tag area requirement
      */
     public void resetToVision(boolean forceUpdate){
-        chooseLL();
+        chooseLL(false);
         LimelightHelpers.PoseEstimate poseEstimate = getLLMegaTEstimate(false); // Might be able to switch to mt1 or 2. Needs testing if want to change
 
         if (poseEstimate != null) {
@@ -398,8 +417,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * with the odometry pose estimate
      */
     private void updateOdometry() {
-        chooseLL();
-        LLPoseEstimate = getLLMegaTEstimate(true); 
+        chooseLL(useMegaTag2);
+        LLPoseEstimate = getLLMegaTEstimate(useMegaTag2); 
 
         if (LLPoseEstimate != null) {
             // needs to be converted to a current time timestamp for it to be combined properly with the odometry pose estimate
@@ -480,7 +499,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     /**
      * Updates the currently used limelight based on which limelight has the largest average tag area.
      */
-    private static void chooseLL(){
+    private static void chooseLL(boolean useMegaTag2){
         limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
         limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
         SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
@@ -497,21 +516,102 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 
         }
         
-        TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 9999999); // Don't trust yaw, rely on Pigeon
+        if (useMegaTag2)
+            TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 9999999); // Don't trust yaw, rely on Pigeon
+        else
+            TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, .5); // Use vision yaw reading
+
 
         SmartDashboard.putNumberArray("Vision Standard Deviations", TunerConstants.visionStandardDeviation.getData());
         SmartDashboard.putString("Limelight Used", limelightUsed);
     }
 
+    /**
+     * @return {@code true} if an april tag is in sight, {@code false} otherwise
+     */
     public boolean LLHasTag(){
-        return LimelightHelpers.getTargetCount(limelightUsed) > 0;
+        return getTag() != -1;
     }
 
+    /**
+     * Returns the ID of the AprilTag currently visible by the Limelight camera.
+     * 
+     * @return ID. Returns -1 if no tag is detected.
+     */
+    public int getTag() {
+        return (int) NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("tid").getInteger(-1);
+    }
 
-    // Increase rotation deadzone and have setpoint inside the reef so the robot pushes against the reef to align
-    // move camera so it's always in sight of april tag
-    // apply rotation deadband
-    public Command pathPIDTo(Pose2d pose){
+    /**
+     * Creates a command that moves the robot to the position of the AprilTag 
+     * detected by the Limelight camera, adjusted by the left branch transformation.
+     * 
+     * @return A {@link Command} that moves the robot to the transformed position of the detected tag. 
+     *         If no tag is visible, a command is returned that logs the absence of a tag.
+     */
+    private Command pathPIDToTagLeft(int ID){
+        SmartDashboard.putNumber("Tag ID used", ID);
+
+        if (ID != -1)
+            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.leftBranch));
+        return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
+    }
+
+    /**
+     * Creates a command that moves the robot to the position of the AprilTag 
+     * detected by the Limelight camera, adjusted by the right branch transformation.
+     * 
+     * @return A {@link Command} that moves the robot to the transformed position of the detected tag. 
+     *         If no tag is visible, a command is returned that logs the absence of a tag.
+     */
+    private Command pathPIDToTagRight(int ID){
+        SmartDashboard.putNumber("Tag ID used", ID);
+
+        if (ID != -1)
+            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch));
+        return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
+    }
+
+    private Command pathPIDToTagRightSelect = 
+    new SelectCommand<>(
+        Map.ofEntries(
+            Map.entry(17, this.pathPIDToTagRight(17)),
+            Map.entry(18, this.pathPIDToTagRight(18)),
+            Map.entry(19, this.pathPIDToTagRight(19)),
+            Map.entry(20, this.pathPIDToTagRight(20)),
+            Map.entry(21, this.pathPIDToTagRight(21)),
+            Map.entry(22, this.pathPIDToTagRight(22)))
+    , this::getTag);
+
+    private Command pathPIDToTagLeftSelect = 
+    new SelectCommand<>(
+        Map.ofEntries(
+            Map.entry(17, this.pathPIDToTagLeft(17)),
+            Map.entry(18, this.pathPIDToTagLeft(18)),
+            Map.entry(19, this.pathPIDToTagLeft(19)),
+            Map.entry(20, this.pathPIDToTagLeft(20)),
+            Map.entry(21, this.pathPIDToTagLeft(21)),
+            Map.entry(22, this.pathPIDToTagLeft(22)))
+    , this::getTag);
+
+    public Command pathPIDToTagRightSelect(){
+        return pathPIDToTagRightSelect;
+    }
+
+    public Command pathPIDToTagLeftSelect(){
+        return pathPIDToTagLeftSelect;
+    }
+    
+
+    /**
+     * Creates a command that moves the robot to the specified {@link Pose2d} using PID controllers 
+     * for X, Y, and rotation. The command runs until all PID controllers reach their goals, 
+     * as determined by the debouncer.
+     * 
+     * @param pose The target {@link Pose2d} the robot should move to.
+     * @return A {@link Command} that moves the robot to the specified pose.
+     */
+    private Command pathPIDTo(Pose2d pose){
         return this.startRun(()->{
             Pose2d currentPose2d = this.getState().Pose;
 
@@ -526,20 +626,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             }, () -> {
                 Pose2d currentPose2d = this.getState().Pose;
 
-                /*
-                pathPIDRequest
-                    .withVelocityX(pathPIDXController.calculate(currentPose2d.getX()) + pathPIDXController.getSetpoint().velocity)
-                    .withVelocityY(pathPIDYController.calculate(currentPose2d.getY())+ pathPIDYController.getSetpoint().velocity)
-                    .withRotationalRate(pathPIDRotationController.calculate(currentPose2d.getRotation().getRadians()) + pathPIDRotationController.getSetpoint().velocity)
-                    .withDeadband(0.05)
-                    .withRotationalDeadband(0.075); // + pathPIDRotationController.getSetpoint().velocity */
-
                 pathPIDRequest
                     .withVelocityX(pathPIDXController.calculate(currentPose2d.getX()))
                     .withVelocityY(pathPIDYController.calculate(currentPose2d.getY()))
                     .withRotationalRate(pathPIDRotationController.calculate(currentPose2d.getRotation().getRadians()))
-                    .withDeadband(0.05)
-                    .withRotationalDeadband(0.02); // + pathPIDRotationController.getSetpoint().velocity
+                    .withDeadband(TunerConstants.pathPID_Translation_Deadband)
+                    .withRotationalDeadband(TunerConstants.pathPID_Rotation_Deadband);
 
                 this.setControl(pathPIDRequest);
 
@@ -568,12 +660,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 SmartDashboard.putNumber("Y Total Output", pathPIDYController.calculate(currentPose2d.getY())+ pathPIDYController.getSetpoint().velocity);
                 SmartDashboard.putNumber("Rotation Total Output", pathPIDRotationController.calculate(currentPose2d.getRotation().getRadians()) + pathPIDRotationController.getSetpoint().velocity);
 
-            }).withName("PathPIDTo");
-
-            // .until(() -> pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal())
+            }).until(() -> pathPIDAtGoal()).withName("PathPIDTo");
     }
 
-    public boolean pathPADAtGoal (){
-        return pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal();
+    /**
+     * Checks if the PID path follower has been at the goal for the specified debouncer time.
+     * 
+     * @return {@code true} if the PID controllers for X, Y, and rotation have all been at the goal 
+     *         for at least {@code 0.5} seconds (the debouncer time), otherwise {@code false}.
+     */
+    public boolean pathPIDAtGoal (){
+        return atGoalDebouncer.calculate(pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal());
+    }
+
+    public void useMegaTag2(boolean input){
+        useMegaTag2 = input;
     }
 }

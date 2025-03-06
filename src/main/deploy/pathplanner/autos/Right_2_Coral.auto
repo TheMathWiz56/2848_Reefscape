@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "1_I"
+            "pathName": "-1_F"
           }
         },
         {
@@ -19,37 +19,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "I_HPLF"
+            "pathName": "F_HPRF"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "LHPF_K"
+            "pathName": "RHPF_D"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Score_L4"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "K_HPLF"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LHPF_K"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score_L2"
           }
         }
       ]
