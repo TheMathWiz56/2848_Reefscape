@@ -13,22 +13,19 @@ import java.util.function.BooleanSupplier;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+
 import frc.robot.Constants.operatorConstants;
 import frc.robot.commands.CommandFactory;
 import frc.robot.generated.TunerConstants;
@@ -38,6 +35,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Pincer;
 import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.Ascender;
+
 
 
 public class RobotContainer {
@@ -62,7 +60,6 @@ public class RobotContainer {
     // Subsystem Instances
         public final Arm arm = new Arm();
         public final Ascender ascender = new Ascender();
-        //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
         public final Pincer pincer = new Pincer();
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         public final Elevator elevator = new Elevator();
@@ -76,17 +73,26 @@ public class RobotContainer {
         private final BooleanSupplier manualDrivebase = () -> driverJoystick.getLeftX() > .1 || driverJoystick.getLeftY() > .1 || driverJoystick.getRightX() > 0.1;
 
     /* Path follower */
-    //private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
-        //autoChooser = AutoBuilder.buildAutoChooser("TEST");
-        //SmartDashboard.putData("Auto Mode", autoChooser);
+        NamedCommands.registerCommand("Score_L4", commandFactory.scorelL4(true));
+        NamedCommands.registerCommand("Score_L2", commandFactory.scorelL2());
+        NamedCommands.registerCommand("Stow_Empty", commandFactory.stow(false, false, false, false));
+        NamedCommands.registerCommand("Stow_Coral", commandFactory.stow(false, false, true, false));
+
+        autoChooser = AutoBuilder.buildAutoChooser("TEST");
+        SmartDashboard.putData("Auto Mode", autoChooser);
 
         configureBindings();
 
         reefData.reset();
 
-        CommandScheduler.getInstance().registerSubsystem(pincer);
+        // Warmup path follower
+        PathfindingCommand.warmupCommand().schedule();
+        Timer.delay(3);
+        FollowPathCommand.warmupCommand().schedule();
+        Timer.delay(3);
     }
 
     private void configureBindings() {
@@ -134,7 +140,6 @@ public class RobotContainer {
 
 
                 // Auto Driving
-                // This should eventually be handled by the operator so that they can select which level to score on. For now, just align then manually score
                 driverJoystick.x()
                         .and(() -> pincer.hasCoral())
                         .and(LLHasTag)
@@ -200,9 +205,4 @@ public class RobotContainer {
         //return autoChooser.getSelected();
         return null;
     }
-
-    public void setMaxSpeed(double metersPerSecond) {
-        MaxSpeed = metersPerSecond;
-    }
-
 }

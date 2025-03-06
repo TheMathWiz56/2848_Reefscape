@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "Stow_Coral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "0_H"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Score_L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "H_Backup"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stow_Empty"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": false,
+  "folder": null,
+  "choreoAuto": false
+}

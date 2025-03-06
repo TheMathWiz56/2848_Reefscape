@@ -324,9 +324,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         } catch (Exception ex) {
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
         }
-        
-        NamedCommands.registerCommand("Score_L2", new WaitCommand(2)); // Placeholder for now
-        NamedCommands.registerCommand("Score_L4", new WaitCommand(2)); // Placeholder for now
 
         // Configure PID controllers
         pathPIDXController.setTolerance(TunerConstants.pathPID_Translation_Tol);
