@@ -42,11 +42,12 @@ public class Ascender extends SubsystemBase {
     }
 
     private double getAscenderOutput(DoubleSupplier input){
-      SmartDashboard.putBoolean("Is running", !(input.getAsDouble() < 0 && ascenderLimitSwitch.get()));
-      if (input.getAsDouble() < 0 && ascenderLimitSwitch.get()){
+      SmartDashboard.putBoolean("Is running condition", input.getAsDouble() < 0 && !ascenderLimitSwitch.get());
+      if (input.getAsDouble() < 0 && !ascenderLimitSwitch.get()){
         return 0;
       }
       else{
+        SmartDashboard.putNumber("Ascender Output", input.getAsDouble() * 0.5);
         return input.getAsDouble() * 0.5;
       }
     }
@@ -61,7 +62,7 @@ public class Ascender extends SubsystemBase {
 
     @Override
     public void periodic() {
-
+      SmartDashboard.putData(this);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class Ascender extends SubsystemBase {
     super.initSendable(builder); // Not sure why we need this
 
     // Motor information
-    builder.addBooleanProperty("Ascender Limit Switch", () -> ascenderLimitSwitch.get(), null);
+    builder.addBooleanProperty("Ascender Limit Switch", () -> !ascenderLimitSwitch.get(), null);
   }
 
 }

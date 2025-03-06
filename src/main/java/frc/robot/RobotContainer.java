@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -82,7 +84,8 @@ public class RobotContainer {
         private final Command groundAlgaeCMD = commandFactory.groundAlgae();
 
         // Custom Triggers
-        Trigger LLHasTag = new Trigger(() -> drivetrain.LLHasTag());        
+        Trigger LLHasTag = new Trigger(() -> drivetrain.LLHasTag());    
+        private final BooleanSupplier manualDrivebase = () -> driverJoystick.getLeftX() > .1 || driverJoystick.getLeftY() > .1 || driverJoystick.getRightX() > 0.1;
 
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;
@@ -216,14 +219,16 @@ public class RobotContainer {
                         .and(() -> pincer.hasCoral())
                         .and(LLHasTag)
                                 .onTrue(drivetrain.pathPIDToTagLeftSelect()
-                                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain)
-                                .raceWith(commandFactory.scorelL3())));
+                                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain))
+                                .until(() -> !pincer.hasCoral() || manualDrivebase.getAsBoolean())
+                                );
                 driverJoystick.b()
                         .and(() -> pincer.hasCoral())
                         .and(LLHasTag)
                                 .onTrue(drivetrain.pathPIDToTagRightSelect()
-                                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain)
-                                .raceWith(commandFactory.scorelL3())));
+                                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain))
+                                .until(() -> !pincer.hasCoral() || manualDrivebase.getAsBoolean())
+                                );
 
                 // driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
         

@@ -303,8 +303,7 @@ public class Elevator extends SubsystemBase {
 
   public Command autoZeroEncoder() {
     return run(() -> setMotorVoltage(1.5))
-        .until(kUseCurrentForZeroing ? () -> elevatorMotor.getStatorCurrent().getValueAsDouble() > kZeroingCurrent
-            : () -> !elevatorLimitSwitchBottom.get())
+        .until(() -> elevatorMotor.getSupplyCurrent().getValueAsDouble() > kZeroingCurrent || !elevatorLimitSwitchBottom.get())
         .andThen(runOnce(() -> {
           zeroEncoder();
           setMotorVoltage(0.0);
