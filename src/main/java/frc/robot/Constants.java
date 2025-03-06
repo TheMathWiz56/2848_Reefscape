@@ -4,7 +4,9 @@ import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.Percent;
 import static edu.wpi.first.units.Units.Second;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -237,8 +239,8 @@ public final class Constants {
         public static final double kL1Position = 0.0; // Placeholder
         public static final double kL2L3Position = 0.1; //0.109;
         public static final double kL4Position = 0.125; //0.139;
-        public static final double kReefAlgaeHighPosition = 0.033;
-        public static final double kReefAlgaeLowPosition = 0.033;
+        public static final double kReefAlgaeHighPosition = 0.0;
+        public static final double kReefAlgaeLowPosition = 0.0;
         public static final double kGroundAlgaePosition = 0.0;
         public static final double kProcessorPosition = 0.0;
         public static final double kNetPosition = -.1;
@@ -254,7 +256,7 @@ public final class Constants {
          * public static final double kFeedPosition = 0.0;
          * public static final double kL1Position = 0.1;
          * public static final double kL2L3Position = 0.2;
-         * public static final double kL4Position = 0.325;o
+         * public static final double kL4Position = 0.325;
          */
     }
 
@@ -279,14 +281,14 @@ public final class Constants {
             // Motor Controller Settings
             public static final boolean kPincerMotorInverted = false;
             public static final IdleMode kPincerMotorIdleMode = IdleMode.kCoast;
-            public static final int kPincerMotorSmartCurrentLimit = 10;
+            public static final int kPincerMotorSmartCurrentLimit = 30;
 
             public static final boolean kIntakeMotorInverted = false;
             public static final IdleMode kIntakeMotorIdleMode = IdleMode.kCoast;
-            public static final int kIntakeMotorSmartCurrentLimit = 24;
+            public static final int kIntakeMotorSmartCurrentLimit = 30;
 
             /** Current Threshold for determining if we have an algae */
-            public static final double kIntakeAlgaeCurrentThreshold = 6.67;
+            public static final int kIntakeAlgaeCurrentThreshold = 20;
 
             // PID Settings
             public static double kPincerP = 1.0;
@@ -321,7 +323,7 @@ public final class Constants {
 
         public static class AscenderConstants {
             public static final int kAscenderMotorId = 25;
-            public static final int kAscenderLimitSwitchId = 0;
+            public static final int kAscenderLimitSwitchId = 2;
         }
 
         public static class ElevatorConstants {
@@ -378,8 +380,8 @@ public final class Constants {
             public static final double kSetpointStow = -0.065;
             public static final double kSetpointStowCoral = -12.0;//-6.130;
             public static final double kSetpointStowAlgae = -5.0;
-            public static final double kSetpointReefAlgaeHigh = -23.716;
-            public static final double kSetpointReefAlgaeLow = -14.999;
+            public static final double kSetpointReefAlgaeHigh = -24.716;
+            public static final double kSetpointReefAlgaeLow = -15.999;
             public static final double kSetpointGroundAlgae = -5.0;
             public static final double kSetpointProcessor = -5.0;
             public static final double kSetpointNet = -42.0;
