@@ -251,7 +251,7 @@ public class CommandFactory{
             .andThen(arm.reefAlgaeHigh())
             .andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
-            .andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
+            //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
             .andThen(pincer.pincerAlgaeHold());
         }
         
@@ -262,7 +262,7 @@ public class CommandFactory{
             .andThen(arm.reefAlgaeLow())
             .andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
-            .andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
+            //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
             .andThen(pincer.pincerAlgaeHold());
         
     }
