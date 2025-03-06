@@ -313,24 +313,15 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
-
+    if(!isZeroed){
+      if(!elevatorLimitSwitchBottom.get()){
+        this.setDefaultCommand(holdState());
+        isZeroed = true;
+      }
+    }
+    
     SmartDashboard.putData(this);
-    // List<Integer> keyDown = new ArrayList<>();
-    // keyDown = keypad.keys;
-    // keypad.keyMode mode = keypad.mode;
-    // int reef =0;
-    // Constants.reef.reefLs L = Constants.reef.reefLs.STOW;
-    // for(int i : keyDown){
-    // if(Constants.reef.rMap.containsKey(i)){
-    // reef = Constants.reef.rMap.get(i);
-    // } else if(Constants.reef.lMap.containsKey(i)){
-    // L = Constants.reef.lMap.get(i);
-    // }
-    // }
-
-    //
-
-  }
+    }
 
   @Override
   public void simulationPeriodic() {
@@ -368,29 +359,6 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty("Profile Current Velocity", () -> currentState.velocity, null);
 
     builder.addDoubleProperty("Timer", () -> timer.get(), null);
-
-    // Add closed loop information (not done yet)
-    builder.addDoubleProperty("Elevator kP,", () -> elevatorMotorConfig.Slot0.kP, (kPNew) -> {
-      elevatorMotorConfig.Slot0.withKP(kPNew);
-      elevatorMotor.getConfigurator().apply(elevatorMotorConfig);
-    });
-    builder.addDoubleProperty("Elevator kI,", () -> elevatorMotorConfig.Slot0.kI, (kINew) -> {
-      elevatorMotorConfig.Slot0.withKI(kINew);
-      elevatorMotor.getConfigurator().apply(elevatorMotorConfig);
-    });
-    builder.addDoubleProperty("Elevator kD,", () -> elevatorMotorConfig.Slot0.kD, (kDNew) -> {
-      elevatorMotorConfig.Slot0.withKD(kDNew);
-      elevatorMotor.getConfigurator().apply(elevatorMotorConfig);
-    });
-
-    // Feedforward values
-    // There doesn't seem to be any setters for these. Don't think these would be
-    // useful without that so commenting them out for now
-
-    builder.addDoubleProperty("Elevator Feedforward Ks", () -> feedforward.getKs(), null);
-    builder.addDoubleProperty("Elevator Feedforward Kg", () -> feedforward.getKg(), null);
-    builder.addDoubleProperty("Elevator Feedforward Kv", () -> feedforward.getKv(), null);
-    builder.addDoubleProperty("Elevator Feedforward Ka", () -> feedforward.getKa(), null);
 
     builder.addBooleanProperty("Limit Switch State", () -> elevatorLimitSwitchBottom.get(), null);
     builder.addBooleanProperty("Is Zeroed", () -> isZeroed, null);

@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Reset_To_Vision"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "0_H"
@@ -37,7 +43,7 @@
       ]
     }
   },
-  "resetOdom": false,
+  "resetOdom": true,
   "folder": null,
   "choreoAuto": false
 }

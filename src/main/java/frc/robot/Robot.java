@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.SignalLogger;
 
 import au.grapplerobotics.CanBridge;
@@ -11,16 +13,22 @@ import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RuntimeType;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final RobotContainer m_robotContainer;
+  private double autonomous_delay;
 
   public Robot() {
     m_robotContainer = new RobotContainer();
+
+    // Publishes autonomous delay key to smart dashboard
+    SmartDashboard.putNumber("Autonomous Delay", 0);
 
     // Set the logger to log to the first flashdrive plugged in. This should be turned back on once a USB drive is plugged into the roboRIO. Good for debugging
     //SignalLogger.setPath("/media/sda1/");
@@ -41,7 +49,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    autonomous_delay = SmartDashboard.getNumber("Autonomous Delay", 0);
+  }
 
   @Override
   public void disabledExit() {}
@@ -51,7 +61,7 @@ public class Robot extends TimedRobot {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+      Commands.waitSeconds(autonomous_delay).andThen(m_autonomousCommand).schedule();
     }
 
     // Elastic.selectTab("Autonomous"); // Causing lag, I think. If turned back on might cause commandSchedulerLoop issues

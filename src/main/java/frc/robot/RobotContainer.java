@@ -78,10 +78,13 @@ public class RobotContainer {
     public RobotContainer() {
         NamedCommands.registerCommand("Score_L4", commandFactory.scorelL4(true));
         NamedCommands.registerCommand("Score_L2", commandFactory.scorelL2());
-        NamedCommands.registerCommand("Stow_Empty", commandFactory.stow(false, false, false, false));
-        NamedCommands.registerCommand("Stow_Coral", commandFactory.stow(false, false, true, false));
+        NamedCommands.registerCommand("Stow_Empty", commandFactory.stow(false, false, true, false));
+        NamedCommands.registerCommand("Stow_Coral", commandFactory.stow(true, false, false, true));
+        NamedCommands.registerCommand("Reset_To_Vision", Commands.runOnce(() -> drivetrain.resetToVision(true)));
+        NamedCommands.registerCommand("Align_Right", drivetrain.pathPIDToTagRightSelect());
+        NamedCommands.registerCommand("Reef_Stall", Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain));
 
-        autoChooser = AutoBuilder.buildAutoChooser("TEST");
+        autoChooser = AutoBuilder.buildAutoChooser("Center_Left");
         SmartDashboard.putData("Auto Mode", autoChooser);
 
         configureBindings();
@@ -201,8 +204,6 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        /* Run the path selected from the auto chooser */
-        //return autoChooser.getSelected();
-        return null;
+        return autoChooser.getSelected();
     }
 }

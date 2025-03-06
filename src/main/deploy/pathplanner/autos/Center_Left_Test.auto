@@ -11,21 +11,40 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "0_G"
+            "name": "Reset_To_Vision"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Score_L4"
+            "name": "Align_Right"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Score_L4"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Reef_Stall"
+                }
+              }
+            ]
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "G_Backup"
+            "pathName": "H_Backup"
           }
         },
         {

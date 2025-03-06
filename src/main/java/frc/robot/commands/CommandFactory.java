@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -97,24 +98,22 @@ public class CommandFactory{
               pincer.stopIntake().schedule();
             });
         }
-        public Command scorelL4(boolean facingDownwards){
-            // Added transition to avoid ramming into elevator top
+    public Command scorelL4(boolean facingDownwards){
+        // Added transition to avoid ramming into elevator top
 
-            if (facingDownwards){
-                return elevator.goToL(Constants.reef.reefLs.lL4)
-            .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
-                Constants.reef.reefToState.get(
-                    Constants.reef.reefLs.lL4
-                )
-            )))
-            .andThen(pincer.exhaust())
-             .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
-            .finallyDo((interrupted) ->{
-                  pincer.stopIntake().schedule();
-                });
-            }
+        if (facingDownwards){
+            return elevator.goToL(Constants.reef.reefLs.lL4)
+                .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+                    Constants.reef.reefToState.get(
+                        Constants.reef.reefLs.lL4
+                    )
+                )))
+                .andThen(pincer.exhaust())
+                .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
+                .andThen(pincer.stopIntake());
+        }
 
-            return arm.goStraightOn()
+        return arm.goStraightOn()
             .andThen(elevator.goToL(Constants.reef.reefLs.lL4))
             .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
                 Constants.reef.reefToState.get(
@@ -122,13 +121,11 @@ public class CommandFactory{
                 )
             )))
             .andThen(pincer.exhaust())
-             .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+                .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
             .finallyDo((interrupted) ->{
-                  pincer.stopIntake().schedule();
+                    pincer.stopIntake().schedule();
                 });
-
-            
-            }
+    }
 
 
 
