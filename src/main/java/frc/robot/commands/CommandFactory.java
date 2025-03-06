@@ -251,8 +251,10 @@ public class CommandFactory{
             .andThen(arm.reefAlgaeHigh())
             .andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
-            .andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
-            .andThen(pincer.pincerAlgaeHold());
+            //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
+            .andThen(pincer.pincerAlgaeHold())
+            .until(() -> pincer.hasAlgae())
+            .finallyDo((interrupted) -> pincer.stopIntake());
         }
         
     public Command reefAlgaeLow(){
@@ -262,9 +264,10 @@ public class CommandFactory{
             .andThen(arm.reefAlgaeLow())
             .andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
-            .andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
-            .andThen(pincer.pincerAlgaeHold());
-        
+            //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
+            .andThen(pincer.pincerAlgaeHold())
+            .until(() -> pincer.hasAlgae())
+            .finallyDo((interrupted) -> pincer.stopIntake());
     }
 /*score net net */
     public Command net(){
