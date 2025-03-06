@@ -284,7 +284,7 @@ public final class Constants {
 
             public static final boolean kIntakeMotorInverted = false;
             public static final IdleMode kIntakeMotorIdleMode = IdleMode.kCoast;
-            public static final int kIntakeMotorSmartCurrentLimit = 30;
+            public static final int kIntakeMotorSmartCurrentLimit = 24;
 
             /** Current Threshold for determining if we have an algae */
             public static final double kIntakeAlgaeCurrentThreshold = 6.67;
@@ -379,8 +379,8 @@ public final class Constants {
             public static final double kSetpointStow = -0.065;
             public static final double kSetpointStowCoral = -12.0;//-6.130;
             public static final double kSetpointStowAlgae = -5.0;
-            public static final double kSetpointReefAlgaeHigh = -23.216;
-            public static final double kSetpointReefAlgaeLow = -14.499;
+            public static final double kSetpointReefAlgaeHigh = -23.716;
+            public static final double kSetpointReefAlgaeLow = -14.999;
             public static final double kSetpointGroundAlgae = -5.0;
             public static final double kSetpointProcessor = -5.0;
             public static final double kSetpointNet = -42.0;
