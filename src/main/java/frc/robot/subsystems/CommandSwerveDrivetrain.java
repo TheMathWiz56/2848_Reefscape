@@ -72,7 +72,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private static final Field2d m_field = new Field2d();
 
     // April tag variables
-    private static boolean useMegaTag2 = false; // set to false to use MegaTag1. Should test to see which one works better, 1 or 2? Or if they can be combined/we switch between them based on some conditions
+    private static boolean useMegaTag2 = true; // set to false to use MegaTag1. Should test to see which one works better, 1 or 2? Or if they can be combined/we switch between them based on some conditions
     private static boolean doRejectUpdate = false;
     private static String limelightUsed;
     private static LimelightHelpers.PoseEstimate LLPoseEstimate;
@@ -671,5 +671,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public boolean pathPIDAtGoal (){
         return atGoalDebouncer.calculate(pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal());
+    }
+
+    public void useMegaTag2(boolean input){
+        useMegaTag2 = input;
     }
 }

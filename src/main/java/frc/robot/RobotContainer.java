@@ -118,6 +118,9 @@ public class RobotContainer {
                 pincer.setDefaultCommand(pincer.holdState());
                 ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
 
+        // Drivebase Telemetry
+        drivetrain.registerTelemetry(logger::telemeterize);
+
         // Drive Joystick Bindings
                 // Small adjustments code
                 driverJoystick.pov(90)
@@ -159,11 +162,6 @@ public class RobotContainer {
                                 );
 
                 // driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
-        
-
-        // Logging / Telemetry
-        drivetrain.registerTelemetry(logger::telemeterize);
-
 
         // Operator Joystick Bindings
                 //Scoring Commands

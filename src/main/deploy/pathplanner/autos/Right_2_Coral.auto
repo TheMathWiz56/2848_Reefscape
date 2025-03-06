@@ -33,18 +33,6 @@
           "data": {
             "name": "Score_L4"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "D_HPRF"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RHPF_D"
-          }
         }
       ]
     }
