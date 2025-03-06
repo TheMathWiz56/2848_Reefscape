@@ -141,7 +141,7 @@ public class Pincer extends SubsystemBase{
     /**@return True if the current draw on the intake motor is over the algae threshold
      */
     public boolean hasAlgae(){
-        return algaeDebouncer.calculate(Math.abs(pincerAbsEncoder.getVelocity()) < 0.1 && pincerAbsEncoder.getPosition() < 0.05);
+        return algaeDebouncer.calculate(Math.abs(pincerAbsEncoder.getVelocity()) < 0.1 && pincerAbsEncoder.getPosition() < -0.08);
     }
 
     public boolean hasCoral(){
@@ -216,7 +216,8 @@ public class Pincer extends SubsystemBase{
 
     public void holdIntake() {
         if(hasAlgae()) {
-            intakeMotor.set(-0.25);
+            //intakeMotor.set(-0.25);
+            intakeMotor.stopMotor();
         }else{
             intakeMotor.stopMotor();
         }
