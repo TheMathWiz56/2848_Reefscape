@@ -57,31 +57,19 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     public final CommandXboxController driverJoystick = new CommandXboxController(0);
-    public final CommandGenericHID pad = new CommandGenericHID(1);
     public final CommandXboxController operatorJoystick = new CommandXboxController(2);
 
     // Subsystem Instances
         public final Arm arm = new Arm();
         public final Ascender ascender = new Ascender();
         //public final GroundAlgaePivot groundAlgaePivot = new GroundAlgaePivot();
-        //public final GroundAlgaeWheels groundAlgaeWheels = new GroundAlgaeWheels();
         public final Pincer pincer = new Pincer();
- 
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         public final Elevator elevator = new Elevator();
         public final Lights lights = null;//new Lights();
-
         
-        
+        // Command Factory
         public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
-
-        //private final Command stowCMD = commandFactory.stow();
-        private final Command feedCMD = commandFactory.feed();
-        private final Command reefAlgaeHighCMD = commandFactory.reefAlgaeHigh();
-        private final Command reefAlgaeLowCMD = commandFactory.reefAlgaeLow();
-        private final Command netCMD = commandFactory.net();
-        private final Command processorCMD = commandFactory.processor();
-        private final Command groundAlgaeCMD = commandFactory.groundAlgae();
 
         // Custom Triggers
         Trigger LLHasTag = new Trigger(() -> drivetrain.LLHasTag());    
@@ -89,8 +77,6 @@ public class RobotContainer {
 
     /* Path follower */
     //private final SendableChooser<Command> autoChooser;
-
-    //public final Ascender ascender = new Ascender();
 
     public RobotContainer() {
         //autoChooser = AutoBuilder.buildAutoChooser("TEST");
@@ -101,12 +87,6 @@ public class RobotContainer {
         reefData.reset();
 
         CommandScheduler.getInstance().registerSubsystem(pincer);
-        
-        // Warmup path follower
-        PathfindingCommand.warmupCommand().schedule();
-        Timer.delay(3);
-        FollowPathCommand.warmupCommand().schedule();
-        Timer.delay(3);
     }
 
     private void configureBindings() {
@@ -128,66 +108,6 @@ public class RobotContainer {
                 arm.setDefaultCommand(arm.holdState());
                 pincer.setDefaultCommand(pincer.holdState());
                 ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
-
-        // Keypad Bindings
-                pad.button(20).onTrue(new InstantCommand(() -> pincer.intake(),pincer));
-                pad.button(21).onTrue(new InstantCommand(() -> pincer.stopIntake(),pincer));
-                pad.button(28).onTrue(new InstantCommand(() -> pincer.exhaust(),pincer));
-                pad.button(19).onTrue(new InstantCommand(()-> CommandScheduler.getInstance().cancel(netCMD,processorCMD,elevator.getCurrentCommand())));
-                pad.button(27).onTrue(netCMD);
-                //TODO: add climb stop and do it in code
-                //pad.button(23).onTrue(new InstantCommand(() ->ascender.start(),ascender));
-                //pad.button(24).onTrue(new InstantCommand(() ->ascender.stop(),ascender));
-                pad.button(25).onTrue(reefAlgaeHighCMD);
-                pad.button(26).onTrue(reefAlgaeLowCMD);
-                //pad.button(29).onTrue(feedCMD);
-                pad.button(30).onTrue(groundAlgaeCMD);
-
-                //Scoring Commands (left)
-                pad.button(4).onTrue(commandFactory.scorelL1());
-                pad.button(3).onTrue(commandFactory.scorelL2());
-                pad.button(2).onTrue(commandFactory.scorelL3());
-                pad.button(1)
-                        .and(()-> !arm.facingDownwards())
-                                .onTrue(commandFactory.scorelL4(false));
-                pad.button(1)
-                        .and(()-> arm.facingDownwards())
-                                .onTrue(commandFactory.scorelL4(true));
-
-                //Scoring Commands (right)
-                pad.button(8).onTrue(commandFactory.scorelL1());
-                pad.button(7).onTrue(commandFactory.scorelL2());
-                pad.button(6).onTrue(commandFactory.scorelL3());
-                pad.button(5)
-                        .and(()-> !arm.facingDownwards())
-                                .onTrue(commandFactory.scorelL4(false));
-                pad.button(5)
-                        .and(()-> arm.facingDownwards())
-                                .onTrue(commandFactory.scorelL4(true));                        
-
-                // Feed Commands
-                pad.button(29).onTrue(commandFactory.feed());
-
-                // Stow Commands
-                pad.button(22)
-                        .and(elevator.isNearTop())
-                        .and(() -> !pincer.hasCoral())
-                        .and(() -> !pincer.hasAlgae())
-                                .onTrue(commandFactory.stow(false, false, true, false));
-                pad.button(22)
-                        .and(() ->pincer.hasCoral())
-                        .and(() -> !elevator.isLow().getAsBoolean())
-                                .onTrue(commandFactory.stow(true, false, false, false));
-                pad.button(22).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
-                pad.button(22)
-                        .and(elevator.isLow())
-                        .and(() -> pincer.hasCoral())
-                                .onTrue(commandFactory.stow(true, false, false, true));
-                pad.button(22)
-                        .and(() -> !elevator.isNearTop().getAsBoolean())
-                        .and(() -> !pincer.hasCoral())
-                        .and(() -> !pincer.hasAlgae())
-                                .onTrue(commandFactory.stow(false, false, false, false));
 
         // Drive Joystick Bindings
                 // Small adjustments code
