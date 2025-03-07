@@ -282,6 +282,9 @@ public class Arm extends SubsystemBase {
     public Command pivotToParallel() {
         return pivotToSetpoint(kParallelToGroundPosition);
     }
+    public Command reefAlgaeHigh2nd(){
+        return pivotToSetpoint(kReefAlgaeHigh2nd);
+    }
 
     /**
      * Holds the arm pivot at the current angle setpoint

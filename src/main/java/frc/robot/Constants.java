@@ -246,6 +246,7 @@ public final class Constants {
         public static final double kNetPosition = -.1;
         public static final double kHighTransitionsPosition = -0.125; //0.0; //A guess. Also this should probably be called highStowPosition, or maybe elonStow
         public static final double kParallelToGroundPosition = 0.0;
+        public static final double kReefAlgaeHigh2nd = -.02;
         public static final double kFacingUpPosition = -0.2;
         public static final double kFacingDownPosition = 0.1;
 
