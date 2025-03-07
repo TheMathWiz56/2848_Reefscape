@@ -237,9 +237,8 @@ public class CommandFactory{
          .andThen(arm.pivotToFeed())
          .andThen(pincer.pincerFunnel())
          .andThen(pincer.intake())
-         .andThen(pincer.holdState())
-         .until(()->pincer.hasCoral())
-         .finallyDo(()-> pincer.stopIntake().schedule());
+         .andThen(pincer.holdState().until(()->pincer.hasCoral()))
+         .andThen(pincer.stopIntake());
     }
 
     public Command reefAlgaeHigh(){

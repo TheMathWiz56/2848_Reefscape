@@ -16,6 +16,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -83,6 +84,11 @@ public class RobotContainer {
         NamedCommands.registerCommand("Reset_To_Vision", Commands.runOnce(() -> drivetrain.resetToVision(true)));
         NamedCommands.registerCommand("Align_Right", drivetrain.pathPIDToTagRightSelect());
         NamedCommands.registerCommand("Reef_Stall", Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain));
+        NamedCommands.registerCommand("Feed", commandFactory.feed());
+
+        new EventTrigger("Feed").onTrue(commandFactory.feed());
+        new EventTrigger("Stow_Empty").onTrue(commandFactory.stow(false, false, true, false));
+        new EventTrigger("Stow_Coral").onTrue(commandFactory.stow(true, false, false, true));
 
         autoChooser = AutoBuilder.buildAutoChooser("Center_Left");
         SmartDashboard.putData("Auto Mode", autoChooser);
@@ -162,8 +168,12 @@ public class RobotContainer {
                                 .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain))
                                 .until(() -> !pincer.hasCoral() || manualDrivebase.getAsBoolean())
                                 );
-
-                // Make elevator go up a set amount (very broken right now)
+                driverJoystick.leftTrigger(.5)
+                        .and(LLHasTag)
+                                .onTrue(drivetrain.pathPIDToTagMiddleSelect()
+                                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain))
+                                .until(() -> pincer.hasAlgae() || manualDrivebase.getAsBoolean()));
+                // Make elevator go up a set amount
                 // driverJoystick.y().onTrue(elevator.goUpByDistance(1.25));
 
                 // A is being used for processor right now so this should be changed

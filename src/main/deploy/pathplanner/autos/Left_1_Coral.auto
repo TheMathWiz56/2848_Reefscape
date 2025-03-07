@@ -5,9 +5,15 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Stow_Coral"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "-1_F"
+            "pathName": "1_I"
           }
         },
         {
@@ -19,19 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "F_HPRF"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RHPF_D"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Score_L4"
+            "pathName": "I_HPLF"
           }
         }
       ]
