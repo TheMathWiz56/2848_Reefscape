@@ -279,6 +279,10 @@ public class Arm extends SubsystemBase {
         return pivotToSetpoint(kL4Position);
     }
 
+    public Command pivotToParallel() {
+        return pivotToSetpoint(kParallelToGroundPosition);
+    }
+
     /**
      * Holds the arm pivot at the current angle setpoint
      * 
@@ -342,7 +346,7 @@ public class Arm extends SubsystemBase {
       }
 
     public Command goStraightOn() {
-        return pivotToSetpoint(kStraightOnPosition);
+        return pivotToSetpoint(kHighTransitionsPosition);
     }
 
     /**

@@ -244,7 +244,8 @@ public final class Constants {
         public static final double kGroundAlgaePosition = 0.06;
         public static final double kProcessorPosition = 0.0;
         public static final double kNetPosition = -.1;
-        public static final double kStraightOnPosition = -0.125; //0.0; //A guess. Also this should probably be called highStowPosition, or maybe elonStow
+        public static final double kHighTransitionsPosition = -0.125; //0.0; //A guess. Also this should probably be called highStowPosition, or maybe elonStow
+        public static final double kParallelToGroundPosition = 0.0;
         public static final double kFacingUpPosition = -0.2;
         public static final double kFacingDownPosition = 0.1;
 
@@ -281,7 +282,7 @@ public final class Constants {
             // Motor Controller Settings
             public static final boolean kPincerMotorInverted = false;
             public static final IdleMode kPincerMotorIdleMode = IdleMode.kCoast;
-            public static final int kPincerMotorSmartCurrentLimit = 20;
+            public static final int kPincerMotorSmartCurrentLimit = 17;
 
             public static final boolean kIntakeMotorInverted = false;
             public static final IdleMode kIntakeMotorIdleMode = IdleMode.kCoast;
@@ -291,7 +292,7 @@ public final class Constants {
             public static final int kIntakeAlgaeCurrentThreshold = 20;
 
             // PID Settings
-            public static double kPincerP = 1.0;
+            public static double kPincerP = 1;
             public static double kPincerI = 0.0;
             public static double kPincerD = 0.0;
             public static final FeedbackSensor kPincerMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
@@ -312,9 +313,9 @@ public final class Constants {
 
             // Pincer Setpoints
             public static final double kStowPosition = -0.349;
-            public static final double kFunnelPosition = 0.298;
-            public static final double kAlgaePosition = -0.133;
-            public static final double kHoldAlgaePosition = -0.183; //guess
+            public static final double kFunnelPosition = 0.278;
+            public static final double kAlgaePosition = -0.180;
+            //public static final double kHoldAlgaePosition = -0.120; //guess
 
             // Intake Setpoints
             public static final double kIntakeSpeed = -0.6;

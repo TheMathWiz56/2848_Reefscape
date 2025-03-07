@@ -47,8 +47,8 @@ public class Ascender extends SubsystemBase {
         return 0;
       }
       else{
-        SmartDashboard.putNumber("Ascender Output", input.getAsDouble() * 0.5);
-        return input.getAsDouble() * 0.5;
+        SmartDashboard.putNumber("Ascender Output", input.getAsDouble() * 0.8);
+        return input.getAsDouble() * 0.8;
       }
     }
 

@@ -147,6 +147,8 @@ public class RobotContainer {
                 // Processor
                 driverJoystick.a().onTrue(commandFactory.processor());
 
+                driverJoystick.leftTrigger(operatorConstants.triggerBooleanThreshold).onTrue(arm.pivotToParallel());
+
                 // Auto Driving
                 driverJoystick.x()
                         .and(() -> pincer.hasCoral())
