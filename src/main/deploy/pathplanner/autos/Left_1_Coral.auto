@@ -29,18 +29,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Stow_Empty"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Feed"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "LHPF_K"

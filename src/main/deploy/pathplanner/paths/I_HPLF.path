@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.888486842105262,
-        "y": 6.141776315789473
+        "x": 5.917351973684211,
+        "y": 6.228371710526315
       },
       "isLocked": false,
       "linkedName": "Reef_I"
@@ -20,8 +20,8 @@
         "y": 7.3541118421052625
       },
       "prevControl": {
-        "x": 2.15265026144744,
-        "y": 6.7027620040313804
+        "x": 2.6724223541479066,
+        "y": 6.927146657051046
       },
       "nextControl": null,
       "isLocked": false,
@@ -59,6 +59,12 @@
   ],
   "pointTowardsZones": [],
   "eventMarkers": [
+    {
+      "name": "Stow_Empty",
+      "waypointRelativePos": 0.04847396768402157,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
     {
       "name": "Feed",
       "waypointRelativePos": 0.6463195691202881,
