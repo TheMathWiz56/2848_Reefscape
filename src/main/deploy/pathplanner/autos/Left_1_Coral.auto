@@ -27,12 +27,6 @@
           "data": {
             "pathName": "I_HPLF"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LHPF_K"
-          }
         }
       ]
     }
