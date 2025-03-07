@@ -197,32 +197,32 @@ public class CommandFactory{
     public Command stow(boolean hasCoral, boolean hasAlgae, boolean isNearTop, boolean IsLow){
         Command output;
         if(hasCoral && !IsLow){ // coral not low
-            output = new InstantCommand(()->pincer.stopIntake(),pincer)
+            output = pincer.stopIntake()
             .andThen(arm.coralStow())
             .andThen(elevator.coralStow()
             ).andThen(pincer.pincerFunnel());
         }
         else if(hasCoral && IsLow){ // coral low
-            output = new InstantCommand(()->pincer.stopIntake(),pincer)
+            output = pincer.stopIntake()
             .andThen(elevator.coralStow()
             .andThen(arm.coralStow())
             ).andThen(pincer.pincerFunnel());
         }
         else if(hasAlgae){ // no coral -- algae or low
-            output = new InstantCommand(()->pincer.stopIntake(),pincer)
+            output = pincer.stopIntake()
             .andThen(arm.algaeStow())
             .andThen(elevator.algaeStow())
             .andThen(pincer.pincerAlgaeHold());
         }
         else if(isNearTop) {
-            output =  new InstantCommand(() -> pincer.stopIntake(), pincer)
+            output =  pincer.stopIntake()
                 .andThen(arm.goStraightOn())
                 .andThen(elevator.emptyStow())
                 .andThen(arm.emptyStow())
                 .andThen(pincer.pincerFunnel());
         }
         else{
-            output = new InstantCommand(()->pincer.stopIntake(),pincer)
+            output = pincer.stopIntake()
             .andThen(arm.emptyStow())
             .andThen(elevator.emptyStow())
             .andThen(pincer.pincerFunnel());
@@ -280,6 +280,7 @@ public class CommandFactory{
     public Command processor(){
         return elevator.goToProcessor()
         .andThen(arm.goToProcessor())
+        
         .andThen(pincer.exhaust())
         .finallyDo((interrupted) ->{
             pincer.stopIntake().schedule();
@@ -288,10 +289,11 @@ public class CommandFactory{
     public Command groundAlgae(){
         return elevator.goToGroundAlgae()
         .andThen(arm.goToGroundAlgae())
-        .andThen(pincer.exhaust())
-        .finallyDo((interrupted) ->{
-            pincer.stopIntake().schedule();
-          });
+        //.andThen(pincer.intake())
+        .andThen(pincer.pincerAlgaeHold());
+        //.finallyDo((interrupted) ->{
+        //    pincer.stopIntake().schedule();
+        //  });
     }
 
     

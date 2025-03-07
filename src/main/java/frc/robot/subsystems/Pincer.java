@@ -108,6 +108,7 @@ public class Pincer extends SubsystemBase{
         builder.addDoubleProperty("Pincer Setpoint", () -> pincerSetpoint, null);
 
         builder.addDoubleProperty("Pincer .get()", () -> pincerMotor.get(), null);
+        builder.addDoubleProperty("Intake .get()", () -> intakeMotor.get(), null);
 
         // PID Tuning
         builder.addDoubleProperty("Pincer kP", () -> kPincerP, value -> { kPincerP = value; pincerPIDUpdated = true;});
@@ -220,8 +221,10 @@ public class Pincer extends SubsystemBase{
         }else{
             intakeMotor.set(-0.25);
             //intakeMotor.stopMotor();
-        }
+        } 
     }
+
+    
 
     public void holdPincer() {
         pincerMotor.set(-0.4);
@@ -257,7 +260,7 @@ public class Pincer extends SubsystemBase{
      * @return Command
      */
     public Command stopIntake() {
-        return runOnce(() -> holdIntake());
+        return runOnce(() -> intakeMotor.stopMotor());
     }
     
     public Command holdState(){

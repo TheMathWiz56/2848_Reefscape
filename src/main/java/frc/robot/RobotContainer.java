@@ -243,6 +243,8 @@ public class RobotContainer {
                 operatorJoystick.x().onTrue(pincer.pincerFunnel());
 
         operatorJoystick.pov(270).onTrue(commandFactory.net());
+
+        operatorJoystick.pov(180).onTrue(commandFactory.groundAlgae());
         
         //operatorJoystick.y().toggleOnTrue(pincer.holdIntakeCmd()); */
 

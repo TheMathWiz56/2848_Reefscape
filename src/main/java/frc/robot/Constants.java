@@ -241,7 +241,7 @@ public final class Constants {
         public static final double kL4Position = 0.125; //0.139;
         public static final double kReefAlgaeHighPosition = 0.033;
         public static final double kReefAlgaeLowPosition = 0.033;
-        public static final double kGroundAlgaePosition = 0.0;
+        public static final double kGroundAlgaePosition = 0.06;
         public static final double kProcessorPosition = 0.0;
         public static final double kNetPosition = -.1;
         public static final double kStraightOnPosition = -0.125; //0.0; //A guess. Also this should probably be called highStowPosition, or maybe elonStow
@@ -281,11 +281,11 @@ public final class Constants {
             // Motor Controller Settings
             public static final boolean kPincerMotorInverted = false;
             public static final IdleMode kPincerMotorIdleMode = IdleMode.kCoast;
-            public static final int kPincerMotorSmartCurrentLimit = 30;
+            public static final int kPincerMotorSmartCurrentLimit = 20;
 
             public static final boolean kIntakeMotorInverted = false;
             public static final IdleMode kIntakeMotorIdleMode = IdleMode.kCoast;
-            public static final int kIntakeMotorSmartCurrentLimit = 30;
+            public static final int kIntakeMotorSmartCurrentLimit = 20;
 
             /** Current Threshold for determining if we have an algae */
             public static final int kIntakeAlgaeCurrentThreshold = 20;
@@ -382,7 +382,7 @@ public final class Constants {
             public static final double kSetpointStowAlgae = -5.0;
             public static final double kSetpointReefAlgaeHigh = -24.416;
             public static final double kSetpointReefAlgaeLow = -15.799;
-            public static final double kSetpointGroundAlgae = -5.0;
+            public static final double kSetpointGroundAlgae = -2.0;
             public static final double kSetpointProcessor = -5.0;
             public static final double kSetpointNet = -42.0;
 
