@@ -45,6 +45,8 @@ public class Pincer extends SubsystemBase{
     public double pincerSetpoint = kFunnelPosition;
     private double lastLaserCANReading = 100;
 
+    private boolean clampingOnAlgae = false;
+
     // Use current sensing for the algae
 
     public Pincer(){
@@ -179,7 +181,7 @@ public class Pincer extends SubsystemBase{
      * @return Command
      */
     private Command pincerToSetpoint(double setpoint) {
-        return runOnce(() -> pincerSetpoint = setpoint);
+        return runOnce(() -> {pincerSetpoint = setpoint; clampingOnAlgae = false;});
     }
 
     /** Moves the pincer to the algae-grabbing position
@@ -227,11 +229,11 @@ public class Pincer extends SubsystemBase{
     
 
     public void holdPincer() {
-        pincerMotor.set(-0.4);
+        pincerMotor.set(-0.25);
     }
     
     public Command pincerAlgaeHold() {
-        return runOnce(() -> holdPincer()).andThen(run(() -> holdIntake())).until(() -> pincerAbsEncoder.getPosition() < -0.250);
+        return runOnce(() -> {holdPincer(); clampingOnAlgae = true; })./*andThen(run(() -> holdIntake())).*/until(() -> pincerAbsEncoder.getPosition() < -0.250);
     }
 
     /** Runs the intake motor at the intake speed
@@ -255,6 +257,7 @@ public class Pincer extends SubsystemBase{
     public Command manualExhaust() {
         return runEnd(() -> intakeMotor.set(kExhaustSpeed), () -> intakeMotor.stopMotor());
     } 
+    
 
     /** Stops the intake motor
      * @return Command
@@ -265,7 +268,13 @@ public class Pincer extends SubsystemBase{
     
     public Command holdState(){
         return run(() -> {
+            if(clampingOnAlgae) {
+                holdPincer();
+                holdIntake();
+                if(pincerAbsEncoder.getPosition() < -0.250) clampingOnAlgae = false;
+            } else {
             setPincerOutput(pincerSetpoint);
+        }
         }).withName("Hold State");
 
         //return Commands.idle(this);

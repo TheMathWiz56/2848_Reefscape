@@ -69,7 +69,7 @@ public class CommandFactory{
         .andThen(pincer.exhaust())
          .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
         .finallyDo((interrupted) ->{
-              pincer.stopIntake().schedule();
+              pincer.stopIntake();
             });
     }
     public Command scorelL2(){
@@ -82,7 +82,7 @@ public class CommandFactory{
         .andThen(pincer.exhaust())
          .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
         .finallyDo((interrupted) ->{
-              pincer.stopIntake().schedule();
+              pincer.stopIntake();
             });
     }
     public Command scorelL3(){
@@ -95,7 +95,7 @@ public class CommandFactory{
         .andThen(pincer.exhaust())
          .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
         .finallyDo((interrupted) ->{
-              pincer.stopIntake().schedule();
+              pincer.stopIntake();
             });
         }
     public Command scorelL4(boolean facingDownwards){
@@ -123,7 +123,7 @@ public class CommandFactory{
             .andThen(pincer.exhaust())
                 .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
             .finallyDo((interrupted) ->{
-                    pincer.stopIntake().schedule();
+                    pincer.stopIntake();
                 });
     }
 
@@ -140,7 +140,7 @@ public class CommandFactory{
             .andThen(pincer.exhaust())
                 .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
             .finallyDo((interrupted) ->{
-                    pincer.stopIntake().schedule();
+                    pincer.stopIntake();
                 });
         }
         public Command scorerL2(){
@@ -153,7 +153,7 @@ public class CommandFactory{
             .andThen(pincer.exhaust())
                 .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
             .finallyDo((interrupted) ->{
-                    pincer.stopIntake().schedule();
+                    pincer.stopIntake();
                 });
         }
         public Command scorerL3(){
@@ -166,7 +166,7 @@ public class CommandFactory{
             .andThen(pincer.exhaust())
                 .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
             .finallyDo((interrupted) ->{
-                    pincer.stopIntake().schedule();
+                    pincer.stopIntake();
                 });
             }
         public Command scorerL4(){
@@ -179,7 +179,7 @@ public class CommandFactory{
             .andThen(pincer.exhaust())
                 .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
             .finallyDo((interrupted) ->{
-                    pincer.stopIntake().schedule();
+                    pincer.stopIntake();
                 });
             }
     // public Command scoreL(){
@@ -249,6 +249,8 @@ public class CommandFactory{
             .andThen(pincer.intake())
             //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
             .andThen(pincer.pincerAlgaeHold());
+            //.andThen(Commands.waitUntil(() -> pincer.hasAlgae()))
+            //.andThen(arm.pivotToParallel());
             //.until(() -> pincer.hasAlgae())
             //.finallyDo((interrupted) -> pincer.stopIntake());
         }
@@ -262,18 +264,19 @@ public class CommandFactory{
             .andThen(pincer.intake())
             //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
             .andThen(pincer.pincerAlgaeHold());
+            //.andThen(Commands.waitUntil(() -> pincer.hasAlgae()))
+            //.andThen(arm.pivotToParallel());
             //.until(() -> pincer.hasAlgae())
             //.finallyDo((interrupted) -> pincer.stopIntake());
     }
+
 /*score net net */
     public Command net(){
         return elevator.goToNet()
         .andThen(arm.goToNet())
         .andThen(pincer.exhaust())
         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
-        .finallyDo((interrupted) ->{
-              pincer.stopIntake().schedule();
-            });
+        .finallyDo((interrupted) ->{pincer.stopIntake(); pincer.pincerFunnel();});
     }
     /*score processor */
     public Command processor(){
@@ -282,16 +285,15 @@ public class CommandFactory{
         
         .andThen(pincer.exhaust())
         .finallyDo((interrupted) ->{
-            pincer.stopIntake().schedule();
+            pincer.stopIntake();
           }); */
 
         return elevator.goToProcessor()
         .andThen(arm.goToProcessor())
         .andThen(pincer.exhaust())
         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
-        .finallyDo((interrupted) ->{
-              pincer.stopIntake().schedule();
-            });  
+        .finallyDo((interrupted) ->
+              {pincer.stopIntake(); pincer.pincerFunnel();});  
     }
     public Command groundAlgae(){
         return elevator.goToGroundAlgae()

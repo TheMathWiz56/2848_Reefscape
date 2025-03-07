@@ -589,7 +589,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             Map.entry(19, this.pathPIDToTagRight(19)),
             Map.entry(20, this.pathPIDToTagRight(20)),
             Map.entry(21, this.pathPIDToTagRight(21)),
-            Map.entry(22, this.pathPIDToTagRight(22)),
+            Map.entry(22, this.pathPIDToTagRight(22)), 
             Map.entry(6, this.pathPIDToTagRight(6)),
             Map.entry(7, this.pathPIDToTagRight(7)),
             Map.entry(8, this.pathPIDToTagRight(8)),

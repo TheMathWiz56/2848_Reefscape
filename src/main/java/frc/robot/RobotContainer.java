@@ -153,6 +153,8 @@ public class RobotContainer {
                 // Processor
                 driverJoystick.a().onTrue(commandFactory.processor());
 
+                driverJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).onTrue(arm.reefAlgaeHigh2nd());
+
                 // Auto Driving
                 driverJoystick.x()
                         .and(() -> pincer.hasCoral())
