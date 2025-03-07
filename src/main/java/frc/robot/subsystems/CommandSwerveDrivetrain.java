@@ -557,6 +557,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
     }
 
+    private Command pathPIDToTagMiddle(int ID){
+        SmartDashboard.putNumber("Tag ID used", ID);
+
+        if (ID !=-1)
+            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.reefAlgae));
+        return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
+        
+    }
+
     /**
      * Creates a command that moves the robot to the position of the AprilTag 
      * detected by the Limelight camera, adjusted by the right branch transformation.
@@ -581,6 +590,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             Map.entry(20, this.pathPIDToTagRight(20)),
             Map.entry(21, this.pathPIDToTagRight(21)),
             Map.entry(22, this.pathPIDToTagRight(22)))
+
+            Map.entry(6, this.pathPIDToTagRight(6)),
+            Map.entry(7, this.pathPIDToTagRight(7)),
+            Map.entry(8, this.pathPIDToTagRight(8)),
+            Map.entry(9, this.pathPIDToTagRight(9)),
+            Map.entry(10, this.pathPIDToTagRight(10)),
+            Map.entry(11, this.pathPIDToTagRight(11))
     , this::getTag);
 
     private Command pathPIDToTagLeftSelect = 
@@ -591,8 +607,37 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             Map.entry(19, this.pathPIDToTagLeft(19)),
             Map.entry(20, this.pathPIDToTagLeft(20)),
             Map.entry(21, this.pathPIDToTagLeft(21)),
-            Map.entry(22, this.pathPIDToTagLeft(22)))
+            Map.entry(22, this.pathPIDToTagLeft(22))
+            
+            Map.entry(6, this.pathPIDToTagRight(6)),
+            Map.entry(7, this.pathPIDToTagRight(7)),
+            Map.entry(8, this.pathPIDToTagRight(8)),
+            Map.entry(9, this.pathPIDToTagRight(9)),
+            Map.entry(10, this.pathPIDToTagRight(10)),
+            Map.entry(11, this.pathPIDToTagRight(11)))
     , this::getTag);
+
+    private Command pathPIDToTagMiddleSelect = 
+    new SelectCommand<>(
+        Map.ofEntries(
+            Map.entry(17, this.pathPIDToTagMiddle(17)),
+            Map.entry(18, this.pathPIDToTagMiddle(18)),
+            Map.entry(19, this.pathPIDToTagMiddle(19)),
+            Map.entry(20, this.pathPIDToTagMiddle(20)),
+            Map.entry(21, this.pathPIDToTagMiddle(21)),
+            Map.entry(22, this.pathPIDToTagMiddle(22))
+            
+            Map.entry(6, this.pathPIDToTagRight(6)),
+            Map.entry(7, this.pathPIDToTagRight(7)),
+            Map.entry(8, this.pathPIDToTagRight(8)),
+            Map.entry(9, this.pathPIDToTagRight(9)),
+            Map.entry(10, this.pathPIDToTagRight(10)),
+            Map.entry(11, this.pathPIDToTagRight(11)))
+    , this::getTag);
+
+    public Command pathPIDToTagMiddleSelect(){
+        return pathPIDToTagMiddleSelect;
+    }
 
     public Command pathPIDToTagRightSelect(){
         return pathPIDToTagRightSelect;
