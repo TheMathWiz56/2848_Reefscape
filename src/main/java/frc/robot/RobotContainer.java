@@ -144,6 +144,8 @@ public class RobotContainer {
                 LLHasTag.onTrue(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 1)))
                         .onFalse(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 0)));
 
+                // Processor
+                driverJoystick.a().onTrue(commandFactory.processor());
 
                 // Auto Driving
                 driverJoystick.x()
@@ -161,9 +163,10 @@ public class RobotContainer {
                                 .until(() -> !pincer.hasCoral() || manualDrivebase.getAsBoolean())
                                 );
 
-                // Make elevator go up a set amount
+                // Make elevator go up a set amount (very broken right now)
                 // driverJoystick.y().onTrue(elevator.goUpByDistance(1.25));
 
+                // A is being used for processor right now so this should be changed
                 // driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
 
         

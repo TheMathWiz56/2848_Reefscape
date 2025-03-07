@@ -278,13 +278,21 @@ public class CommandFactory{
     }
     /*score processor */
     public Command processor(){
-        return elevator.goToProcessor()
+        /* return elevator.goToProcessor()
         .andThen(arm.goToProcessor())
         
         .andThen(pincer.exhaust())
         .finallyDo((interrupted) ->{
             pincer.stopIntake().schedule();
-          });
+          }); */
+
+        return elevator.goToProcessor()
+        .andThen(arm.goToProcessor())
+        .andThen(pincer.exhaust())
+        .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+        .finallyDo((interrupted) ->{
+              pincer.stopIntake().schedule();
+            });  
     }
     public Command groundAlgae(){
         return elevator.goToGroundAlgae()

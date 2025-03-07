@@ -273,7 +273,7 @@ public final class Constants {
                 }
             };
 
-            public static final double scoreIntakeDelay = .75;
+            public static final double scoreIntakeDelay = 1;
             // ID
             
             // public static final int kIntakePhotogateId = 0;
@@ -383,7 +383,7 @@ public final class Constants {
             public static final double kSetpointReefAlgaeHigh = -24.416;
             public static final double kSetpointReefAlgaeLow = -15.799;
             public static final double kSetpointGroundAlgae = -2.0;
-            public static final double kSetpointProcessor = -5.0;
+            public static final double kSetpointProcessor = -4.5;
             public static final double kSetpointNet = -42.0;
 
             // These are guesses
