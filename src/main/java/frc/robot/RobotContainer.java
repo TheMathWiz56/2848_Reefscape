@@ -161,6 +161,9 @@ public class RobotContainer {
                                 .until(() -> !pincer.hasCoral() || manualDrivebase.getAsBoolean())
                                 );
 
+                // Make elevator go up a set amount
+                // driverJoystick.y().onTrue(elevator.goUpByDistance(1.25));
+
                 // driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
 
         

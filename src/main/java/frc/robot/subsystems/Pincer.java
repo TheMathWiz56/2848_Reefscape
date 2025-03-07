@@ -116,9 +116,9 @@ public class Pincer extends SubsystemBase{
 
         builder.addBooleanProperty("Has Coral",() -> hasCoral(),null);
         builder.addBooleanProperty("Has Algae",() -> hasAlgae(),null);
-    
-        //builder.addBooleanProperty("Has Algae (Pincer Amps)", () -> algaeDebouncer1.calculate(pincerMotor.getOutputCurrent() > kIntakeAlgaeCurrentThreshold), null);
-        //builder.addBooleanProperty("Has Algae (Encoder Velocity)", () -> algaeDebouncer2.calculate(Math.abs(pincerAbsEncoder.getVelocity()) < 0.1), null);
+        
+        builder.addBooleanProperty("Has Algae (Velocity Condition)", () -> algaeDebouncer1.calculate(Math.abs(pincerAbsEncoder.getVelocity()) < 0.1), null);
+        builder.addBooleanProperty("Has Algae (Position Condition)", () -> algaeDebouncer.calculate(pincerAbsEncoder.getPosition() < -0.08), null);
     }
 
     @Override
@@ -216,19 +216,19 @@ public class Pincer extends SubsystemBase{
 
     public void holdIntake() {
         if(hasAlgae()) {
-            //intakeMotor.set(-0.25);
             intakeMotor.stopMotor();
         }else{
-            intakeMotor.stopMotor();
+            intakeMotor.set(-0.25);
+            //intakeMotor.stopMotor();
         }
     }
 
     public void holdPincer() {
-        pincerMotor.set(-0.25);
+        pincerMotor.set(-0.4);
     }
     
     public Command pincerAlgaeHold() {
-        return run(() -> holdPincer()).andThen(Commands.idle(this)).until(() -> pincerAbsEncoder.getPosition() < -0.250);
+        return runOnce(() -> holdPincer()).andThen(run(() -> holdIntake())).until(() -> pincerAbsEncoder.getPosition() < -0.250);
     }
 
     /** Runs the intake motor at the intake speed
@@ -246,11 +246,11 @@ public class Pincer extends SubsystemBase{
     }
 
     public Command manualIntake() {
-        return runEnd(() -> intakeMotor.set(kIntakeSpeed), () -> holdIntake());
+        return runEnd(() -> intakeMotor.set(kIntakeSpeed), () -> intakeMotor.stopMotor());
     } 
 
     public Command manualExhaust() {
-        return runEnd(() -> intakeMotor.set(kExhaustSpeed), () -> holdIntake());
+        return runEnd(() -> intakeMotor.set(kExhaustSpeed), () -> intakeMotor.stopMotor());
     } 
 
     /** Stops the intake motor

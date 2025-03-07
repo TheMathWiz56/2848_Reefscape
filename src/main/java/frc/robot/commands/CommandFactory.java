@@ -243,28 +243,28 @@ public class CommandFactory{
     }
 
     public Command reefAlgaeHigh(){
-            return pincer.pincerAlgae()
-            .andThen(elevator.reefAlgaeHigh())
+            return //pincer.pincerAlgae()
+            elevator.reefAlgaeHigh()
             .andThen(arm.reefAlgaeHigh())
-            .andThen(pincer.reefAlgae())
+            //.andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
             //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
-            .andThen(pincer.pincerAlgaeHold())
-            .until(() -> pincer.hasAlgae())
-            .finallyDo((interrupted) -> pincer.stopIntake());
+            .andThen(pincer.pincerAlgaeHold());
+            //.until(() -> pincer.hasAlgae())
+            //.finallyDo((interrupted) -> pincer.stopIntake());
         }
         
     public Command reefAlgaeLow(){
         
-            return pincer.pincerAlgae()
-            .andThen(elevator.reefAlgaeLow())
+            return //pincer.pincerAlgae()
+            elevator.reefAlgaeLow()
             .andThen(arm.reefAlgaeLow())
-            .andThen(pincer.reefAlgae())
+            //andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
             //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
-            .andThen(pincer.pincerAlgaeHold())
-            .until(() -> pincer.hasAlgae())
-            .finallyDo((interrupted) -> pincer.stopIntake());
+            .andThen(pincer.pincerAlgaeHold());
+            //.until(() -> pincer.hasAlgae())
+            //.finallyDo((interrupted) -> pincer.stopIntake());
     }
 /*score net net */
     public Command net(){

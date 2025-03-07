@@ -137,6 +137,10 @@ public class Elevator extends SubsystemBase {
     return goToPosition(position, "Position");
   }
 
+  public Command goUpByDistance(double distance) {
+    return goToPosition(elevatorMotor.getPosition().getValueAsDouble() - distance, "Up By " + distance);
+  }
+
   // Reminder: negative elevator value = up
 
   // For going up, use with arm.facingUpwards()
@@ -382,7 +386,7 @@ public class Elevator extends SubsystemBase {
 
   // At max speed (1.0) up to height of -20, then should go down linearly to 0.15 at height of -40
   public DoubleSupplier getDrivetrainSpeedMultiplier() {
-    return () -> MathUtil.clamp(0.043 *  elevatorMotor.getPosition().getValueAsDouble() + 1.87, 0.15, 1);
+    return () -> MathUtil.clamp((0.034 * elevatorMotor.getPosition().getValueAsDouble()) + 1.51, 0.15, 1); //old: 0.043x + 1.87
   }
 
 }

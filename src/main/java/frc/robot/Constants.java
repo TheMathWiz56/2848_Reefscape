@@ -239,8 +239,8 @@ public final class Constants {
         public static final double kL1Position = 0.0; // Placeholder
         public static final double kL2L3Position = 0.1; //0.109;
         public static final double kL4Position = 0.125; //0.139;
-        public static final double kReefAlgaeHighPosition = 0.0;
-        public static final double kReefAlgaeLowPosition = 0.0;
+        public static final double kReefAlgaeHighPosition = 0.033;
+        public static final double kReefAlgaeLowPosition = 0.033;
         public static final double kGroundAlgaePosition = 0.0;
         public static final double kProcessorPosition = 0.0;
         public static final double kNetPosition = -.1;
@@ -380,8 +380,8 @@ public final class Constants {
             public static final double kSetpointStow = -0.065;
             public static final double kSetpointStowCoral = -12.0;//-6.130;
             public static final double kSetpointStowAlgae = -5.0;
-            public static final double kSetpointReefAlgaeHigh = -24.716;
-            public static final double kSetpointReefAlgaeLow = -15.999;
+            public static final double kSetpointReefAlgaeHigh = -24.416;
+            public static final double kSetpointReefAlgaeLow = -15.799;
             public static final double kSetpointGroundAlgae = -5.0;
             public static final double kSetpointProcessor = -5.0;
             public static final double kSetpointNet = -42.0;
