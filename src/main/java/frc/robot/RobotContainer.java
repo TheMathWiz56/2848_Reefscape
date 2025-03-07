@@ -83,6 +83,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Reset_To_Vision", Commands.runOnce(() -> drivetrain.resetToVision(true)));
         NamedCommands.registerCommand("Align_Right", drivetrain.pathPIDToTagRightSelect());
         NamedCommands.registerCommand("Reef_Stall", Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain));
+        NamedCommands.registerCommand("Feed", commandFactory.feed());
 
         autoChooser = AutoBuilder.buildAutoChooser("Center_Left");
         SmartDashboard.putData("Auto Mode", autoChooser);

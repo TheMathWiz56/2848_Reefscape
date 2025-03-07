@@ -3,35 +3,61 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.683799342105263,
-        "y": 0.628536184210526
+        "x": 1.3566611842105263,
+        "y": 0.7728618421052635
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3862538239450495,
-        "y": 1.9846605419707988
+        "x": 2.108394315739047,
+        "y": 2.494865298784374
       },
       "isLocked": false,
       "linkedName": "HPRF"
     },
     {
       "anchor": {
-        "x": 3.993009868421052,
-        "y": 2.8126644736842104
+        "x": 4.0122532894736835,
+        "y": 2.851151315789474
       },
       "prevControl": {
-        "x": 3.109923233089486,
-        "y": 2.049117094331222
+        "x": 3.150325701618958,
+        "y": 2.22146430317505
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Reef_D"
     }
   ],
-  "rotationTargets": [],
-  "constraintZones": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7515723270440223,
+      "rotationDegrees": 59.99999999999999
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.7540394973070031,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 0.75,
+        "maxAcceleration": 2.5,
+        "maxAngularVelocity": 180.0,
+        "maxAngularAcceleration": 360.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Stow_Coral",
+      "waypointRelativePos": 0.13644524236983846,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 4.75,
     "maxAcceleration": 2.5,
