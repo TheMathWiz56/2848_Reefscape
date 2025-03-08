@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.388157894736842,
-        "y": 2.8126644736842104
+        "x": 5.272697368421052,
+        "y": 4.987171052631578
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.095387579585066,
-        "y": 2.314452593012975
+        "x": 5.550488940433528,
+        "y": 5.290443865256056
       },
       "isLocked": false,
-      "linkedName": "F_Backup"
+      "linkedName": "Reef_I"
     },
     {
       "anchor": {
-        "x": 1.7415296052631577,
-        "y": 1.0037828947368428
+        "x": 5.388157894736842,
+        "y": 5.169983552631579
       },
       "prevControl": {
-        "x": 2.5007556498496415,
-        "y": 1.3930187752390486
+        "x": 4.937803696370003,
+        "y": 4.684628196313155
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "HPRF"
+      "linkedName": "I_Backup"
     }
   ],
   "rotationTargets": [],
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.75,
+    "maxVelocity": 0.5,
     "maxAcceleration": 2.5,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 360.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -127.50000000000001
+    "rotation": -119.99999999999999
   },
   "reversed": false,
   "folder": "L-R Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": -119.99999999999999
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
