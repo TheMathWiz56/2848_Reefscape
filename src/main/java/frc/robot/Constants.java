@@ -217,8 +217,8 @@ public final class Constants {
         public static double kPivotMotorkg = -0.33;
         public static double kPivotMotorkv = 10.0; // 1..0
         public static double kPivotMotorka = 0.0;
-        public static double kPivotMotorMaxVelocity = 4;
-        public static double kPivotMotorMaxAcceleration = 5;
+        public static double kPivotMotorMaxVelocity = 3.5;
+        public static double kPivotMotorMaxAcceleration = 4;
 
         // Soft Limits
         public static final boolean kSoftLimitsEnabled = false;

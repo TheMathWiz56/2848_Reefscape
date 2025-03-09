@@ -5,15 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "Stow_Coral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "1_I_Fast"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "1_I_Fast"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stow_Coral"
+                }
+              }
+            ]
           }
         },
         {
@@ -23,15 +30,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "I_Backup"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Stow_Empty"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "I_Backup"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stow_Empty"
+                }
+              }
+            ]
           }
         },
         {
