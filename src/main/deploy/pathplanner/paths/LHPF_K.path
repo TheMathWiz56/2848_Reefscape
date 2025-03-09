@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.3487860651736625,
-        "y": 4.755565730327561
+        "x": 3.327674362699071,
+        "y": 4.786118360330956
       },
       "isLocked": false,
       "linkedName": "HPLF"
@@ -20,8 +20,8 @@
         "y": 4.996792763157894
       },
       "prevControl": {
-        "x": 3.972330325994543,
-        "y": 4.971609301184069
+        "x": 3.468689123376623,
+        "y": 5.356919642857142
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,8 +30,8 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.4968553459119484,
-      "rotationDegrees": -59.99999999999999
+      "waypointRelativePos": 0.3771929824561424,
+      "rotationDegrees": -35.0
     }
   ],
   "constraintZones": [
@@ -40,7 +40,7 @@
       "minWaypointRelativePos": 0.46499102333931813,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.75,
+        "maxVelocity": 0.5,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 90.0,
         "maxAngularAcceleration": 720.0,
@@ -50,17 +50,10 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Stow_Coral",
-      "waypointRelativePos": 0.0682226211849192,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.75,
-    "maxAcceleration": 2.5,
+    "maxAcceleration": 4.0,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
