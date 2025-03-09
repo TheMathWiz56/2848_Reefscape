@@ -354,7 +354,7 @@ public final class Constants {
             public static final double kMotorEncoderOffset = 0.0;
             public static final NeutralModeValue kMotorIdleMode = NeutralModeValue.Coast;
 
-            public static final int kStallCurrent = 50;
+            public static final int kStallCurrent = 60;
 
             // Trapezoid Proflile parameters
             public static final double kMaxVelocity = 80;
