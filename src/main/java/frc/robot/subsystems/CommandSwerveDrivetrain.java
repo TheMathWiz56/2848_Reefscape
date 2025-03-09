@@ -104,6 +104,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+
+    private int flip_for_red = 1;
     
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -343,6 +345,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22}); // Only track these tag IDs
         }
         LimelightHelpers.SetFiducialDownscalingOverride("limelight-front", 2.0f); // Process at half resolution for improved framerate and reduced range
+
+        if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+            flip_for_red = -1;
+        }
     }
 
     // Move to constants or another java file
@@ -551,6 +557,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     private Command pathPIDToTagLeft(int ID){
         SmartDashboard.putNumber("Tag ID used", ID);
+        SmartDashboard.putString("Path PID to", reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch).toString());
 
         if (ID != -1)
             return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.leftBranch));
@@ -575,6 +582,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     private Command pathPIDToTagRight(int ID){
         SmartDashboard.putNumber("Tag ID used", ID);
+        SmartDashboard.putString("Path PID to", reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch).toString());
 
         if (ID != -1)
             return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch));
@@ -607,12 +615,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             Map.entry(20, this.pathPIDToTagLeft(20)),
             Map.entry(21, this.pathPIDToTagLeft(21)),
             Map.entry(22, this.pathPIDToTagLeft(22)),
-            Map.entry(6, this.pathPIDToTagRight(6)),
-            Map.entry(7, this.pathPIDToTagRight(7)),
-            Map.entry(8, this.pathPIDToTagRight(8)),
-            Map.entry(9, this.pathPIDToTagRight(9)),
-            Map.entry(10, this.pathPIDToTagRight(10)),
-            Map.entry(11, this.pathPIDToTagRight(11)))
+            Map.entry(6, this.pathPIDToTagLeft(6)),
+            Map.entry(7, this.pathPIDToTagLeft(7)),
+            Map.entry(8, this.pathPIDToTagLeft(8)),
+            Map.entry(9, this.pathPIDToTagLeft(9)),
+            Map.entry(10, this.pathPIDToTagLeft(10)),
+            Map.entry(11, this.pathPIDToTagLeft(11)))
     , this::getTag);
 
     private Command pathPIDToTagMiddleSelect = 
@@ -669,8 +677,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 Pose2d currentPose2d = this.getState().Pose;
 
                 pathPIDRequest
-                    .withVelocityX(pathPIDXController.calculate(currentPose2d.getX()))
-                    .withVelocityY(pathPIDYController.calculate(currentPose2d.getY()))
+                    .withVelocityX(pathPIDXController.calculate(currentPose2d.getX()) * flip_for_red)
+                    .withVelocityY(pathPIDYController.calculate(currentPose2d.getY()) * flip_for_red)
                     .withRotationalRate(pathPIDRotationController.calculate(currentPose2d.getRotation().getRadians()))
                     .withDeadband(TunerConstants.pathPID_Translation_Deadband)
                     .withRotationalDeadband(TunerConstants.pathPID_Rotation_Deadband);
