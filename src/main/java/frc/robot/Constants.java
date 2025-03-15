@@ -378,7 +378,7 @@ public final class Constants {
             public static final double kSetpointL2 = -17.145;
             public static final double kSetpointL3 = -26.844;
             public static final double kSetpointL4 = -42.0; //-41.289;
-            public static final double kSetpointFeed = -13.5; //-12.312;
+            public static final double kSetpointFeed = -13.0; //-13.5; //-12.312;
             public static final double kSetpointStow = -0.065;
             public static final double kSetpointStowCoral = -12.0;//-6.130;
             public static final double kSetpointStowAlgae = -5.0;
