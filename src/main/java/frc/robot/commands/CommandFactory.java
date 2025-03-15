@@ -198,33 +198,33 @@ public class CommandFactory{
         Command output;
         if(hasCoral && !IsLow){ // coral not low
             output = pincer.stopIntake()
-            .andThen(arm.coralStow())
-            .andThen(elevator.coralStow()
+            .andThen(new ParallelCommandGroup(arm.coralStow(),
+            elevator.coralStow())
             ).andThen(pincer.pincerFunnel());
         }
         else if(hasCoral && IsLow){ // coral low
             output = pincer.stopIntake()
-            .andThen(elevator.coralStow()
-            .andThen(arm.coralStow())
-            ).andThen(pincer.pincerFunnel());
+            .andThen(new ParallelCommandGroup(elevator.coralStow(),
+            arm.coralStow()))
+            .andThen(pincer.pincerFunnel());
         }
         else if(hasAlgae){ // no coral -- algae or low
             output = pincer.stopIntake()
-            .andThen(arm.algaeStow())
-            .andThen(elevator.algaeStow())
+            .andThen(new ParallelCommandGroup(arm.algaeStow(),
+            elevator.algaeStow()))
             .andThen(pincer.pincerAlgaeHold());
         }
         else if(isNearTop) {
             output =  pincer.stopIntake()
-                .andThen(arm.goStraightOn())
-                .andThen(elevator.emptyStow())
+                .andThen(new ParallelCommandGroup(arm.goStraightOn()
+                , elevator.emptyStow()))
                 .andThen(arm.emptyStow())
                 .andThen(pincer.pincerFunnel());
         }
         else{
             output = pincer.stopIntake()
-            .andThen(arm.emptyStow())
-            .andThen(elevator.emptyStow())
+            .andThen(new ParallelCommandGroup(arm.emptyStow()
+            , elevator.emptyStow()))
             .andThen(pincer.pincerFunnel());
             }
 
