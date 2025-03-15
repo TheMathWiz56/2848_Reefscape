@@ -241,8 +241,8 @@ public class CommandFactory{
 
     public Command reefAlgaeHigh(){
             return //pincer.pincerAlgae()
-            new ParallelCommandGroup(elevator.reefAlgaeHigh(),
-            arm.reefAlgaeHigh())
+            elevator.reefAlgaeHigh()
+            .andThen(arm.reefAlgaeHigh())
             //.andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
             //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
@@ -256,8 +256,8 @@ public class CommandFactory{
     public Command reefAlgaeLow(){
         
             return //pincer.pincerAlgae()
-            new ParallelCommandGroup(elevator.reefAlgaeLow(),
-            arm.reefAlgaeLow())
+            elevator.reefAlgaeLow()
+            .andThen(arm.reefAlgaeLow())
             //andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
             //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
