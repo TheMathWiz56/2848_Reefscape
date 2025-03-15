@@ -60,13 +60,13 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Stow_Empty",
+      "name": "Stow_Empty_Event",
       "waypointRelativePos": 0.09,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
-      "name": "Feed",
+      "name": "Feed_Event",
       "waypointRelativePos": 0.7,
       "endWaypointRelativePos": null,
       "command": null

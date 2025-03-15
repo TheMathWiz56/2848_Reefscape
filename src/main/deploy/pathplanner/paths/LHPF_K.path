@@ -63,7 +63,26 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Stow_Coral_Event",
+      "waypointRelativePos": 0.023339317773788157,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "GoTo_L4_Event",
+      "waypointRelativePos": 0.5188509874326768,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Exhaust_Coral_Event",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 4.75,
     "maxAcceleration": 4.0,

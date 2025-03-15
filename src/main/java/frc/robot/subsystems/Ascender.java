@@ -42,14 +42,18 @@ public class Ascender extends SubsystemBase {
     }
 
     private double getAscenderOutput(DoubleSupplier input){
-      SmartDashboard.putBoolean("Is running condition", input.getAsDouble() < 0 && !ascenderLimitSwitch.get());
+      if (Math.abs(input.getAsDouble()) < 0.05){
+        return 0;
+      }
+      return input.getAsDouble();
+      /*SmartDashboard.putBoolean("Is running condition", input.getAsDouble() < 0 && !ascenderLimitSwitch.get());
       if (input.getAsDouble() < 0 && !ascenderLimitSwitch.get()){
         return 0;
       }
       else{
         SmartDashboard.putNumber("Ascender Output", input.getAsDouble() * 0.8);
         return input.getAsDouble() * 0.8;
-      }
+      }*/
     }
 
     //TODO: fill in start and stop

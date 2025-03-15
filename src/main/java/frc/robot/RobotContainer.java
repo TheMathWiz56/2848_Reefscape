@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -88,11 +89,13 @@ public class RobotContainer {
         NamedCommands.registerCommand("Align_Right", drivetrain.pathPIDToTagRightSelect());
         NamedCommands.registerCommand("Reef_Stall", Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain));
         NamedCommands.registerCommand("Feed", commandFactory.feed());
+        NamedCommands.registerCommand("Pause_For_Feed", new WaitCommand(15).until(() -> pincer.hasCoral()));
 
-        new EventTrigger("Feed").onTrue(commandFactory.feed());
-        new EventTrigger("Stow_Empty").onTrue(commandFactory.stow(false, false, true, false));
-        new EventTrigger("Stow_Coral").onTrue(commandFactory.stow(true, false, false, true));
-        new EventTrigger("GoTo_L4").onTrue(commandFactory.goTolL4());
+        new EventTrigger("Feed_Event").onTrue(commandFactory.feed());
+        new EventTrigger("Stow_Empty_Event").onTrue(commandFactory.stow(false, false, true, false));
+        new EventTrigger("Stow_Coral_Event").onTrue(commandFactory.stow(true, false, false, true));
+        new EventTrigger("GoTo_L4_Event").onTrue(commandFactory.goTolL4());
+        new EventTrigger("Exhaust_Coral_Event").onTrue(commandFactory.exhaustCoral());
 
         autoChooser = AutoBuilder.buildAutoChooser("Center_Left");
         SmartDashboard.putData("Auto Mode", autoChooser);

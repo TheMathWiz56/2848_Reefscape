@@ -32,11 +32,11 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.746568109820486,
+      "minWaypointRelativePos": 0.5978456014362663,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.5,
-        "maxAcceleration": 2.5,
+        "maxVelocity": 1.0,
+        "maxAcceleration": 0.45,
         "maxAngularVelocity": 180.0,
         "maxAngularAcceleration": 360.0,
         "nominalVoltage": 12.0,
@@ -47,14 +47,20 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Stow_Coral",
+      "name": "Stow_Coral_Event",
       "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
       "command": null
     },
     {
-      "name": "GoTo_L4",
-      "waypointRelativePos": 0.7468581687612204,
+      "name": "GoTo_L4_Event",
+      "waypointRelativePos": 0.6,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Exhaust_Coral_Event",
+      "waypointRelativePos": 1.0,
       "endWaypointRelativePos": null,
       "command": null
     }
