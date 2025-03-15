@@ -127,7 +127,20 @@ public class CommandFactory{
                 });
     }
 
+    public Command goTolL4(){
+        return elevator.goToL(Constants.reef.reefLs.lL4)
+                .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+                    Constants.reef.reefToState.get(
+                        Constants.reef.reefLs.lL4
+                    )
+                )));
+    }
 
+    public Command exhaustCoral(){
+        return pincer.exhaust()
+                .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
+                .andThen(pincer.stopIntake());
+    }
 
 
         public Command scorerL1(){

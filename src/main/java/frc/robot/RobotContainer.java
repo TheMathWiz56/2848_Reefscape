@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.fasterxml.jackson.databind.util.Named;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -77,6 +78,8 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
+        NamedCommands.registerCommand("GoTo_l4", commandFactory.goTolL4());
+        NamedCommands.registerCommand("Exhaust_Coral", commandFactory.exhaustCoral());
         NamedCommands.registerCommand("Score_L4", commandFactory.scorelL4(true));
         NamedCommands.registerCommand("Score_L2", commandFactory.scorelL2());
         NamedCommands.registerCommand("Stow_Empty", commandFactory.stow(false, false, true, false));
@@ -89,6 +92,7 @@ public class RobotContainer {
         new EventTrigger("Feed").onTrue(commandFactory.feed());
         new EventTrigger("Stow_Empty").onTrue(commandFactory.stow(false, false, true, false));
         new EventTrigger("Stow_Coral").onTrue(commandFactory.stow(true, false, false, true));
+        new EventTrigger("GoTo_L4").onTrue(commandFactory.goTolL4());
 
         autoChooser = AutoBuilder.buildAutoChooser("Center_Left");
         SmartDashboard.putData("Auto Mode", autoChooser);

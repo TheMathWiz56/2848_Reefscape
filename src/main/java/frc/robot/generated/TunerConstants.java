@@ -32,13 +32,13 @@ public class TunerConstants {
     public static Matrix<N3, N1> odometryStandardDeviation = VecBuilder.fill(.1,.1,.1); // increase with time?
     public static Matrix<N3, N1> visionStandardDeviation  = VecBuilder.fill(.7,0.7,9999999);
     /** Standard Deviation at .2 target area */
-    public static double std02 = 10;
+    public static double std02 = 5;
     /** Standard Deviation at 4 target area 
      *  Lower is better / more accurate
     */
-    public static double maxStdDeviation = 1; 
+    public static double maxStdDeviation = .5; 
     /** cut-off tag area, don't trust past this point */
-    public static final double minTagArea = 1; 
+    public static final double minTagArea = 0.35; 
     public static double visionStdSlope = (maxStdDeviation-std02)/(4-.2); // from .2 to 4 // 2m to .5m // units (Deviation / Tag Area)
     public static double visionStdConstant = std02 - visionStdSlope * .2; // Units (Deviation)
     /** Linear and Angular Velocity/Acceleration contstraints for on the fly path following */
@@ -61,7 +61,7 @@ public class TunerConstants {
         return std;
     }
 
-    public static final double pathPID_Translation_P = 2; // (m/s) / m error: 1
+    public static final double pathPID_Translation_P = 3.25; // (m/s) / m error: 1
     public static final double pathPID_Translation_I = 0; // (m/s) / m error
     public static final double pathPID_Translation_D = 0.0;
     public static final double pathPID_Translation_maxV = 1.7; // m/s
@@ -119,7 +119,7 @@ public class TunerConstants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private static final Current kSlipCurrent = Amps.of(120.0);
+    private static final Current kSlipCurrent = Amps.of(50.0); //120
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -142,7 +142,7 @@ public class TunerConstants {
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
-    public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(3.75); // was 4.75 put to like 2.25
+    public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.5); // was 4.75 put to like 2.25
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     // This may need to be tuned to your individual robot

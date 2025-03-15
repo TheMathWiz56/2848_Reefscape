@@ -397,6 +397,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putNumber("Tag ID", getTag());
         SmartDashboard.putNumber("Tag ID RAW", NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("tid").getInteger(-1));
         SmartDashboard.putBoolean("Has Tag", this.LLHasTag());
+
+        SmartDashboard.putNumber("Pigeon Yaw", this.getPigeon2().getYaw().getValueAsDouble());
     }
 
 
