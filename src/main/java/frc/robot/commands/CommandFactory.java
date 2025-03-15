@@ -233,8 +233,8 @@ public class CommandFactory{
     /*move claw, pivot, elevator to intake */
     public Command feed(){
         return //pincer.pincerFunnel()
-        elevator.goToFeed()
-         .andThen(arm.pivotToFeed())
+        new ParallelCommandGroup(elevator.goToFeed(),
+         arm.pivotToFeed())
          .andThen(pincer.pincerFunnel())
          .andThen(pincer.intake())
          .andThen(pincer.holdState().until(()->pincer.hasCoral()))
@@ -243,8 +243,8 @@ public class CommandFactory{
 
     public Command reefAlgaeHigh(){
             return //pincer.pincerAlgae()
-            elevator.reefAlgaeHigh()
-            .andThen(arm.reefAlgaeHigh())
+            new ParallelCommandGroup(elevator.reefAlgaeHigh(),
+            arm.reefAlgaeHigh())
             //.andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
             //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
@@ -258,8 +258,8 @@ public class CommandFactory{
     public Command reefAlgaeLow(){
         
             return //pincer.pincerAlgae()
-            elevator.reefAlgaeLow()
-            .andThen(arm.reefAlgaeLow())
+            new ParallelCommandGroup(elevator.reefAlgaeLow(),
+            arm.reefAlgaeLow())
             //andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
             //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
@@ -272,8 +272,8 @@ public class CommandFactory{
 
 /*score net net */
     public Command net(){
-        return elevator.goToNet()
-        .andThen(arm.goToNet())
+        return new ParallelCommandGroup(elevator.goToNet(),
+        arm.goToNet())
         .andThen(pincer.exhaust())
         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
         .finallyDo((interrupted) ->{pincer.stopIntake(); pincer.pincerFunnel();});
@@ -288,16 +288,16 @@ public class CommandFactory{
             pincer.stopIntake();
           }); */
 
-        return elevator.goToProcessor()
-        .andThen(arm.goToProcessor())
+        return new ParallelCommandGroup(elevator.goToProcessor(),
+        arm.goToProcessor())
         .andThen(pincer.exhaust())
         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
         .finallyDo((interrupted) ->
               {pincer.stopIntake(); pincer.pincerFunnel();});  
     }
     public Command groundAlgae(){
-        return elevator.goToGroundAlgae()
-        .andThen(arm.goToGroundAlgae())
+        return new ParallelCommandGroup(elevator.goToGroundAlgae(),
+        arm.goToGroundAlgae())
         //.andThen(pincer.intake())
         .andThen(pincer.pincerAlgaeHold());
         //.finallyDo((interrupted) ->{
