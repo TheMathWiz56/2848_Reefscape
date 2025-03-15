@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -60,8 +61,8 @@ public class CommandFactory{
     // }
 
     public Command scorelL1(){
-        return elevator.goToL(Constants.reef.reefLs.lL1)
-        .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+        return new ParallelCommandGroup(elevator.goToL(Constants.reef.reefLs.lL1),
+        arm.moveToPoint(Constants.ArmConstants.setPoints.get(
             Constants.reef.reefToState.get(
                 Constants.reef.reefLs.lL1
             )
@@ -73,8 +74,8 @@ public class CommandFactory{
             });
     }
     public Command scorelL2(){
-        return elevator.goToL(Constants.reef.reefLs.lL2)
-        .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+        return new ParallelCommandGroup(elevator.goToL(Constants.reef.reefLs.lL2),
+        arm.moveToPoint(Constants.ArmConstants.setPoints.get(
             Constants.reef.reefToState.get(
                 Constants.reef.reefLs.lL2
             )
@@ -86,8 +87,8 @@ public class CommandFactory{
             });
     }
     public Command scorelL3(){
-        return elevator.goToL(Constants.reef.reefLs.lL3)
-        .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+        return new ParallelCommandGroup(elevator.goToL(Constants.reef.reefLs.lL3),
+        arm.moveToPoint(Constants.ArmConstants.setPoints.get(
             Constants.reef.reefToState.get(
                 Constants.reef.reefLs.lL3
             )
@@ -102,8 +103,8 @@ public class CommandFactory{
         // Added transition to avoid ramming into elevator top
 
         if (facingDownwards){
-            return elevator.goToL(Constants.reef.reefLs.lL4)
-                .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+            return new ParallelCommandGroup(elevator.goToL(Constants.reef.reefLs.lL4),
+                arm.moveToPoint(Constants.ArmConstants.setPoints.get(
                     Constants.reef.reefToState.get(
                         Constants.reef.reefLs.lL4
                     )
@@ -113,8 +114,8 @@ public class CommandFactory{
                 .andThen(pincer.stopIntake());
         }
 
-        return arm.goStraightOn()
-            .andThen(elevator.goToL(Constants.reef.reefLs.lL4))
+        return new ParallelCommandGroup(arm.goStraightOn(),
+            elevator.goToL(Constants.reef.reefLs.lL4))
             .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
                 Constants.reef.reefToState.get(
                     Constants.reef.reefLs.lL4
@@ -127,8 +128,7 @@ public class CommandFactory{
                 });
     }
 
-
-
+   //For now left scoring commands have parallel elevator and arm, right does not 
 
         public Command scorerL1(){
             return elevator.goToL(Constants.reef.reefLs.rL1)
