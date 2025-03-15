@@ -204,8 +204,8 @@ public class CommandFactory{
         }
         else if(hasCoral && IsLow){ // coral low
             output = pincer.stopIntake()
-            .andThen(new ParallelCommandGroup(elevator.coralStow(),
-            arm.coralStow()))
+            .andThen(elevator.coralStow())
+            .andThen(arm.coralStow())
             .andThen(pincer.pincerFunnel());
         }
         else if(hasAlgae){ // no coral -- algae or low
