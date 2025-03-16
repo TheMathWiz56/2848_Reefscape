@@ -130,7 +130,7 @@ public class CommandFactory{
 
     public Command goTolL4(){
         return elevator.goToL(Constants.reef.reefLs.lL4)
-                .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+                .alongWith(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
                     Constants.reef.reefToState.get(
                         Constants.reef.reefLs.lL4
                     )

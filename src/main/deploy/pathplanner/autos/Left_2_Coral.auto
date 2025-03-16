@@ -33,6 +33,18 @@
           "data": {
             "pathName": "LHPF_K"
           }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "K_HPLF"
+          }
         }
       ]
     }
