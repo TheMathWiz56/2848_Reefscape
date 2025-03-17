@@ -182,7 +182,7 @@ public class RobotContainer {
                                 .onTrue(drivetrain.pathPIDToTagMiddleSelect()
                                 .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain))
                                 .until(() -> pincer.hasAlgae() || manualDrivebase.getAsBoolean()));
-                // Make elevator go up a set amount
+                // Make elevator go up a set amount - very not working
                 // driverJoystick.y().onTrue(elevator.goUpByDistance(1.25));
 
                 // A is being used for processor right now so this should be changed
