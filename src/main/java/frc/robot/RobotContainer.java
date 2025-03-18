@@ -16,6 +16,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.events.EventTrigger;
 
@@ -98,6 +99,11 @@ public class RobotContainer {
         new EventTrigger("Exhaust_Coral_Event").onTrue(commandFactory.exhaustCoral());
 
         autoChooser = AutoBuilder.buildAutoChooser("Center_Left");
+        autoChooser.addOption("Right_2_Coral", new PathPlannerAuto("Left_2_Coral", true));
+        autoChooser.addOption("Right_1_Coral", new PathPlannerAuto("Left_1_Coral", true));
+        autoChooser.addOption("Center_Right", new PathPlannerAuto("Center_Left", true));
+
+
         SmartDashboard.putData("Auto Mode", autoChooser);
 
         configureBindings();
