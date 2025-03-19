@@ -194,6 +194,7 @@ public class RobotContainer {
                 // A is being used for processor right now so this should be changed
                 // driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
 
+                driverJoystick.leftTrigger().onTrue(pincer.pincerAlgaeHold());
         
         // Operator Joystick Bindings
                 //Scoring Commands
@@ -267,7 +268,7 @@ public class RobotContainer {
                 
 
         //Pincer
-                operatorJoystick.b().onTrue(pincer.pincerAlgaeHold());
+                //operatorJoystick.b().onTrue(pincer.pincerAlgaeHold());
                 operatorJoystick.x().onTrue(pincer.pincerFunnel());
 
         operatorJoystick.pov(270).onTrue(commandFactory.net());

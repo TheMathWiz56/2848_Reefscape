@@ -313,7 +313,7 @@ public class CommandFactory{
         return new ParallelCommandGroup(elevator.goToGroundAlgae(),
         arm.goToGroundAlgae())
         //.andThen(pincer.intake())
-        .andThen(pincer.pincerAlgaeHold());
+        .andThen(pincer.pincerAlgaeHold()); //This step might be done manually?
         //.finallyDo((interrupted) ->{
         //    pincer.stopIntake().schedule();
         //  });

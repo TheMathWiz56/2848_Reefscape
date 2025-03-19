@@ -38,7 +38,13 @@ public class Ascender extends SubsystemBase {
     } */
 
     public Command manualClimb(DoubleSupplier input) {
-        return run(() -> ascenderMotor.set(getAscenderOutput(input)));
+        return run(() -> setAscenderMotor(getAscenderOutput(input)));
+    }
+
+    // Negative value - magnet going down, positive value - magnet going up
+    // Ascender limit switch is true when at bottom
+    public void setAscenderMotor(double input) {
+      ascenderMotor.set(input > 0.0 ? input : (ascenderLimitSwitch.get() ? 0.0 : input));
     }
 
     private double getAscenderOutput(DoubleSupplier input){
