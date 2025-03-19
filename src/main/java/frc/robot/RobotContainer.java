@@ -173,21 +173,21 @@ public class RobotContainer {
                         .and(() -> pincer.hasCoral())
                         .and(LLHasTag)
                                 .onTrue(drivetrain.pathPIDToTagLeftSelect()
-                                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain))
+                                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain))
                                 .until(() -> !pincer.hasCoral() || manualDrivebase.getAsBoolean())
                                 );
                 driverJoystick.b()
                         .and(() -> pincer.hasCoral())
                         .and(LLHasTag)
                                 .onTrue(drivetrain.pathPIDToTagRightSelect()
-                                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain))
+                                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain))
                                 .until(() -> !pincer.hasCoral() || manualDrivebase.getAsBoolean())
                                 );
-                driverJoystick.leftTrigger(.5)
+                /*driverJoystick.leftTrigger(.5)
                         .and(LLHasTag)
                                 .onTrue(drivetrain.pathPIDToTagMiddleSelect()
                                 .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain))
-                                .until(() -> pincer.hasAlgae() || manualDrivebase.getAsBoolean()));
+                                .until(() -> pincer.hasAlgae() || manualDrivebase.getAsBoolean()));*/
                 // Make elevator go up a set amount - very not working
                 // driverJoystick.y().onTrue(elevator.goUpByDistance(1.25));
 
