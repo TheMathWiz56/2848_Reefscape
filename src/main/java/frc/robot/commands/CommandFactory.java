@@ -139,7 +139,8 @@ public class CommandFactory{
 
     public Command exhaustCoral(){
         return pincer.exhaust()
-                .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
+                .andThen(pincer.holdState())
+                .andThen(new WaitCommand(0.5))
                 .andThen(pincer.stopIntake());
     }
 
