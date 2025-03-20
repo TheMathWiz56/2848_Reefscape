@@ -41,10 +41,9 @@ public class Ascender extends SubsystemBase {
         return run(() -> setAscenderMotor(getAscenderOutput(input)));
     }
 
-    // Negative value - magnet going down, positive value - magnet going up
     // Ascender limit switch is true when at bottom
     public void setAscenderMotor(double input) {
-      ascenderMotor.set(input > 0.0 ? input : (ascenderLimitSwitch.get() ? 0.0 : input));
+      ascenderMotor.set(input < 0.0 ? (!ascenderLimitSwitch.get() ? 0.0 : input) : input);
     }
 
     private double getAscenderOutput(DoubleSupplier input){

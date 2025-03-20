@@ -233,7 +233,7 @@ public class Pincer extends SubsystemBase{
     }
     
     public Command pincerAlgaeHold() {
-        return runOnce(() -> {holdPincer(); clampingOnAlgae = true; })./*andThen(run(() -> holdIntake())).*/until(() -> pincerAbsEncoder.getPosition() < -0.250);
+        return runOnce(() -> {holdPincer(); clampingOnAlgae = true; })./*andThen(run(() -> holdIntake())).*/until(() -> pincerAbsEncoder.getPosition() < -0.3);
     }
 
     /** Runs the intake motor at the intake speed
