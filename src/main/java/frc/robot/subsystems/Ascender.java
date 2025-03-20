@@ -38,8 +38,14 @@ public class Ascender extends SubsystemBase {
     } */
 
     public Command manualClimb(DoubleSupplier input) {
-        return run(() -> ascenderMotor.set(getAscenderOutput(input)));
-    }
+      return run(() -> setAscenderMotor(getAscenderOutput(input)));
+  }
+
+  // Ascender limit switch is true when at bottom
+  public void setAscenderMotor(double input) {
+    ascenderMotor.set(input < 0.0 ? (!ascenderLimitSwitch.get() ? 0.0 : input) : input);
+    //ascenderMotor.set((input < 0.0 && !ascenderLimitSwitch.get()) ? 0.0 : input); // This is probably the same, makes more sense
+  }
 
     private double getAscenderOutput(DoubleSupplier input){
       if (Math.abs(input.getAsDouble()) < 0.05){
