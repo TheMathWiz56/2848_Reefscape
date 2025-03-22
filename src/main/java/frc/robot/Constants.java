@@ -315,6 +315,7 @@ public final class Constants {
             // Pincer Setpoints
             public static final double kStowPosition = -0.349;
             public static final double kFunnelPosition = 0.278;
+            public static final double kFunnel2Position = 0.45;
             public static final double kAlgaePosition = -0.180;
             //public static final double kHoldAlgaePosition = -0.120; //guess
 
@@ -378,12 +379,12 @@ public final class Constants {
             public static final double kSetpointL2 = -17.145;
             public static final double kSetpointL3 = -26.844;
             public static final double kSetpointL4 = -42.0; //-41.289;
-            public static final double kSetpointFeed = -13; //-13.5; //-12.312;
+            public static final double kSetpointFeed = -12.6; //-13.5; //-12.312;
             public static final double kSetpointStow = -0.065;
             public static final double kSetpointStowCoral = -12.0;//-6.130;
             public static final double kSetpointStowAlgae = -5.0;
-            public static final double kSetpointReefAlgaeHigh = -24.416;
-            public static final double kSetpointReefAlgaeLow = -15.799;
+            public static final double kSetpointReefAlgaeHigh = -22.916;
+            public static final double kSetpointReefAlgaeLow = -14.299;
             public static final double kSetpointGroundAlgae = -2.0;
             public static final double kSetpointProcessor = -4.5;
             public static final double kSetpointNet = -42.0;

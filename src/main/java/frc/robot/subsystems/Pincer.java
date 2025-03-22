@@ -211,6 +211,10 @@ public class Pincer extends SubsystemBase{
         return pincerToSetpoint(kFunnelPosition);
     }
 
+    public Command pincerFunnel2() {
+        return pincerToSetpoint(kFunnel2Position);
+    }
+
     public Command algaeScore(){
         return pincerToSetpoint(Constants.PincerConstants.setPoints.get(
             Constants.robotStates.pincerStates.ALGAESCORE

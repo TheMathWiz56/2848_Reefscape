@@ -268,6 +268,7 @@ public class RobotContainer {
 
         //Pincer
                 operatorJoystick.b().onTrue(pincer.pincerAlgaeHold());
+                operatorJoystick.rightStick().onTrue(pincer.pincerFunnel2());
                 operatorJoystick.x().onTrue(pincer.pincerFunnel());
 
         operatorJoystick.pov(270).onTrue(commandFactory.net());
