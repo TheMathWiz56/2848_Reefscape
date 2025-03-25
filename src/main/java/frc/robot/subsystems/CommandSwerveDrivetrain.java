@@ -634,12 +634,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             Map.entry(20, this.pathPIDToTagMiddle(20)),
             Map.entry(21, this.pathPIDToTagMiddle(21)),
             Map.entry(22, this.pathPIDToTagMiddle(22)),
-            Map.entry(6, this.pathPIDToTagRight(6)),
-            Map.entry(7, this.pathPIDToTagRight(7)),
-            Map.entry(8, this.pathPIDToTagRight(8)),
-            Map.entry(9, this.pathPIDToTagRight(9)),
-            Map.entry(10, this.pathPIDToTagRight(10)),
-            Map.entry(11, this.pathPIDToTagRight(11)))
+            Map.entry(6, this.pathPIDToTagMiddle(6)),
+            Map.entry(7, this.pathPIDToTagMiddle(7)),
+            Map.entry(8, this.pathPIDToTagMiddle(8)),
+            Map.entry(9, this.pathPIDToTagMiddle(9)),
+            Map.entry(10, this.pathPIDToTagMiddle(10)),
+            Map.entry(11, this.pathPIDToTagMiddle(11)))
     , this::getTag);
 
     public Command pathPIDToTagMiddleSelect(){
