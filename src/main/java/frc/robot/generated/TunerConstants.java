@@ -84,7 +84,7 @@ public class TunerConstants {
     // X is in the normal direction of the tag, Y is parallel to the tag 
     public static final Transform2d leftBranch = new Transform2d(0.46769, -0.14993, new Rotation2d(Math.PI)); // -0.14993
     public static final Transform2d rightBranch = new Transform2d(0.46769, 0.16, new Rotation2d(Math.PI));
-    public static final Transform2d reefAlgae = new Transform2d(.2,0.0,new Rotation2d(Math.PI));
+    public static final Transform2d reefAlgae = new Transform2d(0.5,0.0,new Rotation2d(Math.PI));
 
 
 
