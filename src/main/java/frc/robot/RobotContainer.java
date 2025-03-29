@@ -169,17 +169,18 @@ public class RobotContainer {
 
                 driverJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).onTrue(arm.reefAlgaeHigh2nd());
 
+                //  !pincer.hasCoral() || 
                 driverJoystick.x()
                         .and(LLHasTag)
                                 .onTrue(drivetrain.pathPIDToTagLeftSelect()
                                 .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain))
-                                .until(() -> !pincer.hasCoral() || manualDrivebase.getAsBoolean())
+                                .until(() -> manualDrivebase.getAsBoolean())
                                 );
                 driverJoystick.b()
                         .and(LLHasTag)
                                 .onTrue(drivetrain.pathPIDToTagRightSelect()
                                 .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain))
-                                .until(() -> !pincer.hasCoral() || manualDrivebase.getAsBoolean())
+                                .until(() -> manualDrivebase.getAsBoolean())
                                 );
                 driverJoystick.leftTrigger(.5)
                         .and(LLHasTag)
@@ -230,10 +231,16 @@ public class RobotContainer {
                                 .onTrue(commandFactory.stow(true, false, false, true));
                 //not high empty
                 operatorJoystick.pov(90)
-                        .and(() -> !elevator.isNearTop().getAsBoolean())
+                        .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(false, false, false, false));
+
+                operatorJoystick.pov(90)
+                        .and(elevator.isLow())
+                        .and(() -> !pincer.hasCoral())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(false, false, false, true));
 
 
 

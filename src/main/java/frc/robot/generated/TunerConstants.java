@@ -64,10 +64,13 @@ public class TunerConstants {
     public static final double pathPID_Translation_P = 3.25; // (m/s) / m error
     public static final double pathPID_Translation_I = 0; // (m/s) / m error
     public static final double pathPID_Translation_D = 0.0;
-    public static final double pathPID_Translation_maxVy = 1; // m/s 1
-    public static final double pathPID_Translation_maxVx = .25; // m/s 1
+    public static final double pathPID_Translation_maxVy = 1.5; // m/s 1 // parallel to tag
+    public static final double pathPID_Translation_maxVx = .5; // m/s 1 // normal to tag
     public static final double pathPID_Translation_MaxA = 1;
-    public static final double pathPID_Translation_Tol = .03;
+    public static final double pathPID_Translation_TolX = .1;
+    public static final double pathPID_Translation_TolY = .03;
+    public static final double pathPID_Translation_TolYShift = .1;
+
     public static final double pathPID_Translation_Deadband = 0.05;
 
     public static final double pathPID_Rotation_P = 4; // (rad/s) / rad error
@@ -80,10 +83,20 @@ public class TunerConstants {
 
     // At Goal Debouncer Time
     public static final double debounce_Time = 0.5;
+    
+    // Limit for shifting tag goal
+    public static final double tagYShiftLimit = 0.3; //m
+    // Max Shift
+    public static final double maxTagYShift = 0.3; //m
+    // Max y naught
+    public static final double maxTagY0 = 1.75; //m
+    // Shift / y0
+    public static final double shiftPerTagY0 = maxTagYShift / maxTagY0;
 
     // X is in the normal direction of the tag, Y is parallel to the tag 
-    public static final Transform2d leftBranch = new Transform2d(0.46769, -0.14993, new Rotation2d(Math.PI)); // -0.14993
-    public static final Transform2d rightBranch = new Transform2d(0.46769, 0.16, new Rotation2d(Math.PI));
+    public static final double coralAlignmentShift = 0;
+    public static final Transform2d leftBranch = new Transform2d(0.46769, -0.16 + coralAlignmentShift, new Rotation2d(Math.PI)); // -0.14993
+    public static final Transform2d rightBranch = new Transform2d(0.46769, 0.16 + coralAlignmentShift, new Rotation2d(Math.PI));
     public static final Transform2d reefAlgae = new Transform2d(0.5,0.0,new Rotation2d(Math.PI));
 
 

@@ -241,6 +241,12 @@ public class CommandFactory{
                 .andThen(arm.emptyStow())
                 .andThen(pincer.pincerFunnel());
         }
+        else if (IsLow){
+            output = pincer.stopIntake()
+            .andThen(arm.emptyStow())
+            .andThen(elevator.emptyStow())
+            .andThen(pincer.pincerFunnel());
+        }
         else{
             output = pincer.stopIntake()
             .andThen(new ParallelCommandGroup(arm.emptyStow()
@@ -340,25 +346,37 @@ public class CommandFactory{
             .andThen(pincer.pincerAlgaeHold());
     }
 
+    private Command autoReefAlgaeStow(){
+        return new SelectCommand<>(
+            Map.ofEntries(
+                Map.entry(0, stow(true, false, false, true)),
+                Map.entry(1, stow(true, false, false, false)),
+                Map.entry(2, stow(true, false, true, false))
+            )
+            , () -> elevator.getState());
+    }
+
     private Command autoReefAlgaeHigh(){
         return drive.pathPIDToTagMiddleSelect()
+                .alongWith(autoReefAlgaeStow())
             .andThen(reefAlgaeHighNoPinch()
                 .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)))
             .andThen(pinceAlgae())
-            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-0.7)), drive)
-                .withTimeout(1)
-                .alongWith(arm.reefAlgaeHigh2nd()))
+            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-1)), drive)
+                .withTimeout(.5)
+                .andThen(arm.reefAlgaeHigh2nd()))
             ;
     }
 
     private Command autoReefAlgaeLow(){
         return drive.pathPIDToTagMiddleSelect()
+                .alongWith(autoReefAlgaeStow())
             .andThen(reefAlgaeLowNoPinch()
                 .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)))
             .andThen(pinceAlgae())
-            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-0.7)), drive)
-                .withTimeout(1)
-                .alongWith(arm.reefAlgaeHigh2nd()))
+            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-1)), drive)
+                .withTimeout(.5)
+                .andThen(arm.reefAlgaeHigh2nd()))
             ;
     }
 

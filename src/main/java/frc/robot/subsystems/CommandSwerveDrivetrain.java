@@ -106,6 +106,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
     private int flip_for_red = 1;
+    private boolean isTrackingTagGoal = false;
     
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -328,8 +329,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
 
         // Configure PID controllers
-        pathPIDXController.setTolerance(TunerConstants.pathPID_Translation_Tol);
-        pathPIDYController.setTolerance(TunerConstants.pathPID_Translation_Tol);
+        pathPIDXController.setTolerance(TunerConstants.pathPID_Translation_TolX);
+        pathPIDYController.setTolerance(TunerConstants.pathPID_Translation_TolY);
         pathPIDRotationController.setTolerance(TunerConstants.pathPID_Rotation_Tol);
         pathPIDRotationController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -661,6 +662,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
             Pose2d goalTagPose2d = goalPose.relativeTo(tagPose);
 
+            if (Math.abs(currentTagPose2d.getTranslation().getY()) > TunerConstants.tagYShiftLimit){
+                isTrackingTagGoal = false;
+                double Y0 = currentTagPose2d.getTranslation().getY();
+                double shift = (TunerConstants.shiftPerTagY0 * Math.abs(Y0)) * (Y0 / Math.abs(Y0));
+                goalTagPose2d = new Pose2d(goalTagPose2d.getTranslation().plus(new Translation2d(0.0,shift)), goalTagPose2d.getRotation());
+
+                pathPIDYController.setTolerance(TunerConstants.pathPID_Translation_TolYShift);
+                pathPIDXController.atGoal();
+            }
+            else{
+                isTrackingTagGoal = true;
+            }
+
             pathPIDXController.reset(currentTagPose2d.getX());
             pathPIDYController.reset(currentTagPose2d.getY());
             pathPIDRotationController.reset(currentTagPose2d.getRotation().getRadians());
@@ -670,6 +684,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             pathPIDRotationController.setGoal(goalTagPose2d.getRotation().getRadians());
         
             }, () -> {
+                if (pathPIDYController.atGoal() && !isTrackingTagGoal){
+                    pathPIDYController.setGoal(goalPose.relativeTo(tagPose).getY());
+
+                    pathPIDYController.setTolerance(TunerConstants.pathPID_Translation_TolY);
+                }
+
                 Pose2d currentFieldPose2d = this.getState().Pose;
                 Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
 
@@ -719,7 +739,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      *         for at least {@code 0.5} seconds (the debouncer time), otherwise {@code false}.
      */
     public boolean pathPIDAtGoal (){
-        return atGoalDebouncer.calculate(pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal());
+        return atGoalDebouncer.calculate(pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal() && isTrackingTagGoal);
     }
 
     public void useMegaTag2(boolean input){

@@ -181,7 +181,7 @@ public class Pincer extends SubsystemBase{
      * @return Command
      */
     private Command pincerToSetpoint(double setpoint) {
-        return runOnce(() -> {pincerSetpoint = setpoint; clampingOnAlgae = false;});
+        return runOnce(() -> {pincerSetpoint = setpoint; clampingOnAlgae = false; });
     }
 
     /** Moves the pincer to the algae-grabbing position
@@ -233,6 +233,7 @@ public class Pincer extends SubsystemBase{
     
 
     public void holdPincer() {
+        clampingOnAlgae = true;
         pincerMotor.set(-0.25);
     }
     
@@ -277,7 +278,7 @@ public class Pincer extends SubsystemBase{
     
     public Command holdState(){
         return run(() -> {
-            if (!hasAlgae()){
+            if (!hasAlgae() & clampingOnAlgae){
                 setPincerOutput(pincerSetpoint);
             }
         }).withName("Hold State");

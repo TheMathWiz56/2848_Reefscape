@@ -392,7 +392,23 @@ public class Elevator extends SubsystemBase {
   }
 
   public BooleanSupplier isLow(){
-    return () -> elevatorMotor.getPosition().getValueAsDouble() > -12;
+    return () -> elevatorMotor.getPosition().getValueAsDouble() > -12.5;
+  }
+
+  /**
+   * 0 - Low
+   * 1 - Middle
+   * 2 - High
+   * @return The Elevator State
+   */
+  public int getState(){
+    if (isLow().getAsBoolean()){
+      return 0;
+    }
+    if (!isLow().getAsBoolean() && !isHigh().getAsBoolean()){
+      return 1;
+    }
+    return 2;
   }
 
   // At max speed (1.0) up to height of -20, then should go down linearly to 0.15 at height of -40
