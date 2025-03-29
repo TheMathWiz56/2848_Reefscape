@@ -74,7 +74,9 @@ public class RobotContainer {
 
         // Custom Triggers
         Trigger LLHasTag = new Trigger(() -> drivetrain.LLHasTag());    
-        private final BooleanSupplier manualDrivebase = () -> driverJoystick.getLeftX() > .1 || driverJoystick.getLeftY() > .1 || driverJoystick.getRightX() > 0.1;
+        private final BooleanSupplier manualDrivebase = () -> Math.hypot(driverJoystick.getLeftX(), driverJoystick.getLeftY()) > 0.1
+                                                                || Math.abs(driverJoystick.getRightX()) > 0.1;
+
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
@@ -102,7 +104,6 @@ public class RobotContainer {
         autoChooser.addOption("Right_2_Coral", new PathPlannerAuto("Left_2_Coral", true));
         autoChooser.addOption("Right_1_Coral", new PathPlannerAuto("Left_1_Coral", true));
         autoChooser.addOption("Center_Right", new PathPlannerAuto("Center_Left", true));
-
 
         SmartDashboard.putData("Auto Mode", autoChooser);
 
@@ -168,25 +169,23 @@ public class RobotContainer {
 
                 driverJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).onTrue(arm.reefAlgaeHigh2nd());
 
-                // Auto Driving
-                //.and(() -> pincer.hasCoral()) // removed for odometry testing. add back to both later
-                // () -> !pincer.hasCoral() || manualDrivebase.getAsBoolean()
-
                 driverJoystick.x()
                         .and(LLHasTag)
                                 .onTrue(drivetrain.pathPIDToTagLeftSelect()
                                 .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain))
-                                .until(() -> manualDrivebase.getAsBoolean())
+                                .until(() -> !pincer.hasCoral() || manualDrivebase.getAsBoolean())
                                 );
                 driverJoystick.b()
                         .and(LLHasTag)
                                 .onTrue(drivetrain.pathPIDToTagRightSelect()
                                 .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain))
-                                .until(() -> manualDrivebase.getAsBoolean())
+                                .until(() -> !pincer.hasCoral() || manualDrivebase.getAsBoolean())
                                 );
                 driverJoystick.leftTrigger(.5)
                         .and(LLHasTag)
-                                .onTrue(commandFactory.autoReefAlgae());
+                                .onTrue(commandFactory.autoReefAlgae()
+                                .until(() -> manualDrivebase.getAsBoolean()))
+                                ;
                 // Make elevator go up a set amount - very not working
                 // driverJoystick.y().onTrue(elevator.goUpByDistance(1.25));
 
@@ -235,6 +234,25 @@ public class RobotContainer {
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(false, false, false, false));
+
+
+
+                //Is High
+                operatorJoystick.back()
+                        .and(elevator.isNearTop())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(true, false, true, false));
+                //Is Middle
+                operatorJoystick.back()
+                        .and(() -> !elevator.isLow().getAsBoolean())
+                        .and(() -> !elevator.isNearTop().getAsBoolean())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(true, false, false, false));
+                //Is Low
+                operatorJoystick.back()
+                        .and(elevator.isLow())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(true, false, false, true));               
                 
 
                 //reef algae

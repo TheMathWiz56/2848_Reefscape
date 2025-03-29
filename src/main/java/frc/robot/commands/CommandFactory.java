@@ -274,6 +274,16 @@ public class CommandFactory{
             //.until(() -> pincer.hasAlgae())
             //.finallyDo((interrupted) -> pincer.stopIntake());
         }
+
+    private Command reefAlgaeHighNoPinch(){
+        return elevator.reefAlgaeHighAuto()
+            .andThen(arm.reefAlgaeHigh());
+    }
+
+    private Command reefAlgaeLowNoPinch(){
+        return elevator.reefAlgaeLowAuto()
+            .andThen(arm.reefAlgaeLow());
+    }
         
     public Command reefAlgaeLow(){
         
@@ -325,20 +335,31 @@ public class CommandFactory{
         //  });
     }
 
+    private Command pinceAlgae(){
+        return pincer.intake()
+            .andThen(pincer.pincerAlgaeHold());
+    }
+
     private Command autoReefAlgaeHigh(){
         return drive.pathPIDToTagMiddleSelect()
-            .andThen(reefAlgaeHigh()
+            .andThen(reefAlgaeHighNoPinch()
                 .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)))
-            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-0.45)), drive)
-                .withTimeout(1));
+            .andThen(pinceAlgae())
+            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-0.7)), drive)
+                .withTimeout(1)
+                .alongWith(arm.reefAlgaeHigh2nd()))
+            ;
     }
 
     private Command autoReefAlgaeLow(){
         return drive.pathPIDToTagMiddleSelect()
-            .andThen(reefAlgaeLow()
+            .andThen(reefAlgaeLowNoPinch()
                 .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)))
-            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-0.45)), drive)
-                .withTimeout(1));
+            .andThen(pinceAlgae())
+            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-0.7)), drive)
+                .withTimeout(1)
+                .alongWith(arm.reefAlgaeHigh2nd()))
+            ;
     }
 
     public Command autoReefAlgae(){

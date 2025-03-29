@@ -237,7 +237,12 @@ public class Pincer extends SubsystemBase{
     }
     
     public Command pincerAlgaeHold() {
-        return runOnce(() -> {holdPincer(); clampingOnAlgae = true; })./*andThen(run(() -> holdIntake())).*/until(() -> pincerAbsEncoder.getPosition() < -0.250);
+        return startEnd(() -> {holdPincer(); holdIntake();}, 
+                        () -> {
+                            if (!hasAlgae()){
+                                setPincerOutput(pincerSetpoint);
+                            }                  
+                        }).until(() -> pincerAbsEncoder.getPosition() < -0.250 || hasAlgae());
     }
 
     /** Runs the intake motor at the intake speed
@@ -272,13 +277,9 @@ public class Pincer extends SubsystemBase{
     
     public Command holdState(){
         return run(() -> {
-            if(clampingOnAlgae) {
-                holdPincer();
-                holdIntake();
-                if(pincerAbsEncoder.getPosition() < -0.250) clampingOnAlgae = false;
-            } else {
-            setPincerOutput(pincerSetpoint);
-        }
+            if (!hasAlgae()){
+                setPincerOutput(pincerSetpoint);
+            }
         }).withName("Hold State");
 
         //return Commands.idle(this);

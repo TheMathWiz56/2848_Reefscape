@@ -252,6 +252,17 @@ public class Elevator extends SubsystemBase {
             Constants.robotStates.pivotElevatorStates.REEFALGAELOW));
   }
 
+  public Command reefAlgaeHighAuto() {
+    return goToPosition(Constants.ElevatorConstants.kSetpointReefAlgaeHighAuto);
+  }
+
+  public Command reefAlgaeLowAuto() {
+    return goToPosition(Constants.ElevatorConstants.kSetpointReefAlgaeLowAuto);
+  }
+
+
+
+
   public Command goToGroundAlgae(){
     return goToPosition(
       Constants.ElevatorConstants.setPoints.get(

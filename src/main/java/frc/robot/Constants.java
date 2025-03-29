@@ -299,7 +299,7 @@ public final class Constants {
             public static final FeedbackSensor kPincerMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
             public static final double kPincerMotorMinOutput = -1;
             public static final double kPincerMotorMaxOutput = 1;
-            public static final double kPincerMotorAbsoluteEncoderOffset = 0.77;
+            public static final double kPincerMotorAbsoluteEncoderOffset = 0.7;
             public static final boolean kPincerMotorZeroCentered = true;
 
             // Soft Limits
@@ -384,7 +384,9 @@ public final class Constants {
             public static final double kSetpointStowCoral = -12.0;//-6.130;
             public static final double kSetpointStowAlgae = -5.0;
             public static final double kSetpointReefAlgaeHigh = -23.416;
+            public static final double kSetpointReefAlgaeHighAuto = kSetpointReefAlgaeHigh - 2;
             public static final double kSetpointReefAlgaeLow = -14.799;
+            public static final double kSetpointReefAlgaeLowAuto = kSetpointReefAlgaeLow - 2;
             public static final double kSetpointGroundAlgae = -2.0;
             public static final double kSetpointProcessor = -4.5;
             public static final double kSetpointNet = -42.0;
