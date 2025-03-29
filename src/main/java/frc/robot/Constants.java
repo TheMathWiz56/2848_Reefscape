@@ -211,7 +211,7 @@ public final class Constants {
         public static final FeedbackSensor kPivotMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
         public static final double kPivotMotorMinOutput = -1;
         public static final double kPivotMotorMaxOutput = 1;
-        public static final double kPivotMotorAbsoluteEncoderOffset = 0.8643911;
+        public static final double kPivotMotorAbsoluteEncoderOffset = 0.5648202;
         public static final boolean kPivotMotorAbsoluteEncoderZeroCentered = true;
         public static double kPivotMotorks = 0.0;
         public static double kPivotMotorkg = -0.33;
@@ -299,7 +299,7 @@ public final class Constants {
             public static final FeedbackSensor kPincerMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
             public static final double kPincerMotorMinOutput = -1;
             public static final double kPincerMotorMaxOutput = 1;
-            public static final double kPincerMotorAbsoluteEncoderOffset = 0.8380989;
+            public static final double kPincerMotorAbsoluteEncoderOffset = 0.77;
             public static final boolean kPincerMotorZeroCentered = true;
 
             // Soft Limits
@@ -320,7 +320,7 @@ public final class Constants {
             //public static final double kHoldAlgaePosition = -0.120; //guess
 
             // Intake Setpoints
-            public static final double kIntakeSpeed = -0.6;
+            public static final double kIntakeSpeed = -0.8;
             public static final double kExhaustSpeed = 0.66;
         }
 

@@ -27,11 +27,11 @@ import frc.robot.subsystems.keypad;
 
 
 public class CommandFactory{
-    private CommandSwerveDrivetrain drive;
-    private Elevator elevator;
-    private Arm arm;
-    private Pincer pincer;
-    private Lights lights;
+    private final CommandSwerveDrivetrain drive;
+    private final Elevator elevator;
+    private final Arm arm;
+    private final Pincer pincer;
+    private final Lights lights;
 
     public CommandFactory(CommandSwerveDrivetrain drive, Elevator elevator, Arm arm, Pincer pincer, Lights lights){
         this.drive = drive;
@@ -40,6 +40,7 @@ public class CommandFactory{
         this.pincer = pincer;
         this.lights = lights;
     }
+
 /*Moves only elevator, pivot and intake to score on reef */
     // public Command scoreL(Supplier<Constants.reef.reefLs> L,Supplier<Integer> reef){
     //     return elevator.goToL(L.get(),reef.get())
@@ -326,39 +327,36 @@ public class CommandFactory{
 
     private Command autoReefAlgaeHigh(){
         return drive.pathPIDToTagMiddleSelect()
-            .andThen(reefAlgaeHigh())
-            .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive))
+            .andThen(reefAlgaeHigh()
+                .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)))
             .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-0.45)), drive)
                 .withTimeout(1));
     }
 
     private Command autoReefAlgaeLow(){
         return drive.pathPIDToTagMiddleSelect()
-            .andThen(reefAlgaeLow())
-            .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive))
+            .andThen(reefAlgaeLow()
+                .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)))
             .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-0.45)), drive)
                 .withTimeout(1));
     }
 
-    private Command autoReefSelectCommand = 
-    new SelectCommand<>(
-        Map.ofEntries(
-            Map.entry(17, autoReefAlgaeLow()),
-            Map.entry(18, autoReefAlgaeHigh()),
-            Map.entry(19, autoReefAlgaeLow()),
-            Map.entry(20, autoReefAlgaeHigh()),
-            Map.entry(21, autoReefAlgaeLow()),
-            Map.entry(22, autoReefAlgaeHigh()), 
-            Map.entry(6, autoReefAlgaeLow()),
-            Map.entry(7, autoReefAlgaeHigh()),
-            Map.entry(8, autoReefAlgaeLow()),
-            Map.entry(9, autoReefAlgaeHigh()),
-            Map.entry(10, autoReefAlgaeLow()),
-            Map.entry(11, autoReefAlgaeHigh()))
-    , () -> drive.getTag());
-
     public Command autoReefAlgae(){
-        return autoReefSelectCommand;
+        return new SelectCommand<>(
+            Map.ofEntries(
+                Map.entry(17, autoReefAlgaeLow()),
+                Map.entry(18, autoReefAlgaeHigh()),
+                Map.entry(19, autoReefAlgaeLow()),
+                Map.entry(20, autoReefAlgaeHigh()),
+                Map.entry(21, autoReefAlgaeLow()),
+                Map.entry(22, autoReefAlgaeHigh()), 
+                Map.entry(6, autoReefAlgaeLow()),
+                Map.entry(7, autoReefAlgaeHigh()),
+                Map.entry(8, autoReefAlgaeLow()),
+                Map.entry(9, autoReefAlgaeHigh()),
+                Map.entry(10, autoReefAlgaeLow()),
+                Map.entry(11, autoReefAlgaeHigh()))
+        , () -> drive.getTag());
     }
     
 
