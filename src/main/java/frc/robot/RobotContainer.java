@@ -169,19 +169,20 @@ public class RobotContainer {
                 driverJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).onTrue(arm.reefAlgaeHigh2nd());
 
                 // Auto Driving
+                //.and(() -> pincer.hasCoral()) // removed for odometry testing. add back to both later
+                // () -> !pincer.hasCoral() || manualDrivebase.getAsBoolean()
+
                 driverJoystick.x()
-                        .and(() -> pincer.hasCoral())
                         .and(LLHasTag)
                                 .onTrue(drivetrain.pathPIDToTagLeftSelect()
                                 .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain))
-                                .until(() -> !pincer.hasCoral() || manualDrivebase.getAsBoolean())
+                                .until(() -> manualDrivebase.getAsBoolean())
                                 );
                 driverJoystick.b()
-                        .and(() -> pincer.hasCoral())
                         .and(LLHasTag)
                                 .onTrue(drivetrain.pathPIDToTagRightSelect()
                                 .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain))
-                                .until(() -> !pincer.hasCoral() || manualDrivebase.getAsBoolean())
+                                .until(() -> manualDrivebase.getAsBoolean())
                                 );
                 /*driverJoystick.leftTrigger(.5)
                         .and(LLHasTag)

@@ -379,6 +379,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
         
+        // Disabled for odometry testing
         updateOdometry();
 
         // Fused Pose Estimate Telemetry 
@@ -527,7 +528,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (useMegaTag2)
             TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 9999999); // Don't trust yaw, rely on Pigeon
         else
-            TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, .5); // Use vision yaw reading
+            TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 3); // Use vision yaw reading
 
 
         SmartDashboard.putNumberArray("Vision Standard Deviations", TunerConstants.visionStandardDeviation.getData());

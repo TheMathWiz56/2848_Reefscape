@@ -3,8 +3,9 @@
   "robotLength": 0.7112,
   "holonomicMode": true,
   "pathFolders": [
-    "L-R Paths",
     "Center",
+    "L-R Paths",
+    "Testing",
     "Starting Paths"
   ],
   "autoFolders": [],
@@ -16,9 +17,9 @@
   "robotMass": 59.0,
   "robotMOI": 5.0,
   "robotTrackwidth": 0.546,
-  "driveWheelRadius": 0.0508,
-  "driveGearing": 6.102,
-  "maxDriveSpeed": 5.3,
+  "driveWheelRadius": 0.051,
+  "driveGearing": 6.2,
+  "maxDriveSpeed": 5.15,
   "driveMotorType": "krakenX60",
   "driveCurrentLimit": 50.0,
   "wheelCOF": 1.0,
