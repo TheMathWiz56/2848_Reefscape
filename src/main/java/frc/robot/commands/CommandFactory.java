@@ -4,14 +4,18 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Lights;
 
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+
+import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -23,11 +27,11 @@ import frc.robot.subsystems.keypad;
 
 
 public class CommandFactory{
-    private final CommandSwerveDrivetrain drive;
-    private final Elevator elevator;
-    private final Arm arm;
-    private final Pincer pincer;
-    private final Lights lights;
+    private CommandSwerveDrivetrain drive;
+    private Elevator elevator;
+    private Arm arm;
+    private Pincer pincer;
+    private Lights lights;
 
     public CommandFactory(CommandSwerveDrivetrain drive, Elevator elevator, Arm arm, Pincer pincer, Lights lights){
         this.drive = drive;
@@ -319,6 +323,44 @@ public class CommandFactory{
         //    pincer.stopIntake().schedule();
         //  });
     }
+
+    private Command autoReefAlgaeHigh(){
+        return drive.pathPIDToTagMiddleSelect()
+            .andThen(reefAlgaeHigh())
+            .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive))
+            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-0.45)), drive)
+                .withTimeout(1));
+    }
+
+    private Command autoReefAlgaeLow(){
+        return drive.pathPIDToTagMiddleSelect()
+            .andThen(reefAlgaeLow())
+            .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive))
+            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-0.45)), drive)
+                .withTimeout(1));
+    }
+
+    private Command autoReefSelectCommand = 
+    new SelectCommand<>(
+        Map.ofEntries(
+            Map.entry(17, autoReefAlgaeLow()),
+            Map.entry(18, autoReefAlgaeHigh()),
+            Map.entry(19, autoReefAlgaeLow()),
+            Map.entry(20, autoReefAlgaeHigh()),
+            Map.entry(21, autoReefAlgaeLow()),
+            Map.entry(22, autoReefAlgaeHigh()), 
+            Map.entry(6, autoReefAlgaeLow()),
+            Map.entry(7, autoReefAlgaeHigh()),
+            Map.entry(8, autoReefAlgaeLow()),
+            Map.entry(9, autoReefAlgaeHigh()),
+            Map.entry(10, autoReefAlgaeLow()),
+            Map.entry(11, autoReefAlgaeHigh()))
+    , () -> drive.getTag());
+
+    public Command autoReefAlgae(){
+        return autoReefSelectCommand;
+    }
+    
 
     
     
