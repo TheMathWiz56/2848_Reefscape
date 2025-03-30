@@ -217,7 +217,7 @@ public final class Constants {
         public static double kPivotMotorkg = -0.33;
         public static double kPivotMotorkv = 10.0; // 1..0
         public static double kPivotMotorka = 0.0;
-        public static double kPivotMotorMaxVelocity = 3.5;
+        public static double kPivotMotorMaxVelocity = 6;
         public static double kPivotMotorMaxAcceleration = 4;
 
         // Soft Limits
@@ -358,8 +358,8 @@ public final class Constants {
             public static final int kStallCurrent = 60;
 
             // Trapezoid Proflile parameters
-            public static final double kMaxVelocity = 80;
-            public static final double kMaxAcceleration = 80; // 80
+            public static final double kMaxVelocity = 160;
+            public static final double kMaxAcceleration = 90; // 80
 
             // Spark built in encoder/controller PID constants
             public static final double kP = 2.0;

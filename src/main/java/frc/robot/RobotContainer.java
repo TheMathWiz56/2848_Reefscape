@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.IntSupplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.fasterxml.jackson.databind.util.Named;
@@ -74,15 +75,15 @@ public class RobotContainer {
 
         // Custom Triggers
         Trigger LLHasTag = new Trigger(() -> drivetrain.LLHasTag());    
-        private final BooleanSupplier manualDrivebase = () -> Math.hypot(driverJoystick.getLeftX(), driverJoystick.getLeftY()) > 0.1
-                                                                || Math.abs(driverJoystick.getRightX()) > 0.1;
+        private final BooleanSupplier manualDrivebase = () -> Math.hypot(driverJoystick.getLeftX(), driverJoystick.getLeftY()) > 0.25
+                                                                || Math.abs(driverJoystick.getRightX()) > 0.25;
 
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
-        NamedCommands.registerCommand("GoTo_l4", commandFactory.goTolL4());
+        NamedCommands.registerCommand("GoTo_L4", commandFactory.goTolL4());
         NamedCommands.registerCommand("Exhaust_Coral", commandFactory.exhaustCoral());
         NamedCommands.registerCommand("Score_L4", commandFactory.scorelL4(true));
         NamedCommands.registerCommand("Score_L2", commandFactory.scorelL2());
@@ -91,14 +92,14 @@ public class RobotContainer {
         NamedCommands.registerCommand("Reset_To_Vision", Commands.runOnce(() -> drivetrain.resetToVision(true)));
         NamedCommands.registerCommand("Align_Right", drivetrain.pathPIDToTagRightSelect());
         NamedCommands.registerCommand("Reef_Stall", Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain));
-        NamedCommands.registerCommand("Feed", commandFactory.feed());
+        NamedCommands.registerCommand("Feed", commandFactory.feedSequential());
         NamedCommands.registerCommand("Pause_For_Feed", new WaitCommand(15).until(() -> pincer.hasCoral()));
 
-        new EventTrigger("Feed_Event").onTrue(commandFactory.feed());
-        new EventTrigger("Stow_Empty_Event").onTrue(commandFactory.stow(false, false, true, false));
-        new EventTrigger("Stow_Coral_Event").onTrue(commandFactory.stow(true, false, false, true));
-        new EventTrigger("GoTo_L4_Event").onTrue(commandFactory.goTolL4());
-        new EventTrigger("Exhaust_Coral_Event").onTrue(commandFactory.exhaustCoral());
+        // new EventTrigger("Feed_Event").onTrue(commandFactory.feedSequential());
+        // new EventTrigger("Stow_Empty_Event").onTrue(commandFactory.stow(false, false, true, false));
+        // new EventTrigger("Stow_Coral_Event").onTrue(commandFactory.stow(true, false, false, true));
+        // new EventTrigger("GoTo_L4_Event").onTrue(commandFactory.goTolL4());
+        // new EventTrigger("Exhaust_Coral_Event").onTrue(commandFactory.exhaustCoral());
 
         autoChooser = AutoBuilder.buildAutoChooser("Center_Left");
         autoChooser.addOption("Right_2_Coral", new PathPlannerAuto("Left_2_Coral", true));
@@ -170,19 +171,9 @@ public class RobotContainer {
                 driverJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).onTrue(arm.reefAlgaeHigh2nd());
 
                 //  !pincer.hasCoral() || 
-                driverJoystick.x()
-                        .and(LLHasTag)
-                                .onTrue(drivetrain.pathPIDToTagLeftSelect()
-                                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain))
-                                .until(() -> manualDrivebase.getAsBoolean())
-                                );
-                driverJoystick.b()
-                        .and(LLHasTag)
-                                .onTrue(drivetrain.pathPIDToTagRightSelect()
-                                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain))
-                                .until(() -> manualDrivebase.getAsBoolean())
-                                );
-                driverJoystick.leftTrigger(.5)
+                driverJoystick.x().and(LLHasTag).onTrue(commandFactory.autoReefCoralLeft().until(() -> manualDrivebase.getAsBoolean()));
+                driverJoystick.b().and(LLHasTag).onTrue(commandFactory.autoReefCoralRight().until(() -> manualDrivebase.getAsBoolean()));
+                driverJoystick.leftTrigger(operatorConstants.triggerBooleanThreshold)
                         .and(LLHasTag)
                                 .onTrue(commandFactory.autoReefAlgae()
                                 .until(() -> manualDrivebase.getAsBoolean()))
@@ -196,10 +187,9 @@ public class RobotContainer {
         
         // Operator Joystick Bindings
                 //Scoring Commands
-                operatorJoystick.a().onTrue(commandFactory.scorelL1());
-                operatorJoystick.y().onTrue(commandFactory.scorelL2());
-                operatorJoystick.rightBumper().onTrue(commandFactory.scorelL3());
-                operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold)
+                operatorJoystick.y().and(operatorJoystick.back().negate()).onTrue(commandFactory.scorelL2());
+                operatorJoystick.rightBumper().and(operatorJoystick.back().negate()).onTrue(commandFactory.scorelL3());
+                operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).and(operatorJoystick.back().negate())
                         .and(()-> !arm.facingDownwards())
                                 .onTrue(commandFactory.scorelL4(false));
                 operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold)
@@ -242,24 +232,34 @@ public class RobotContainer {
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(false, false, false, true));
 
+                
+                operatorJoystick.back().and(operatorJoystick.y())
+                        .onTrue(elevator.setLevelQueue(2));
+                operatorJoystick.back().and(operatorJoystick.rightBumper())
+                        .onTrue(elevator.setLevelQueue(3));
+                operatorJoystick.back().and(operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold))
+                        .onTrue(elevator.setLevelQueue(4));
 
 
                 //Is High
-                operatorJoystick.back()
+                operatorJoystick.a()
                         .and(elevator.isNearTop())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(true, false, true, false));
                 //Is Middle
-                operatorJoystick.back()
+                operatorJoystick.a()
                         .and(() -> !elevator.isLow().getAsBoolean())
                         .and(() -> !elevator.isNearTop().getAsBoolean())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(true, false, false, false));
                 //Is Low
-                operatorJoystick.back()
+                operatorJoystick.a()
                         .and(elevator.isLow())
                         .and(() -> !pincer.hasAlgae())
-                                .onTrue(commandFactory.stow(true, false, false, true));               
+                                .onTrue(commandFactory.stow(true, false, false, true));    
+                                
+                                
+                operatorJoystick.start().onTrue(commandFactory.stow(false, true, false, false));
                 
 
                 //reef algae
@@ -268,7 +268,7 @@ public class RobotContainer {
                         commandFactory.reefAlgaeHigh()
                 );
 
-                operatorJoystick.leftTrigger(.5).onTrue(
+                operatorJoystick.leftTrigger(operatorConstants.triggerBooleanThreshold).onTrue(
                         commandFactory.reefAlgaeLow()
                 );
                 

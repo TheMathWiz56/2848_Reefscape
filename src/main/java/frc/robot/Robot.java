@@ -60,7 +60,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_robotContainer.drivetrain.useMegaTag2(true);
+    m_robotContainer.drivetrain.useMegaTag2(false);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {

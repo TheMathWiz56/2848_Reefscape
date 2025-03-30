@@ -315,9 +315,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 ),
                 new PPHolonomicDriveController(
                     // PID constants for translation
-                    new PIDConstants(10, 0, 0),
+                    new PIDConstants(15, 0, 0), // 10
                     // PID constants for rotation
-                    new PIDConstants(7, 0, 0)
+                    new PIDConstants(10, 0, 0) // 7
                 ),
                 config,
                 // Assume the path needs to be flipped for Red vs Blue, this is normally the case
@@ -526,10 +526,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 
         }
         
-        if (useMegaTag2)
+        if (useMegaTag2){
             TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 9999999); // Don't trust yaw, rely on Pigeon
-        else
-            TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 3); // Use vision yaw reading
+        }
+        else{
+            if (DriverStation.isAutonomous()){
+                double autonomousMultipier = 1;
+                TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD * autonomousMultipier, translationSTD * autonomousMultipier, 3 * autonomousMultipier); // Use vision yaw reading
+            }
+            else{
+                TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 3); // Use vision yaw reading
+            }
+        }
 
 
         SmartDashboard.putNumberArray("Vision Standard Deviations", TunerConstants.visionStandardDeviation.getData());
@@ -564,7 +572,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putString("Path PID to", reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch).toString());
 
         if (ID != -1)
-            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.leftBranch), reef.tagPoseAndymarkMap.get(ID));
+            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.leftBranch), reef.tagPoseAndymarkMap.get(ID), false);
         return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
     }
 
@@ -572,7 +580,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putNumber("Tag ID used", ID);
 
         if (ID !=-1)
-            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.reefAlgae), reef.tagPoseAndymarkMap.get(ID));
+            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.reefAlgae), reef.tagPoseAndymarkMap.get(ID), true);
         return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
         
     }
@@ -589,7 +597,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putString("Path PID to", reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch).toString());
 
         if (ID != -1)
-            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch), reef.tagPoseAndymarkMap.get(ID));
+            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch), reef.tagPoseAndymarkMap.get(ID), false);
         return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
     }
 
@@ -646,6 +654,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 Map.entry(11, this.pathPIDToTagLeft(11)))
         , this::getTag);
     }
+
+
+    private boolean pose2dSameYSign(Pose2d pose1, Pose2d pose2){
+        return (pose1.getY() > 0 && pose2.getY() > 0 )|| (pose1.getY() < 0 && pose2.getY() < 0);
+    }
     
 
     /**
@@ -656,18 +669,17 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param goalPose The target {@link Pose2d} the robot should move to.
      * @return A {@link Command} that moves the robot to the specified pose.
      */
-    private Command pathPIDTo(Pose2d goalPose, Pose2d tagPose){
+    private Command pathPIDTo(Pose2d goalPose, Pose2d tagPose, boolean isAlgae){
         return this.startRun(()->{
             Pose2d currentFieldPose2d = this.getState().Pose;
             Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
             Pose2d goalTagPose2d = goalPose.relativeTo(tagPose);
 
-            if (Math.abs(currentTagPose2d.getTranslation().getY()) > TunerConstants.tagYShiftLimit){
+            if (Math.abs(currentTagPose2d.getTranslation().getY()) > TunerConstants.tagYShiftLimit && !isAlgae && pose2dSameYSign(goalTagPose2d, currentTagPose2d)){
                 isTrackingTagGoal = false;
                 double Y0 = currentTagPose2d.getTranslation().getY();
-                double shift = (TunerConstants.shiftPerTagY0 * Math.abs(Y0)) * (Y0 / Math.abs(Y0));
+                double shift = TunerConstants.maxTagYShift * ( -1 * Y0 / Math.abs(Y0));
                 goalTagPose2d = new Pose2d(goalTagPose2d.getTranslation().plus(new Translation2d(0.0,shift)), goalTagPose2d.getRotation());
-
                 pathPIDYController.setTolerance(TunerConstants.pathPID_Translation_TolYShift);
                 pathPIDXController.atGoal();
             }
@@ -688,6 +700,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     pathPIDYController.setGoal(goalPose.relativeTo(tagPose).getY());
 
                     pathPIDYController.setTolerance(TunerConstants.pathPID_Translation_TolY);
+                    isTrackingTagGoal = true;
                 }
 
                 Pose2d currentFieldPose2d = this.getState().Pose;

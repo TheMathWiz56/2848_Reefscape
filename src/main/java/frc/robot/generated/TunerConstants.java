@@ -66,7 +66,7 @@ public class TunerConstants {
     public static final double pathPID_Translation_D = 0.0;
     public static final double pathPID_Translation_maxVy = 1.5; // m/s 1 // parallel to tag
     public static final double pathPID_Translation_maxVx = .5; // m/s 1 // normal to tag
-    public static final double pathPID_Translation_MaxA = 1;
+    public static final double pathPID_Translation_MaxA = .5;
     public static final double pathPID_Translation_TolX = .1;
     public static final double pathPID_Translation_TolY = .03;
     public static final double pathPID_Translation_TolYShift = .1;
@@ -82,7 +82,7 @@ public class TunerConstants {
     public static final double pathPID_Rotation_Deadband = 0.02;
 
     // At Goal Debouncer Time
-    public static final double debounce_Time = 0.5;
+    public static final double debounce_Time = 0.15;
     
     // Limit for shifting tag goal
     public static final double tagYShiftLimit = 0.3; //m

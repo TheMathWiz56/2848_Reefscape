@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.IntSupplier;
 
 public class Elevator extends SubsystemBase {
 
@@ -61,6 +62,8 @@ public class Elevator extends SubsystemBase {
   private double currentSetpoint = 0.0;
 
   private boolean isZeroed = false;
+
+  private IntSupplier levelQueue = () -> 4;
 
   public Elevator() {
 
@@ -381,6 +384,8 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty("Drivetrain Speed Multiplier", getDrivetrainSpeedMultiplier(), null);
 
     builder.addDoubleProperty("Velocity Error", () -> elevatorMotor.getVelocity().getValueAsDouble() - currentState.velocity, null);
+
+    builder.addDoubleProperty("LevelQueue", () -> levelQueue.getAsInt(), value -> {levelQueue = () -> (int)value;});
   }
 
   public BooleanSupplier isHigh() {
@@ -414,6 +419,14 @@ public class Elevator extends SubsystemBase {
   // At max speed (1.0) up to height of -20, then should go down linearly to 0.15 at height of -40
   public DoubleSupplier getDrivetrainSpeedMultiplier() {
     return () -> MathUtil.clamp((0.034 * elevatorMotor.getPosition().getValueAsDouble()) + 1.51, 0.15, 1); //old: 0.043x + 1.87
+  }
+
+  public Command setLevelQueue(int level){
+    return runOnce(() -> levelQueue = () -> level);
+  }
+
+  public int getLevelQueue(){
+    return levelQueue.getAsInt();
   }
 
 }

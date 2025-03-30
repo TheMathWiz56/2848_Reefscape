@@ -6,6 +6,7 @@ import frc.robot.subsystems.Lights;
 
 import java.util.Map;
 import java.util.function.BooleanSupplier;
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -86,10 +87,8 @@ public class CommandFactory{
             )
         )))
         .andThen(pincer.exhaust())
-         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
-        .finallyDo((interrupted) ->{
-              pincer.stopIntake();
-            });
+        .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
+        .andThen(pincer.stopIntake());
     }
     public Command scorelL3(){
         return elevator.goToL(Constants.reef.reefLs.lL3)
@@ -99,10 +98,8 @@ public class CommandFactory{
             )
         )))
         .andThen(pincer.exhaust())
-         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
-        .finallyDo((interrupted) ->{
-              pincer.stopIntake();
-            });
+        .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
+         .andThen(pincer.stopIntake());
         }
     public Command scorelL4(boolean facingDownwards){
         // Added transition to avoid ramming into elevator top
@@ -126,11 +123,8 @@ public class CommandFactory{
                     Constants.reef.reefLs.lL4
                 )
             )))
-            .andThen(pincer.exhaust())
-                .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
-            .finallyDo((interrupted) ->{
-                    pincer.stopIntake();
-                });
+            .andThen(pincer.exhaust().until(() -> !pincer.hasCoral()))
+            .andThen(pincer.stopIntake());
     }
 
     public Command goTolL4(){
@@ -144,9 +138,7 @@ public class CommandFactory{
 
     public Command exhaustCoral(){
         return pincer.exhaust()
-                .andThen(pincer.holdState())
-                .andThen(new WaitCommand(0.5))
-                .andThen(pincer.stopIntake());
+                .andThen(pincer.holdState());
     }
 
 
@@ -231,8 +223,7 @@ public class CommandFactory{
         else if(hasAlgae){ // no coral -- algae or low
             output = pincer.stopIntake()
             .andThen(new ParallelCommandGroup(arm.algaeStow(),
-            elevator.algaeStow()))
-            .andThen(pincer.pincerAlgaeHold());
+            elevator.algaeStow()));
         }
         else if(isNearTop) {
             output =  pincer.stopIntake()
@@ -265,6 +256,15 @@ public class CommandFactory{
          .andThen(pincer.intake())
          .andThen(pincer.holdState().until(()->pincer.hasCoral()))
          .andThen(pincer.stopIntake());
+    }
+
+    public Command feedSequential(){
+        return elevator.goToFeed()
+            .andThen(arm.pivotToFeed())
+            .andThen(pincer.pincerFunnel())
+            .andThen(pincer.intake())
+            .andThen(pincer.holdState().until(()->pincer.hasCoral()))
+            .andThen(pincer.stopIntake());
     }
 
     public Command reefAlgaeHigh(){
@@ -333,12 +333,7 @@ public class CommandFactory{
     }
     public Command groundAlgae(){
         return new ParallelCommandGroup(elevator.goToGroundAlgae(),
-        arm.goToGroundAlgae())
-        //.andThen(pincer.intake())
-        .andThen(pincer.pincerAlgaeHold());
-        //.finallyDo((interrupted) ->{
-        //    pincer.stopIntake().schedule();
-        //  });
+        arm.goToGroundAlgae());
     }
 
     private Command pinceAlgae(){
@@ -397,10 +392,30 @@ public class CommandFactory{
                 Map.entry(11, autoReefAlgaeHigh()))
         , () -> drive.getTag());
     }
-    
 
-    
-    
 
+    public Command autoReefCoralLeft(){
+        return drive.pathPIDToTagLeftSelect()
+            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)
+            .raceWith(
+                new SelectCommand<>(
+                    Map.ofEntries(
+                        Map.entry(2, scorelL2()),
+                        Map.entry(3, scorelL3()),
+                        Map.entry(4, scorelL4(true)))
+                    , () -> elevator.getLevelQueue())));
+    }
+
+    public Command autoReefCoralRight(){
+        return drive.pathPIDToTagRightSelect()
+            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)
+            .raceWith(
+                new SelectCommand<>(
+                    Map.ofEntries(
+                        Map.entry(2, scorelL2()),
+                        Map.entry(3, scorelL3()),
+                        Map.entry(4, scorelL4(true)))
+                    , () -> elevator.getLevelQueue())));
+    }
 
 }

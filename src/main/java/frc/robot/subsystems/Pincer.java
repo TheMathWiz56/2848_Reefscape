@@ -278,7 +278,7 @@ public class Pincer extends SubsystemBase{
     
     public Command holdState(){
         return run(() -> {
-            if (!hasAlgae() & clampingOnAlgae){
+            if (!clampingOnAlgae){
                 setPincerOutput(pincerSetpoint);
             }
         }).withName("Hold State");

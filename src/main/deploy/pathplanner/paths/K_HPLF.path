@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.752467105263158,
-        "y": 4.977549342105263
+        "x": 3.7236019736842105,
+        "y": 5.025657894736842
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0279320050060443,
-        "y": 5.98375119194732
+        "x": 2.999066873427097,
+        "y": 6.031859744578899
       },
       "isLocked": false,
       "linkedName": "Reef_K"
     },
     {
       "anchor": {
-        "x": 1.5875822368421053,
-        "y": 7.277138157894736
+        "x": 1.318174342105263,
+        "y": 7.459950657894736
       },
       "prevControl": {
-        "x": 2.431887988649197,
-        "y": 4.769027161938187
+        "x": 2.162480093912354,
+        "y": 4.9518396619381875
       },
       "nextControl": null,
       "isLocked": false,
@@ -50,13 +50,18 @@
       "name": "Stow_Empty_Event",
       "waypointRelativePos": 0.05,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Stow_Empty"
+        }
+      }
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 4.75,
+    "maxVelocity": 4.5,
     "maxAcceleration": 2.5,
-    "maxAngularVelocity": 180.0,
+    "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
     "unlimited": false
