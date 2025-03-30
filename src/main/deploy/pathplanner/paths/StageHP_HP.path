@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.245148026315788,
-        "y": 5.60296052631579
+        "x": 1.7806412337662336,
+        "y": 6.980864448051948
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.245148026315789,
-        "y": 5.60296052631579
+        "x": 1.387051855001866,
+        "y": 7.409472269732843
       },
       "isLocked": false,
-      "linkedName": "Start_1"
+      "linkedName": "Stage_HP"
     },
     {
       "anchor": {
-        "x": 4.0,
-        "y": 6.0
+        "x": 1.318174342105263,
+        "y": 7.459950657894736
       },
       "prevControl": {
-        "x": 3.0,
-        "y": 6.0
+        "x": 1.62685256165296,
+        "y": 7.166960699190688
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "HPLF"
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.5,
-    "maxAcceleration": 2.5,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 127.50000000000001
   },
   "reversed": false,
-  "folder": "Testing",
+  "folder": "L-R Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 127.50000000000001
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

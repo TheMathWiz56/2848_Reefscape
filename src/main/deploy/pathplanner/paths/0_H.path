@@ -12,7 +12,7 @@
         "y": 4.073108552631578
       },
       "isLocked": false,
-      "linkedName": "Start_0"
+      "linkedName": "Start_Center"
     },
     {
       "anchor": {
@@ -47,7 +47,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.5,
+    "maxVelocity": 4.0,
     "maxAcceleration": 2.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 360.0,

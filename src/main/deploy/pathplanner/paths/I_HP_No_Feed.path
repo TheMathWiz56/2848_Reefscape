@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.176480263157895,
-        "y": 5.997450657894737
+        "x": 5.007163149350649,
+        "y": 6.147524350649351
       },
       "isLocked": false,
       "linkedName": "Reef_I"
@@ -20,8 +20,8 @@
         "y": 7.459950657894736
       },
       "prevControl": {
-        "x": 1.482211754345786,
-        "y": 7.271292958912074
+        "x": 3.495190483763704,
+        "y": 6.007639773497771
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,11 +33,11 @@
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 0.1508078994614005,
+      "maxWaypointRelativePos": 0.16,
       "constraints": {
-        "maxVelocity": 1.5,
-        "maxAcceleration": 1.1,
-        "maxAngularVelocity": 180.0,
+        "maxVelocity": 4.0,
+        "maxAcceleration": 0.5,
+        "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 360.0,
         "nominalVoltage": 12.0,
         "unlimited": false
@@ -45,12 +45,12 @@
     },
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.8527827648114906,
+      "minWaypointRelativePos": 0.8965153115100335,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.75,
-        "maxAcceleration": 2.5,
-        "maxAngularVelocity": 180.0,
+        "maxVelocity": 4.0,
+        "maxAcceleration": 0.8,
+        "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 360.0,
         "nominalVoltage": 12.0,
         "unlimited": false
@@ -58,32 +58,9 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Stow_Empty_Event",
-      "waypointRelativePos": 0.05,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Stow_Empty"
-        }
-      }
-    },
-    {
-      "name": "Feed_Event",
-      "waypointRelativePos": 0.7,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Feed"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.5,
+    "maxVelocity": 4.0,
     "maxAcceleration": 2.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 360.0,
