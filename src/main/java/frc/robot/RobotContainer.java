@@ -21,6 +21,7 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.events.EventTrigger;
 
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -187,12 +188,12 @@ public class RobotContainer {
         
         // Operator Joystick Bindings
                 //Scoring Commands
-                operatorJoystick.y().and(operatorJoystick.back().negate()).onTrue(commandFactory.scorelL2());
-                operatorJoystick.rightBumper().and(operatorJoystick.back().negate()).onTrue(commandFactory.scorelL3());
-                operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).and(operatorJoystick.back().negate())
+                operatorJoystick.y().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scorelL2());
+                operatorJoystick.rightBumper().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scorelL3());
+                operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate())
                         .and(()-> !arm.facingDownwards())
                                 .onTrue(commandFactory.scorelL4(false));
-                operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold)
+                operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising)
                         .and(()-> arm.facingDownwards())
                                 .onTrue(commandFactory.scorelL4(true));
                 
@@ -233,11 +234,11 @@ public class RobotContainer {
                                 .onTrue(commandFactory.stow(false, false, false, true));
 
                 
-                operatorJoystick.back().and(operatorJoystick.y())
+                operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).and(operatorJoystick.y().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising))
                         .onTrue(elevator.setLevelQueue(2));
-                operatorJoystick.back().and(operatorJoystick.rightBumper())
+                operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).and(operatorJoystick.rightBumper().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising))
                         .onTrue(elevator.setLevelQueue(3));
-                operatorJoystick.back().and(operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold))
+                operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).and(operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising))
                         .onTrue(elevator.setLevelQueue(4));
 
 
