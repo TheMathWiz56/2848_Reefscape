@@ -386,6 +386,10 @@ public class Elevator extends SubsystemBase {
     builder.addDoubleProperty("Velocity Error", () -> elevatorMotor.getVelocity().getValueAsDouble() - currentState.velocity, null);
 
     builder.addDoubleProperty("LevelQueue", () -> levelQueue.getAsInt(), value -> {levelQueue = () -> (int)value;});
+
+    builder.addBooleanProperty("L2 Queued", () -> levelQueue.getAsInt() == 2, null);
+    builder.addBooleanProperty("L3 Queued", () -> levelQueue.getAsInt() == 3, null);
+    builder.addBooleanProperty("L4 Queued", () -> levelQueue.getAsInt() == 4, null);
   }
 
   public BooleanSupplier isHigh() {
