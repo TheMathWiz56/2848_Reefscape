@@ -140,6 +140,10 @@ public class Elevator extends SubsystemBase {
     return goToPosition(position, "Position");
   }
 
+  public Command goToPosition() {
+    return goToPosition(currentSetpoint, "Position").withName("AutoReprofile");
+  }
+
   public Command goUpByDistance(double distance) {
     return goToPosition(elevatorMotor.getPosition().getValueAsDouble() - distance, "Up By " + distance);
   }
@@ -337,6 +341,10 @@ public class Elevator extends SubsystemBase {
         isZeroed = true;
       }
     }
+
+    if (autoReprofile()){
+      CommandScheduler.getInstance().schedule(this.goToPosition(currentSetpoint, "AutoReProfile"));
+    }
     
     SmartDashboard.putData(this);
     }
@@ -390,6 +398,21 @@ public class Elevator extends SubsystemBase {
     builder.addBooleanProperty("L2 Queued", () -> levelQueue.getAsInt() == 2, null);
     builder.addBooleanProperty("L3 Queued", () -> levelQueue.getAsInt() == 3, null);
     builder.addBooleanProperty("L4 Queued", () -> levelQueue.getAsInt() == 4, null);
+
+    builder.addBooleanProperty("Is Holding State", () -> isHoldingState(), null);
+    builder.addBooleanProperty("Autoreprofile", () -> autoReprofile(), null);
+  }
+
+  public boolean isHoldingState(){
+    Command currentCommand = this.getCurrentCommand();
+    if (currentCommand != null){
+      return currentCommand.getName() == holdState().getName();
+    }
+    return false;
+  }
+
+  public boolean autoReprofile (){
+    return isHoldingState() && Math.abs(elevatorMotor.getPosition().getValueAsDouble() - currentSetpoint) > autoReProfileThreshold;
   }
 
   public BooleanSupplier isHigh() {

@@ -88,7 +88,7 @@ public class CommandFactory{
         )))
         .andThen(pincer.exhaust())
         .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
-        .andThen(pincer.stopIntake());
+        .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral()); // .unless(() -> !pincer.hasCoral())
     }
     public Command scorelL3(){
         return elevator.goToL(Constants.reef.reefLs.lL3)
@@ -99,7 +99,7 @@ public class CommandFactory{
         )))
         .andThen(pincer.exhaust())
         .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
-         .andThen(pincer.stopIntake());
+         .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral()); // .unless(() -> !pincer.hasCoral())
         }
     public Command scorelL4(boolean facingDownwards){
         // Added transition to avoid ramming into elevator top
@@ -113,7 +113,7 @@ public class CommandFactory{
                 )))
                 .andThen(pincer.exhaust())
                 .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
-                .andThen(pincer.stopIntake());
+                .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral());
         }
 
         return arm.goStraightOn()
@@ -124,7 +124,7 @@ public class CommandFactory{
                 )
             )))
             .andThen(pincer.exhaust().until(() -> !pincer.hasCoral()))
-            .andThen(pincer.stopIntake());
+            .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral());
     }
 
     public Command goTolL4(){
