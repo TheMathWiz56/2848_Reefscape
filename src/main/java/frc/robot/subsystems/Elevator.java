@@ -19,6 +19,8 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.reefData;
@@ -28,6 +30,7 @@ import static frc.robot.Constants.PincerConstants.kStowPosition;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
@@ -117,12 +120,12 @@ public class Elevator extends SubsystemBase {
 
   // Default command - hold position
   public Command holdState() {
-    if (!isZeroed)
-      return autoZeroEncoder();
-    else
+    //if (!isZeroed)
+    //  return autoZeroEncoder();
+    //else
       return this.run(() -> {
         setMotorOutput(currentSetpoint, 0.0);
-      }).withName("Elevator Default Command");
+      }).withName("Hold State");
   }
 
   // Command to go to position
@@ -431,6 +434,47 @@ public class Elevator extends SubsystemBase {
 
   public int getLevelQueue(){
     return levelQueue.getAsInt();
+  }
+
+  /*
+  private enum DefaultCommandSelector {
+    HOLD_STATE, MOTION_PROFILE, AUTO_ZERO
+  }
+
+  public DefaultCommandSelector elevatorDefaultCommandSelect() {
+    return DefaultCommandSelector.HOLD_STATE;
+  }
+
+  public Command elevatorDefaultCommand() {
+    return new SelectCommand<>(Map.ofEntries<>(
+      Map.entry(DefaultCommandSelector.HOLD_STATE, holdState()),
+      Map.entry(DefaultCommandSelector.AUTO_ZERO, autoZeroEncoder()),
+      Map.entry(DefaultCommandSelector.MOTION_PROFILE, goToPosition(kStowPosition))
+    ), this::DefaultCommandSelector);
+  }
+  */
+
+  
+  private enum DefaultCommandSelector {
+    HOLD_STATE, MOTION_PROFILE, AUTO_ZERO
+  }
+
+  public DefaultCommandSelector elevatorDefaultCommandSelect() {
+    if(!isZeroed) return DefaultCommandSelector.AUTO_ZERO;
+    else{
+      if(Math.abs(elevatorMotor.getPosition().getValueAsDouble() - currentSetpoint) > kDefaultReturnThreshold) return DefaultCommandSelector.MOTION_PROFILE;
+      else return DefaultCommandSelector.HOLD_STATE;
+    }
+  }
+
+  public Command elevatorDefaultCommand() {
+      return new SelectCommand<>(
+          // Maps selector values to commands
+          Map.ofEntries(
+              Map.entry(DefaultCommandSelector.HOLD_STATE, holdState()),
+              Map.entry(DefaultCommandSelector.MOTION_PROFILE, goToPosition(currentSetpoint, "Default Command Return")),
+              Map.entry(DefaultCommandSelector.AUTO_ZERO, autoZeroEncoder())),
+          this::elevatorDefaultCommandSelect);
   }
 
 }

@@ -414,6 +414,8 @@ public final class Constants {
 
             public static final boolean kUseCurrentForZeroing = false;
             public static final double kZeroingCurrent = 10.0;
+
+            public static final double kDefaultReturnThreshold = 3.0;
         }
 
         public static class GroundAlgaePivotConstants {

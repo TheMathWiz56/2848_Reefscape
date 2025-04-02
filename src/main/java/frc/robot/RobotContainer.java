@@ -135,7 +135,7 @@ public class RobotContainer {
                                 .withDeadband(MaxSpeed * 0.1 * elevator.getDrivetrainSpeedMultiplier().getAsDouble())
                                 .withRotationalDeadband(MaxAngularRate * 0.1 * elevator.getDrivetrainSpeedMultiplier().getAsDouble())                                                            // negative X (left)
                         ));
-                elevator.setDefaultCommand(elevator.holdState());
+                elevator.setDefaultCommand(elevator.elevatorDefaultCommand());
                 arm.setDefaultCommand(arm.holdState());
                 pincer.setDefaultCommand(pincer.holdState());
                 ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
