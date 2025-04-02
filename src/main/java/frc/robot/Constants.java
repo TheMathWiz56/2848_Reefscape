@@ -23,7 +23,7 @@ import frc.robot.Util.fieldPoly;
 public final class Constants {
 
     public static final class operatorConstants{
-        public static final double triggerBooleanThreshold = 0.5;
+        public static final double triggerBooleanThreshold = 0.1;
 
         public static final double kQueueDebounceTime = 0.1;
     }

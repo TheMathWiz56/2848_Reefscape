@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.078388798701298,
-        "y": 5.798518668831168
+        "x": 6.363968992227637,
+        "y": 5.465828146802463
       },
       "isLocked": false,
       "linkedName": "Reef_I"
     },
     {
       "anchor": {
-        "x": 1.7806412337662336,
-        "y": 6.980864448051948
+        "x": 7.245148026315788,
+        "y": 5.60296052631579
       },
       "prevControl": {
-        "x": 2.593677021470536,
-        "y": 6.454621478562467
+        "x": 6.098651377697989,
+        "y": 5.283915140137271
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Stage_HP"
+      "linkedName": "Start_Left"
     }
   ],
   "rotationTargets": [],
@@ -34,21 +34,21 @@
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 4.0,
-    "maxAcceleration": 3.0,
+    "maxAcceleration": 1.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 1.5,
-    "rotation": 127.50000000000001
+    "velocity": 0,
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": "L-R Paths",
+  "folder": "Testing",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -119.99999999999999
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
