@@ -193,7 +193,7 @@ public class RobotContainer {
                 operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate())
                         .and(()-> !arm.facingDownwards())
                                 .onTrue(commandFactory.scorelL4(false));
-                operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising)
+                operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate())
                         .and(()-> arm.facingDownwards())
                                 .onTrue(commandFactory.scorelL4(true));
                 
