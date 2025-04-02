@@ -136,6 +136,10 @@ public class Elevator extends SubsystemBase {
         .withName("Go to " + positionName);
   }
 
+  public Command autoReprofile(){
+    return goToPosition(currentSetpoint).andThen(runOnce(() -> this.setDefaultCommand(holdState()))).withName("AutoReprofile");
+  }
+
   public Command goToPosition(double position) {
     return goToPosition(position, "Position");
   }
@@ -264,8 +268,6 @@ public class Elevator extends SubsystemBase {
   }
 
 
-
-
   public Command goToGroundAlgae(){
     return goToPosition(
       Constants.ElevatorConstants.setPoints.get(
@@ -331,11 +333,17 @@ public class Elevator extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // if not zero'd and limit switch is pressed, zero
     if(!isZeroed){
       if(!elevatorLimitSwitchBottom.get()){
         this.setDefaultCommand(holdState());
         isZeroed = true;
       }
+    }
+
+    
+    if (Math.abs(elevatorMotor.getPosition().getValueAsDouble() - currentSetpoint) > autoReprofileLimit && isHoldingState()){
+      this.setDefaultCommand(autoReprofile());
     }
     
     SmartDashboard.putData(this);
@@ -390,6 +398,17 @@ public class Elevator extends SubsystemBase {
     builder.addBooleanProperty("L2 Queued", () -> levelQueue.getAsInt() == 2, null);
     builder.addBooleanProperty("L3 Queued", () -> levelQueue.getAsInt() == 3, null);
     builder.addBooleanProperty("L4 Queued", () -> levelQueue.getAsInt() == 4, null);
+
+    builder.addBooleanProperty("Is Hold State", () -> isHoldingState(), null);
+    builder.addBooleanProperty("Is in autoReprofileZone", () -> Math.abs(elevatorMotor.getPosition().getValueAsDouble() - currentSetpoint) > autoReprofileLimit, null);
+  }
+
+  public boolean isHoldingState(){
+    Command currentCommand = this.getCurrentCommand();
+    if (currentCommand != null){
+      return currentCommand.getName() == holdState().getName();
+    }
+    return false;
   }
 
   public BooleanSupplier isHigh() {
