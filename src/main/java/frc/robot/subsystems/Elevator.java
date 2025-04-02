@@ -393,6 +393,8 @@ public class Elevator extends SubsystemBase {
     builder.addBooleanProperty("L2 Queued", () -> levelQueue.getAsInt() == 2, null);
     builder.addBooleanProperty("L3 Queued", () -> levelQueue.getAsInt() == 3, null);
     builder.addBooleanProperty("L4 Queued", () -> levelQueue.getAsInt() == 4, null);
+
+    builder.addDoubleProperty("Hold State Error", () -> Math.abs(elevatorMotor.getPosition().getValueAsDouble() - currentSetpoint), null);
   }
 
   public BooleanSupplier isHigh() {
@@ -460,11 +462,15 @@ public class Elevator extends SubsystemBase {
   }
 
   public DefaultCommandSelector elevatorDefaultCommandSelect() {
-    if(!isZeroed) return DefaultCommandSelector.AUTO_ZERO;
-    else{
-      if(Math.abs(elevatorMotor.getPosition().getValueAsDouble() - currentSetpoint) > kDefaultReturnThreshold) return DefaultCommandSelector.MOTION_PROFILE;
-      else return DefaultCommandSelector.HOLD_STATE;
+    if(!isZeroed) {
+      return DefaultCommandSelector.AUTO_ZERO;
     }
+    else{
+      if(Math.abs(elevatorMotor.getPosition().getValueAsDouble() - currentSetpoint) > kDefaultReturnThreshold) {
+        return DefaultCommandSelector.MOTION_PROFILE;
+      }
+    }
+    return DefaultCommandSelector.HOLD_STATE;
   }
 
   public Command elevatorDefaultCommand() {
