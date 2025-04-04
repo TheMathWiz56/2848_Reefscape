@@ -122,6 +122,8 @@ public class Pincer extends SubsystemBase{
         
         builder.addBooleanProperty("Has Algae (Velocity Condition)", () -> algaeDebouncer1.calculate(Math.abs(pincerAbsEncoder.getVelocity()) < 0.1), null);
         builder.addBooleanProperty("Has Algae (Position Condition)", () -> algaeDebouncer.calculate(pincerAbsEncoder.getPosition() < -0.08), null);
+    
+        builder.addBooleanProperty("Clamping on Algae", () -> clampingOnAlgae, null);
     }
 
     @Override
