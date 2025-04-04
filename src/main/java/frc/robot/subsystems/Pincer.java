@@ -280,6 +280,9 @@ public class Pincer extends SubsystemBase{
         return run(() -> {
             if (!clampingOnAlgae){
                 setPincerOutput(pincerSetpoint);
+            }else{
+                pincerMotor.set(-0.25);
+                if(pincerAbsEncoder.getPosition() < -0.250 /*|| !hasAlgae()*/) clampingOnAlgae = false;
             }
         }).withName("Hold State");
 
