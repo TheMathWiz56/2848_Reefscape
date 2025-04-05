@@ -182,6 +182,9 @@ public class RobotContainer {
                 // Make elevator go up a set amount - very not working
                 // driverJoystick.y().onTrue(elevator.goUpByDistance(1.25));
 
+                // Zero elevator manually
+                driverJoystick.y().onTrue(elevator.autoZeroEncoder());
+
                 // A is being used for processor right now so this should be changed
                 // driverJoystick.a().whileTrue(drivetrain.applyRequest(() -> brake)); // X-stance
 
