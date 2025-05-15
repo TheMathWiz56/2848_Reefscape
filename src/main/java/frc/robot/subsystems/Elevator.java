@@ -12,6 +12,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -96,6 +97,10 @@ public class Elevator extends SubsystemBase {
 
   }
 
+  /**
+     * Changes the setpoint of the elevator, beginning to move it to the position. 
+     * @param setpoint The new setpoint the robot should move to.
+     */
   public void setElevatorSetpoint(double setpoint) {
     currentSetpoint = setpoint;
     timer.reset();
@@ -443,7 +448,11 @@ public class Elevator extends SubsystemBase {
     return 2;
   }
 
-  // At max speed (1.0) up to height of -20, then should go down linearly to 0.15 at height of -40
+  /**
+     * Returns a supplier that is used to slow down the elevator when it is extended. Reads the elevator height itself.
+     * 
+     * @return A {@code DoubleSupplier} that returns a multiplier for the speed based upon elevator height.
+     */
   public DoubleSupplier getDrivetrainSpeedMultiplier() {
     return () -> MathUtil.clamp((0.034 * elevatorMotor.getPosition().getValueAsDouble()) + 1.51, 0.15, 1); //old: 0.043x + 1.87
   }
