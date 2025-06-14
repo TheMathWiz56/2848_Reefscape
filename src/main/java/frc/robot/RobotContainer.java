@@ -49,6 +49,8 @@ public class RobotContainer {
     private double MaxAngularRate = RotationsPerSecond.of(1.5).in(RadiansPerSecond); // 3/4 of a rotation per second
                                                                                       // max angular velocity
 
+    private double speedMultiplier = 1.0;
+
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 2% deadband //changed from 10%
@@ -126,12 +128,12 @@ public class RobotContainer {
                 // and Y is defined as to the left according to WPILib convention.
                 drivetrain.setDefaultCommand(
                         // Drivetrain will execute this command periodically
-                        drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive
+                        drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed * speedMultiplier * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive
                                                                                                                 // forward with
                                                                                                                 // negative Y
                                                                                                                 // (forward)
-                                .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive left with negative X (left)
-                                .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive counterclockwise with
+                                .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * speedMultiplier * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive left with negative X (left)
+                                .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate * speedMultiplier * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive counterclockwise with
                                 .withDeadband(MaxSpeed * 0.1 * elevator.getDrivetrainSpeedMultiplier().getAsDouble())
                                 .withRotationalDeadband(MaxAngularRate * 0.1 * elevator.getDrivetrainSpeedMultiplier().getAsDouble())                                                            // negative X (left)
                         ));
