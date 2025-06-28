@@ -18,6 +18,8 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -144,7 +146,7 @@ public class Pincer extends SubsystemBase{
     /**@return True if the current draw on the intake motor is over the algae threshold
      */
     public boolean hasAlgae(){
-        return algaeDebouncer.calculate(Math.abs(pincerAbsEncoder.getVelocity()) < 0.1 && pincerAbsEncoder.getPosition() < -0.08);
+        return algaeDebouncer.calculate(Math.abs(pincerAbsEncoder.getVelocity()) < 0.1 && pincerAbsEncoder.getPosition() < -0.22);
     }
 
     public boolean hasCoral(){
@@ -243,7 +245,15 @@ public class Pincer extends SubsystemBase{
                             if (!hasAlgae()){
                                 setPincerOutput(pincerSetpoint);
                             }                  
-                        }).until(() -> pincerAbsEncoder.getPosition() < -0.250 || hasAlgae());
+                        }).until(() -> hasAlgae());
+    }
+    public Command forceOpen(){
+        return runOnce(()->{clampingOnAlgae = false; pincerMotor.set(0.1);;});
+    }
+
+
+    public Command algaeGrab(){
+        return runOnce(()->{pincerMotor.set(-0.25); intakeMotor.set(-.25);});
     }
 
     /** Runs the intake motor at the intake speed
