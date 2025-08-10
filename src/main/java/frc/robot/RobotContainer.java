@@ -23,10 +23,13 @@ import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -62,6 +65,8 @@ public class RobotContainer {
 
     public final CommandXboxController driverJoystick = new CommandXboxController(0);
     public final CommandXboxController operatorJoystick = new CommandXboxController(2);
+    public final CommandGenericHID keyboard = new CommandGenericHID(1);
+
 
     // Subsystem Instances
         public final Arm arm = new Arm();
@@ -77,7 +82,7 @@ public class RobotContainer {
         // Custom Triggers
         Trigger LLHasTag = new Trigger(() -> drivetrain.LLHasTag());    
         private final BooleanSupplier manualDrivebase = () -> Math.hypot(driverJoystick.getLeftX(), driverJoystick.getLeftY()) > 0.25
-                                                                || Math.abs(driverJoystick.getRightX()) > 0.25;
+                                                                || Math.abs(driverJoystick.getRightX()) > 0.25 || keyboard.button(14).getAsBoolean();
 
 
     /* Path follower */
@@ -191,14 +196,18 @@ public class RobotContainer {
         
         // Operator Joystick Bindings
                 //Scoring Commands
+
+                //keyboard.button(3).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(keyboard.button(15).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scorelL2());
                 operatorJoystick.y().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scorelL2());
-                operatorJoystick.rightBumper().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scorelL3());
+                //operatorJoystick.rightBumper().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scorelL3());
                 operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate())
                         .and(()-> !arm.facingDownwards())
                                 .onTrue(commandFactory.scorelL4(false));
                 operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate())
                         .and(()-> arm.facingDownwards())
                                 .onTrue(commandFactory.scorelL4(true));
+
+                keyboard.button(2).onTrue(new InstantCommand(() -> SmartDashboard.putBoolean("keyboard",true)));
                 
                 // Feed Commands
                 operatorJoystick.pov(0).onTrue(commandFactory.feed());
@@ -236,6 +245,9 @@ public class RobotContainer {
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(false, false, false, true));
 
+
+                keyboard.button(1).whileTrue(drivetrain.applyRequest(() -> preciseAdjustments.withVelocityX(-0.125).withVelocityY(0)));
+
                 
                 operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).and(operatorJoystick.y().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising))
                         .onTrue(elevator.setLevelQueue(2));
@@ -243,8 +255,35 @@ public class RobotContainer {
                         .onTrue(elevator.setLevelQueue(3));
                 operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).and(operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising))
                         .onTrue(elevator.setLevelQueue(4));
+                        keyboard.button(9)
+                        .and(elevator.isNearTop())
+                        .and(() -> !pincer.hasCoral())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(false, false, true, false));
+                //coral not low
+                keyboard.button(9)
+                        .and(() ->pincer.hasCoral())
+                        .and(() -> !elevator.isLow().getAsBoolean())
+                                .onTrue(commandFactory.stow(true, false, false, false));
+                //all algae
+                keyboard.button(9).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+                //low coral
+                keyboard.button(9)
+                        .and(elevator.isLow())
+                        .and(() -> pincer.hasCoral())
+                                .onTrue(commandFactory.stow(true, false, false, true));
+                //not high empty
+                keyboard.button(9)
+                        .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
+                        .and(() -> !pincer.hasCoral())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(false, false, false, false));
 
-
+                keyboard.button(9)
+                        .and(elevator.isLow())
+                        .and(() -> !pincer.hasCoral())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(false, false, false, true));
                 //Is High
                 operatorJoystick.a()
                         .and(elevator.isNearTop())
