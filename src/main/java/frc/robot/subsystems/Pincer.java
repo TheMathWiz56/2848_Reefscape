@@ -33,7 +33,6 @@ public class Pincer extends SubsystemBase{
     private final Debouncer algaeDebouncer1 = new Debouncer(0.1);
     private final Debouncer algaeDebouncer2 = new Debouncer(0.1);
 
-
     private boolean pincerPIDUpdated = true;
 
     private final SparkMax intakeMotor = new SparkMax(kIntakeMotorId, MotorType.kBrushless);
@@ -64,7 +63,9 @@ public class Pincer extends SubsystemBase{
             .closedLoop
                 .feedbackSensor(kPincerMotorFeedbackSensor)
                 .pid(kPincerP, kPincerI, kPincerD)
-                .outputRange(kPincerMotorMinOutput, kPincerMotorMaxOutput);
+                .outputRange(kPincerMotorMinOutput, kPincerMotorMaxOutput)
+                .positionWrappingInputRange(0, 1) // TODO make constants for these
+                .positionWrappingEnabled(true);
         pincerConfig
             .absoluteEncoder
                 .zeroOffset(kPincerMotorAbsoluteEncoderOffset)

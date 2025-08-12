@@ -301,8 +301,8 @@ public final class Constants {
             public static final FeedbackSensor kPincerMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
             public static final double kPincerMotorMinOutput = -1;
             public static final double kPincerMotorMaxOutput = 1;
-            public static final double kPincerMotorAbsoluteEncoderOffset = 0.7;
-            public static final boolean kPincerMotorZeroCentered = true;
+            public static final double kPincerMotorAbsoluteEncoderOffset = 0.17; // Measure with the claw all the way stowed, minus a bit more
+            public static final boolean kPincerMotorZeroCentered = false;
 
             // Soft Limits
             public static final boolean kSoftLimitsEnabled = false;
@@ -315,10 +315,10 @@ public final class Constants {
             public static final double kPositionConversionFactor = 1.0;
 
             // Pincer Setpoints
-            public static final double kStowPosition = -0.349;
-            public static final double kFunnelPosition = 0.278;
-            public static final double kFunnel2Position = 0.45;
-            public static final double kAlgaePosition = -0.180;
+            public static final double kStowPosition = 0.2; //All guesses for now
+            public static final double kFunnelPosition = 0.4;
+            public static final double kFunnel2Position = 0.5;
+            public static final double kAlgaePosition = 0.7;
             //public static final double kHoldAlgaePosition = -0.120; //guess
 
             // Intake Setpoints
