@@ -301,7 +301,7 @@ public final class Constants {
             public static final FeedbackSensor kPincerMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
             public static final double kPincerMotorMinOutput = -1;
             public static final double kPincerMotorMaxOutput = 1;
-            public static final double kPincerMotorAbsoluteEncoderOffset = 0.7;
+            public static final double kPincerMotorAbsoluteEncoderOffset = 0.5;
             public static final boolean kPincerMotorZeroCentered = true;
 
             // Soft Limits

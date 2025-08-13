@@ -338,15 +338,15 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // Vision setup
         // Configure AprilTag detection
         if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
-            LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{6, 7, 8, 9, 10, 11}); // Only track these tag IDs
+            LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", new int[]{6, 7, 8, 9, 10, 11}); // Only track these tag IDs
         }
         else if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
-                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{17, 18, 19, 20, 21, 22}); // Only track these tag IDs
+                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", new int[]{17, 18, 19, 20, 21, 22}); // Only track these tag IDs
         }
         else{
-                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-front", new int[]{6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22}); // Only track these tag IDs
+                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", new int[]{6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22}); // Only track these tag IDs
         }
-        LimelightHelpers.SetFiducialDownscalingOverride("limelight-front", 2.0f); // Process at half resolution for improved framerate and reduced range
+        LimelightHelpers.SetFiducialDownscalingOverride("limelight-right", 2.0f); // Process at half resolution for improved framerate and reduced range
 
         if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
             flip_for_red = -1;
@@ -398,7 +398,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }        
 
         SmartDashboard.putNumber("Tag ID", getTag());
-        SmartDashboard.putNumber("Tag ID RAW", NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("tid").getInteger(-1));
+        SmartDashboard.putNumber("Tag ID RAW", NetworkTableInstance.getDefault().getTable("limelight-right").getEntry("tid").getInteger(-1));
         SmartDashboard.putBoolean("Has Tag", this.LLHasTag());
 
         SmartDashboard.putNumber("Pigeon Yaw", this.getPigeon2().getYaw().getValueAsDouble());
@@ -457,7 +457,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         doRejectUpdate = false;
         LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
 
-        LimelightHelpers.SetRobotOrientation("limelight-front", getState().Pose.getRotation().getDegrees(),
+        LimelightHelpers.SetRobotOrientation("limelight-right", getState().Pose.getRotation().getDegrees(),
         0, 0, 0, 0, 0);
         LimelightHelpers.SetRobotOrientation("limelight-back", getState().Pose.getRotation().getDegrees(),
         0, 0, 0, 0, 0);
@@ -511,14 +511,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * Updates the currently used limelight based on which limelight has the largest average tag area.
      */
     private static void chooseLL(boolean useMegaTag2){
-        limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
+        limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-right").getEntry("botpose").getDoubleArray(new double[11])[10];
         limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
         SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
         SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);   
 
         double translationSTD = TunerConstants.std02; // safe value
         if(limelightFrontAvgTagArea > limelightBackAvgTagArea){
-            limelightUsed = "limelight-front";
+            limelightUsed = "limelight-right";
             translationSTD = TunerConstants.getVisionStd(limelightFrontAvgTagArea);
         }
         else{
@@ -558,7 +558,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @return ID. Returns -1 if no tag is detected.
      */
     public int getTag() {
-        return (int) NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("tid").getInteger(-1);
+        return (int) NetworkTableInstance.getDefault().getTable("limelight-right").getEntry("tid").getInteger(-1);
     }
 
     /**
