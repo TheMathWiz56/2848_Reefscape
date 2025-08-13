@@ -99,6 +99,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                                                                                     new TrapezoidProfile.Constraints(TunerConstants.pathPID_Translation_maxVy, TunerConstants.pathPID_Translation_MaxA));
     ProfiledPIDController pathPIDRotationController = new ProfiledPIDController(TunerConstants.pathPID_Rotation_P, TunerConstants.pathPID_Rotation_I, TunerConstants.pathPID_Rotation_D, 
                                                                                     new TrapezoidProfile.Constraints(TunerConstants.pathPID_Rotation_maxV, TunerConstants.pathPID_Rotation_MaxA));
+    Timer timeToAlign = new Timer();
     private final Debouncer atGoalDebouncer = new Debouncer(TunerConstants.debounce_Time, DebounceType.kBoth);
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -571,33 +572,43 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putNumber("Tag ID used", ID);
         SmartDashboard.putString("Path PID to", reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch).toString());
 
-        if (ID != -1)
-            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.leftBranch), reef.tagPoseAndymarkMap.get(ID), false);
+        if (ID != -1) {
+            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.leftBranch),
+                    reef.tagPoseAndymarkMap.get(ID), false);
+        }
         return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
     }
 
-    private Command pathPIDToTagMiddle(int ID){
+    private Command pathPIDToTagMiddle(int ID) {
         SmartDashboard.putNumber("Tag ID used", ID);
 
-        if (ID !=-1)
-            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.reefAlgae), reef.tagPoseAndymarkMap.get(ID), true);
+        if (ID != -1) {
+            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.reefAlgae),
+                    reef.tagPoseAndymarkMap.get(ID), true);
+        }
         return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
-        
+
     }
 
     /**
-     * Creates a command that moves the robot to the position of the AprilTag 
-     * detected by the Limelight camera, adjusted by the right branch transformation.
+     * Creates a command that moves the robot to the position of the AprilTag
+     * detected by the Limelight camera, adjusted by the right branch
+     * transformation.
      * 
-     * @return A {@link Command} that moves the robot to the transformed position of the detected tag. 
-     *         If no tag is visible, a command is returned that logs the absence of a tag.
+     * @return A {@link Command} that moves the robot to the transformed position of
+     *         the detected tag.
+     *         If no tag is visible, a command is returned that logs the absence of
+     *         a tag.
      */
-    private Command pathPIDToTagRight(int ID){
+    private Command pathPIDToTagRight(int ID) {
         SmartDashboard.putNumber("Tag ID used", ID);
-        SmartDashboard.putString("Path PID to", reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch).toString());
+        SmartDashboard.putString("Path PID to",
+                reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch).toString());
 
-        if (ID != -1)
-            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch), reef.tagPoseAndymarkMap.get(ID), false);
+        if (ID != -1) {
+            return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch),
+                    reef.tagPoseAndymarkMap.get(ID), false);
+        }
         return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
     }
 
@@ -671,6 +682,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     private Command pathPIDTo(Pose2d goalPose, Pose2d tagPose, boolean isAlgae){
         return this.startRun(()->{
+            timeToAlign.reset();
+            timeToAlign.start();
+
             Pose2d currentFieldPose2d = this.getState().Pose;
             Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
             Pose2d goalTagPose2d = goalPose.relativeTo(tagPose);
@@ -681,13 +695,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 double shift = TunerConstants.maxTagYShift * ( -1 * Y0 / Math.abs(Y0));
                 goalTagPose2d = new Pose2d(goalTagPose2d.getTranslation().plus(new Translation2d(0.0,shift)), goalTagPose2d.getRotation());
                 pathPIDYController.setTolerance(TunerConstants.pathPID_Translation_TolYShift);
-                pathPIDXController.atGoal();
+                pathPIDXController.atGoal(); //Think this is not necessary
             }
             else{
                 isTrackingTagGoal = true;
             }
 
-            pathPIDXController.reset(currentTagPose2d.getX());
+            pathPIDXController.reset(currentTagPose2d.getX()); //can reset by giving the controller the current position and velocity
             pathPIDYController.reset(currentTagPose2d.getY());
             pathPIDRotationController.reset(currentTagPose2d.getRotation().getRadians());
 
@@ -742,7 +756,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 SmartDashboard.putNumber("Y Total Output", pathPIDYController.calculate(currentTagPose2d.getY())+ pathPIDYController.getSetpoint().velocity);
                 SmartDashboard.putNumber("Rotation Total Output", pathPIDRotationController.calculate(currentTagPose2d.getRotation().getRadians()) + pathPIDRotationController.getSetpoint().velocity);
 
-            }).until(() -> pathPIDAtGoal()).withName("PathPIDTo");
+            }).until(() -> pathPIDAtGoal()).withName("PathPIDTo").andThen(() -> {
+                timeToAlign.stop();
+                SmartDashboard.putNumber("Time To Align", timeToAlign.get()); }, this);
     }
 
     /**
