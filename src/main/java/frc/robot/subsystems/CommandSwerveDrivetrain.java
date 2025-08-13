@@ -720,8 +720,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 Pose2d currentFieldPose2d = this.getState().Pose;
                 Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
 
-                Translation2d fieldVelocity = new Translation2d(pathPIDXController.calculate(currentTagPose2d.getX()), pathPIDYController.calculate(currentTagPose2d.getY())).rotateBy(tagPose.getRotation());
-
+                pathPIDXController.calculate(currentTagPose2d.getX());
+                pathPIDYController.calculate(currentTagPose2d.getY());
+                //Translation2d fieldVelocity = new Translation2d(pathPIDXController.calculate(currentTagPose2d.getX()), pathPIDYController.calculate(currentTagPose2d.getY())).rotateBy(tagPose.getRotation());
+                Translation2d fieldVelocity = new Translation2d(pathPIDXController.getSetpoint().velocity, pathPIDYController.getSetpoint().velocity).rotateBy(tagPose.getRotation());
+                
                 pathPIDRequest
                     .withVelocityX(fieldVelocity.getX() * flip_for_red)
                     .withVelocityY(fieldVelocity.getY() * flip_for_red)
@@ -734,6 +737,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 SmartDashboard.putNumber("X PID Position Error", pathPIDXController.getPositionError());
                 SmartDashboard.putNumber("X PID Velocity Error", pathPIDXController.getVelocityError());
                 SmartDashboard.putNumber("X PID Velocity setpoint", pathPIDXController.getSetpoint().velocity);
+                SmartDashboard.putNumber("X PID Position Setpoint", pathPIDXController.getSetpoint().position);
+                SmartDashboard.putNumber("X PID Position PV", currentTagPose2d.getX());
                 SmartDashboard.putNumber("X PID Output", pathPIDXController.calculate(currentTagPose2d.getX()));
 
                 SmartDashboard.putNumber("Y PID Position Error", pathPIDYController.getPositionError());
