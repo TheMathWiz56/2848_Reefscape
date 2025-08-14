@@ -510,6 +510,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * Updates the currently used limelight based on which limelight has the largest average tag area.
      */
     private static void chooseLL(boolean useMegaTag2){
+        // Docs for this: https://docs.limelightvision.io/docs/docs-limelight/apis/complete-networktables-api#apriltag-and-3d-data
         limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-front").getEntry("botpose").getDoubleArray(new double[11])[10];
         limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
         SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
