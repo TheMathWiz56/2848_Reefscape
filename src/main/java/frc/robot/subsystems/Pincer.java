@@ -60,7 +60,7 @@ public class Pincer extends SubsystemBase{
         pincerConfig
             .encoder.positionConversionFactor(kPositionConversionFactor);
         pincerConfig
-            .
+            .closedLoop
                 .feedbackSensor(kPincerMotorFeedbackSensor)
                 .pid(kPincerP, kPincerI, kPincerD)
                 .outputRange(kPincerMotorMinOutput, kPincerMotorMaxOutput)
