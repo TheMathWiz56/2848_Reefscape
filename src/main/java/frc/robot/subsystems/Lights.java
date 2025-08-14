@@ -44,6 +44,7 @@ public class Lights extends SubsystemBase{
     public Command actionComplete(){
         return startEnd(() -> currentPattern = kGreenBlink, () -> currentPattern = kFastScrollingJesuit)
             .withTimeout(Seconds.of(1));
+        // Problem with this is that it takes up time, this could be problematic for autonomous
     }
 
     public Command holdState(){
