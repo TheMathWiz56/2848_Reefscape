@@ -33,6 +33,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -101,6 +102,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                                                                                     new TrapezoidProfile.Constraints(TunerConstants.pathPID_Rotation_maxV, TunerConstants.pathPID_Rotation_MaxA));
     Timer timeToAlign = new Timer();
     private final Debouncer atGoalDebouncer = new Debouncer(TunerConstants.debounce_Time, DebounceType.kBoth);
+
+    //Testing
+    // Trapezoid profile for feedforward
+    private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+        TunerConstants.pathPID_Translation_maxVx, TunerConstants.pathPID_Translation_MaxA));
+
+    // Trapezoid profile states
+    private TrapezoidProfile.State startState = new TrapezoidProfile.State();
+    private TrapezoidProfile.State goalState = new TrapezoidProfile.State();
+    private TrapezoidProfile.State currentState = new TrapezoidProfile.State();
+
+
+
+
     /* Swerve requests to apply during SysId characterization */
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
@@ -720,11 +735,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 Pose2d currentFieldPose2d = this.getState().Pose;
                 Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
 
-                pathPIDXController.calculate(currentTagPose2d.getX());
-                pathPIDYController.calculate(currentTagPose2d.getY());
+                //pathPIDXController.calculate(currentTagPose2d.getX());
+                //pathPIDYController.calculate(currentTagPose2d.getY());
                 //Translation2d fieldVelocity = new Translation2d(pathPIDXController.calculate(currentTagPose2d.getX()), pathPIDYController.calculate(currentTagPose2d.getY())).rotateBy(tagPose.getRotation());
                 Translation2d fieldVelocity = new Translation2d(pathPIDXController.getSetpoint().velocity, pathPIDYController.getSetpoint().velocity).rotateBy(tagPose.getRotation());
+                Translation2d positionPID = new Translation2d(pathPIDXController.calculate(currentTagPose2d.getX()), pathPIDYController.calculate(currentTagPose2d.getY())).rotateBy(tagPose.getRotation());
                 
+                fieldVelocity = fieldVelocity.plus(positionPID);
+
                 pathPIDRequest
                     .withVelocityX(fieldVelocity.getX() * flip_for_red)
                     .withVelocityY(fieldVelocity.getY() * flip_for_red)
@@ -734,9 +752,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
                 this.setControl(pathPIDRequest);
 
+                
+
                 SmartDashboard.putNumber("X PID Position Error", pathPIDXController.getPositionError());
                 SmartDashboard.putNumber("X PID Velocity Error", pathPIDXController.getVelocityError());
                 SmartDashboard.putNumber("X PID Velocity setpoint", pathPIDXController.getSetpoint().velocity);
+                SmartDashboard.putNumber("X PID Field Velocity setpoint", fieldVelocity.getX() * flip_for_red);
                 SmartDashboard.putNumber("X PID Position Setpoint", pathPIDXController.getSetpoint().position);
                 SmartDashboard.putNumber("X PID Position PV", currentTagPose2d.getX());
                 SmartDashboard.putNumber("X PID Output", pathPIDXController.calculate(currentTagPose2d.getX()));
@@ -764,6 +785,51 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             }).until(() -> pathPIDAtGoal()).withName("PathPIDTo").andThen(() -> {
                 timeToAlign.stop();
                 SmartDashboard.putNumber("Time To Align", timeToAlign.get()); }, this);
+    }
+
+    public Command testPathPIDTo (Pose2d goalPose){
+        return this.startRun(()->{
+                Pose2d tagPose = reef.tagPoseAndymarkMap.get(22);
+
+                Pose2d currentFieldPose2d = this.getState().Pose;
+                Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
+                Pose2d goalTagPose2d = goalPose.relativeTo(tagPose);
+
+                pathPIDXController.reset(currentTagPose2d.getX()); //can reset by giving the controller the current position and velocity
+                pathPIDYController.reset(currentTagPose2d.getY());
+                pathPIDRotationController.reset(currentTagPose2d.getRotation().getRadians());
+
+                pathPIDXController.setGoal(goalTagPose2d.getX());
+                pathPIDYController.setGoal(goalTagPose2d.getY());
+                pathPIDRotationController.setGoal(goalTagPose2d.getRotation().getRadians());
+        
+            }, () -> {
+                Pose2d tagPose = reef.tagPoseAndymarkMap.get(22);
+                Pose2d currentFieldPose2d = this.getState().Pose;
+                Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
+
+                Translation2d positionPID = new Translation2d(pathPIDXController.calculate(currentTagPose2d.getX()), pathPIDYController.calculate(currentTagPose2d.getY())).rotateBy(tagPose.getRotation());
+                Translation2d fieldVelocity = new Translation2d(pathPIDXController.getSetpoint().velocity, pathPIDYController.getSetpoint().velocity).rotateBy(tagPose.getRotation());
+                
+                fieldVelocity = fieldVelocity.plus(positionPID);
+
+                pathPIDRequest
+                    .withVelocityX(fieldVelocity.getX() * flip_for_red)
+                    .withVelocityY(fieldVelocity.getY() * flip_for_red)
+                    .withRotationalRate(pathPIDRotationController.calculate(currentTagPose2d.getRotation().getRadians()))
+                    .withDeadband(TunerConstants.pathPID_Translation_Deadband)
+                    .withRotationalDeadband(TunerConstants.pathPID_Rotation_Deadband);
+
+                this.setControl(pathPIDRequest);
+
+                SmartDashboard.putNumber("X PID Position Error", pathPIDXController.getPositionError());
+                SmartDashboard.putNumber("X PID Velocity Error", pathPIDXController.getVelocityError());
+                SmartDashboard.putNumber("X PID Velocity setpoint", pathPIDXController.getSetpoint().velocity);
+                SmartDashboard.putNumber("X PID Field Velocity setpoint", fieldVelocity.getX() * flip_for_red);
+                SmartDashboard.putNumber("X PID Position Setpoint", pathPIDXController.getSetpoint().position);
+                SmartDashboard.putNumber("X PID Position PV", currentTagPose2d.getX());
+
+            }).until(() -> pathPIDAtGoal());
     }
 
     /**

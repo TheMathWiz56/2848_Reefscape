@@ -22,6 +22,8 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -41,6 +43,8 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Pincer;
 import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.Ascender;
+
+import frc.robot.Util.reef;
 
 
 
@@ -163,7 +167,8 @@ public class RobotContainer {
                 // reset the field-centric pose to vision pose
                 driverJoystick.start().and(LLHasTag).onTrue(Commands.runOnce(() -> drivetrain.resetToVision(true)));
                 // reset the field-centric heading on back press
-                driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+                //driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+                driverJoystick.back().onTrue(drivetrain.testPathPIDTo(new Pose2d(5.33, 2.37, new Rotation2d(1.9))));
 
                 LLHasTag.onTrue(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 1)))
                         .onFalse(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 0)));
