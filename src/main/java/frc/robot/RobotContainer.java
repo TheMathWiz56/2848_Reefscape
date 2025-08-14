@@ -64,6 +64,7 @@ public class RobotContainer {
 
     public final CommandXboxController driverJoystick = new CommandXboxController(0);
     public final CommandXboxController operatorJoystick = new CommandXboxController(2);
+    public final CommandXboxController testingJoystick = new CommandXboxController(5); // You can put test commands onto here.
 
     // Subsystem Instances
         public final Arm arm = new Arm();
@@ -308,6 +309,11 @@ public class RobotContainer {
         //operatorJoystick.y().toggleOnTrue(pincer.holdIntakeCmd()); */
 
 
+        // Testing pincer positions
+        testingJoystick.a().onTrue(pincer.pincerFunnel());
+        testingJoystick.b().onTrue(pincer.pincerFunnel2());
+        testingJoystick.x().onTrue(pincer.algaeScore());
+        testingJoystick.y().onTrue(pincer.stowPincer());
     }
 
     public Command getAutonomousCommand() {

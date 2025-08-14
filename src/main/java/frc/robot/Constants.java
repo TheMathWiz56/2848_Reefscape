@@ -272,8 +272,8 @@ public final class Constants {
 
             public static final HashMap<robotStates.pincerStates, Double> setPoints = new HashMap<>() {
                 {
-                    put(robotStates.pincerStates.ALGAESCORE, 0.0);
-                    put(robotStates.pincerStates.ALGAEINTAKE, 0.0);
+                    put(robotStates.pincerStates.ALGAESCORE, 0.7); // Values are temporary
+                    put(robotStates.pincerStates.ALGAEINTAKE, 0.7);
                 }
             };
 
@@ -301,7 +301,7 @@ public final class Constants {
             public static final FeedbackSensor kPincerMotorFeedbackSensor = FeedbackSensor.kAbsoluteEncoder;
             public static final double kPincerMotorMinOutput = -1;
             public static final double kPincerMotorMaxOutput = 1;
-            public static final double kPincerMotorAbsoluteEncoderOffset = 0.17; // Measure with the claw all the way stowed, minus a bit more
+            public static final double kPincerMotorAbsoluteEncoderOffset = 0.17; // Zero with the claw all the way stowed (minus a bit more)
             public static final boolean kPincerMotorZeroCentered = false;
 
             // Soft Limits
@@ -315,8 +315,8 @@ public final class Constants {
             public static final double kPositionConversionFactor = 1.0;
 
             // Pincer Setpoints
-            public static final double kStowPosition = 0.2; //All guesses for now
-            public static final double kFunnelPosition = 0.4;
+            public static final double kStowPosition = 0.2; // All temporary for now
+            public static final double kFunnelPosition = 0.05;
             public static final double kFunnel2Position = 0.5;
             public static final double kAlgaePosition = 0.7;
             //public static final double kHoldAlgaePosition = -0.120; //guess
