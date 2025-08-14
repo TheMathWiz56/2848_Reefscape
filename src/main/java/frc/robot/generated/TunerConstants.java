@@ -61,12 +61,12 @@ public class TunerConstants {
         return std;
     }
 
-    public static final double pathPID_Translation_P = 5; // (m/s) / m error
+    public static final double pathPID_Translation_P = 10; // (m/s) / m error
     public static final double pathPID_Translation_I = 0; // (m/s) / m error
     public static final double pathPID_Translation_D = 0.0;
-    public static final double pathPID_Translation_maxVy = 2; // m/s 1 // parallel to tag
-    public static final double pathPID_Translation_maxVx = 1.25; // m/s 1 // normal to tag
-    public static final double pathPID_Translation_MaxA = 1;
+    public static final double pathPID_Translation_maxVy = 3; // m/s 1 // parallel to tag
+    public static final double pathPID_Translation_maxVx = 2.5; // m/s 1 // normal to tag
+    public static final double pathPID_Translation_MaxA = 1.75;
     public static final double pathPID_Translation_TolX = .1;
     public static final double pathPID_Translation_TolY = .03;
     public static final double pathPID_Translation_TolYShift = .1;
