@@ -22,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.reefData;
 
 import static frc.robot.Constants.ElevatorConstants.*;
 import static frc.robot.Constants.PincerConstants.kStowPosition;
@@ -301,16 +300,16 @@ public class Elevator extends SubsystemBase {
   }
 
   public double LtoSetPoint(Constants.reef.reefLs L) {
-    if (L.equals(Constants.reef.reefLs.lL1) || L.equals(Constants.reef.reefLs.rL1)) {
+    if (L.equals(Constants.reef.reefLs.L1)) {
       return kSetpointL1;
     }
-    if (L.equals(Constants.reef.reefLs.lL2) || L.equals(Constants.reef.reefLs.rL2)) {
+    if (L.equals(Constants.reef.reefLs.L2)) {
       return kSetpointL2;
     }
-    if (L.equals(Constants.reef.reefLs.lL3) || L.equals(Constants.reef.reefLs.rL3)) {
+    if (L.equals(Constants.reef.reefLs.L3)) {
       return kSetpointL3;
     }
-    if (L.equals(Constants.reef.reefLs.lL4) || L.equals(Constants.reef.reefLs.rL4)) {
+    if (L.equals(Constants.reef.reefLs.L4)) {
       return kSetpointL4;
     }
     return 0;

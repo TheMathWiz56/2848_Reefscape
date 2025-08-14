@@ -77,16 +77,10 @@ public final class Constants {
         }
 
         public static enum reefLs {
-            lL4,
-            lL3,
-            lL2,
-            lL1,
-            rL4,
-            rL3,
-            rL2,
-            rL1,
-            STOW,
-            NONE
+            L4,
+            L3,
+            L2,
+            L1,
         }
 
         public static final Map<Integer, Integer> rMap = new HashMap<>() {
@@ -101,34 +95,11 @@ public final class Constants {
         };
 
         public static Map<reefLs, robotStates.pivotElevatorStates> reefToState = new HashMap<>(){{
-            put(reefLs.lL4, robotStates.pivotElevatorStates.L4);
-            put(reefLs.lL3,robotStates.pivotElevatorStates.L3);
-            put(reefLs.lL2,robotStates.pivotElevatorStates.L2);
-            put(reefLs.lL1,robotStates.pivotElevatorStates.L1);
-            put(reefLs.rL4,robotStates.pivotElevatorStates.L4);
-            put(reefLs.rL3,robotStates.pivotElevatorStates.L3);
-            put(reefLs.rL2,robotStates.pivotElevatorStates.L2);
-            put(reefLs.rL1,robotStates.pivotElevatorStates.L1);
-            put(reefLs.NONE,robotStates.pivotElevatorStates.L2);
-            
-            
-            
+            put(reefLs.L4, robotStates.pivotElevatorStates.L4);
+            put(reefLs.L3,robotStates.pivotElevatorStates.L3);
+            put(reefLs.L2,robotStates.pivotElevatorStates.L2);
+            put(reefLs.L1,robotStates.pivotElevatorStates.L1);
         }};
-
-        public static final Map<Integer, reefLs> lMap = new HashMap<>() {
-            {
-                put(1, reefLs.lL4);
-                put(2, reefLs.lL3);
-                put(3, reefLs.lL2);
-                put(4, reefLs.lL1);
-                put(5, reefLs.rL4);
-                put(6, reefLs.rL3);
-                put(7, reefLs.rL2);
-                put(8, reefLs.rL1);
-                put(22,reefLs.STOW);
-                put(19, reefLs.STOW);
-            }
-        };
 
         // zones for auto driving around the reef
         public static final class driveZones {
