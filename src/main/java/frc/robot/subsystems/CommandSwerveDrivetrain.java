@@ -529,16 +529,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-right").getEntry("botpose").getDoubleArray(new double[11])[10];
         limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
         SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
-        SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);   
+        SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);  
 
         double translationSTD = TunerConstants.std02; // safe value
         if(limelightFrontAvgTagArea > limelightBackAvgTagArea){
             limelightUsed = "limelight-right";
-            translationSTD = TunerConstants.getVisionStd(limelightFrontAvgTagArea);
+            translationSTD = TunerConstants.getTranslationVisionStd(limelightFrontAvgTagArea);
         }
         else{
             limelightUsed = "limelight-back";
-            translationSTD = TunerConstants.getVisionStd(limelightBackAvgTagArea);
+            translationSTD = TunerConstants.getTranslationVisionStd(limelightBackAvgTagArea);
                 
         }
         
@@ -551,7 +551,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD * autonomousMultipier, translationSTD * autonomousMultipier, 3 * autonomousMultipier); // Use vision yaw reading
             }
             else{
-                TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 3); // Use vision yaw reading
+                TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 2.0); // Use vision yaw reading
             }
         }
 

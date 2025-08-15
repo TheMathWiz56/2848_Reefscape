@@ -32,11 +32,11 @@ public class TunerConstants {
     public static Matrix<N3, N1> odometryStandardDeviation = VecBuilder.fill(.1,.1,.1); // increase with time?
     public static Matrix<N3, N1> visionStandardDeviation  = VecBuilder.fill(.7,0.7,9999999);
     /** Standard Deviation at .2 target area */
-    public static double std02 = 15;
+    public static double std02 = 5; // 15
     /** Standard Deviation at 4 target area 
      *  Lower is better / more accurate
     */
-    public static double maxStdDeviation = .5; 
+    public static double maxStdDeviation = .5; //0.5 
     /** cut-off tag area, don't trust past this point */
     public static final double minTagArea = 0.35; 
     public static double visionStdSlope = (maxStdDeviation-std02)/(4-.2); // from .2 to 4 // 2m to .5m // units (Deviation / Tag Area)
@@ -44,11 +44,11 @@ public class TunerConstants {
     /** Linear and Angular Velocity/Acceleration contstraints for on the fly path following */
     public static PathConstraints oTF_Constraints = new PathConstraints(5.3, 5, Math.toRadians(270), Math.toRadians(360));
 
-    /**Returns the standard deviation for a given target area 
+    /**Returns the translational standard deviation for a given target area 
     * @param tagArea current tag area
     * @return standard deviation
     */
-    public static double getVisionStd(double tagArea){
+    public static double getTranslationVisionStd(double tagArea){
         double std = visionStdSlope * tagArea + visionStdConstant;
 
         if (tagArea < minTagArea){ 
@@ -60,6 +60,24 @@ public class TunerConstants {
         
         return std;
     }
+
+    /**Returns the rotational standard deviation for a given target area 
+    * @param tagArea current tag area
+    * @return standard deviation
+    */
+    public static double getRotationVisionStd(double tagArea){
+        double std = visionStdSlope * tagArea + visionStdConstant;
+
+        if (tagArea < minTagArea){ 
+            return 9999999;
+        }
+        if (std < maxStdDeviation){
+            return maxStdDeviation;
+        }
+        
+        return std;
+    }
+
 
     public static final double pathPID_Translation_P = 10; // (m/s) / m error
     public static final double pathPID_Translation_I = 0; // (m/s) / m error
