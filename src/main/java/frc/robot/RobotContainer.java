@@ -43,6 +43,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Pincer;
 import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.Ascender;
+import frc.robot.subsystems.Vision;
 
 import frc.robot.Util.reef;
 
@@ -70,7 +71,7 @@ public class RobotContainer {
     public final CommandXboxController operatorJoystick = new CommandXboxController(2);
 
     // Subsystem Instances
-        public final Arm arm = new Arm();
+        public final static Arm arm = new Arm();
         public final Ascender ascender = new Ascender();
         public final Pincer pincer = new Pincer();
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
@@ -321,4 +322,5 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
     }
+
 }

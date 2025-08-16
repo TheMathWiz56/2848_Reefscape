@@ -94,7 +94,7 @@ public class Elevator extends SubsystemBase {
 
   public void setMotorVoltage(double voltage) {
     elevatorMotor.setVoltage(voltage);
-
+  
   }
 
   /**
