@@ -502,5 +502,14 @@ public final class Constants {
              * 
              */
         }
+
+        public static class VisionConstants {
+            public static final String[] kCameraList = {"limelight-front", "limelight-back"};
+
+            public static final double kMinAcceptableTagArea = 0.1;
+
+            public static final double kInvalidStandardDeviation = 9999999;
+
+        }
     }
 
