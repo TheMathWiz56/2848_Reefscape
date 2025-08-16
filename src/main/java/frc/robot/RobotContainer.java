@@ -80,6 +80,7 @@ public class RobotContainer {
         @Getter private static final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         @Getter private static final Elevator elevator = new Elevator();
         @Getter private static final Lights lights = null;//new Lights();
+        @Getter private static final Vision vision = new Vision();//new Lights();
         
         // Command Factory
         public static final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
