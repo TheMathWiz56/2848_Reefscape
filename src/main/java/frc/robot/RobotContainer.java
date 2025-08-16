@@ -86,7 +86,7 @@ public class RobotContainer {
         public static final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
 
         // Custom Triggers
-        Trigger LLHasTag = new Trigger(() -> drivetrain.LLHasTag());    
+        Trigger LLHasTag = new Trigger(() -> vision.robotHasTag());    
         private final BooleanSupplier manualDrivebase = () -> Math.hypot(driverJoystick.getLeftX(), driverJoystick.getLeftY()) > 0.25
                                                                 || Math.abs(driverJoystick.getRightX()) > 0.25;
 
@@ -101,7 +101,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("Score_L2", commandFactory.scorelL2());
         NamedCommands.registerCommand("Stow_Empty", commandFactory.stow(false, false, true, false));
         NamedCommands.registerCommand("Stow_Coral", commandFactory.stow(true, false, false, true));
-        NamedCommands.registerCommand("Reset_To_Vision", Commands.runOnce(() -> drivetrain.resetToVision(true)));
+        NamedCommands.registerCommand("Reset_To_Vision", Commands.runOnce(() -> drivetrain.resetToVision()));
         NamedCommands.registerCommand("Align_Right", drivetrain.pathPIDToTagRightSelect());
         NamedCommands.registerCommand("Reef_Stall", Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.3)), drivetrain));
         NamedCommands.registerCommand("Feed", commandFactory.feedSequential());
@@ -170,7 +170,7 @@ public class RobotContainer {
                 driverJoystick.rightBumper().whileTrue(pincer.manualExhaust());
 
                 // reset the field-centric pose to vision pose
-                driverJoystick.start().and(LLHasTag).onTrue(Commands.runOnce(() -> drivetrain.resetToVision(true)));
+                driverJoystick.start().and(LLHasTag).onTrue(Commands.runOnce(() -> drivetrain.resetToVision()));
                 // reset the field-centric heading on back press
                 //driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
                 driverJoystick.back().onTrue(drivetrain.testPathPIDTo(reef.tagPoseAndymarkMap.get(22).transformBy(TunerConstants.leftBranch), reef.tagPoseAndymarkMap.get(22)));

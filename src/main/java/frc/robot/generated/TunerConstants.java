@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.*;
 
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -29,7 +30,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class TunerConstants {
     // Pose Estimation Configs
     public final static double odometryUpdateFrequency = 250;
-    public static Matrix<N3, N1> odometryStandardDeviation = VecBuilder.fill(.1,.1,.1); // increase with time?
+    public static Matrix<N3, N1> odometryStandardDeviation = VecBuilder.fill(.1,.1, Units.degreesToRadians(5));
     public static Matrix<N3, N1> visionStandardDeviation  = VecBuilder.fill(.7,0.7,9999999);
     /** Standard Deviation at .2 target area */
     public static double std02 = 5; // 15

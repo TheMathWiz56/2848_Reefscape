@@ -399,27 +399,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         
         }
         
-        // Disabled for odometry testing
-        updateOdometry();
+        // Vision measurements are added from the vision subsystem
 
         // Fused Pose Estimate Telemetry 
         Pose2d currentPose = getState().Pose;
         m_field.setRobotPose(new Pose2d(currentPose.getTranslation().getX(), currentPose.getTranslation().getY(), new Rotation2d(currentPose.getRotation().getRadians())));
         Double[] fusedPose = Pose2dToDoubleArray(currentPose);
-        SmartDashboard.putData("Field", m_field);
-        SmartDashboard.putNumberArray("Fused PoseDBL", fusedPose);
 
-        Command currentCommand = this.getCurrentCommand();
-
-        if (currentCommand != null){
-            SmartDashboard.putString("Drivebase Current Command", currentCommand.getName());
-        }        
-
-        SmartDashboard.putNumber("Tag ID", getTag());
-        SmartDashboard.putNumber("Tag ID RAW", NetworkTableInstance.getDefault().getTable("limelight-right").getEntry("tid").getInteger(-1));
-        SmartDashboard.putBoolean("Has Tag", this.LLHasTag());
-
-        SmartDashboard.putNumber("Pigeon Yaw", this.getPigeon2().getYaw().getValueAsDouble());
     }
 
 
@@ -430,30 +416,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * <p>Can also use a known reference like a wall to zero the Pigeon (most important thing for mt2 is having an accurate yaw reading)
      * @param forceUpdate Override the tag area requirement
      */
-    public void resetToVision(boolean forceUpdate){
-        chooseLL(false);
-        LimelightHelpers.PoseEstimate poseEstimate = getLLMegaTEstimate(false); // Might be able to switch to mt1 or 2. Needs testing if want to change
+    public void resetToVision(){
+        LimelightHelpers.PoseEstimate poseEstimate = RobotContainer.getVision().getVisionPoseEstimate(); // Might be able to switch to mt1 or 2. Needs testing if want to change
 
         if (poseEstimate != null) {
-            if (forceUpdate || limelightBackAvgTagArea > 3){
-                resetPose(poseEstimate.pose);
-            }          
-        }
-    }
-
-    /**
-     * Polls the limelights for a pose estimate and uses the pose estimator Kalman filter to fuse the best Limelight pose estimate
-     * with the odometry pose estimate
-     */
-    private void updateOdometry() {
-        chooseLL(useMegaTag2);
-        LLPoseEstimate = getLLMegaTEstimate(useMegaTag2); 
-
-        if (LLPoseEstimate != null) {
-            // needs to be converted to a current time timestamp for it to be combined properly with the odometry pose estimate
-            SmartDashboard.putNumber("Odometry Update Timestamp", Utils.fpgaToCurrentTime(LLPoseEstimate.timestampSeconds)); 
-            SmartDashboard.putNumberArray("Incoming Pose Estimate", Pose2dToDoubleArray(LLPoseEstimate.pose));
-            addVisionMeasurement(LLPoseEstimate.pose, Utils.fpgaToCurrentTime(LLPoseEstimate.timestampSeconds), TunerConstants.visionStandardDeviation);
+            resetPose(poseEstimate.pose);         
         }
     }
 
@@ -465,118 +432,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public Command pathPlanTo(Pose2d pose, LinearVelocity endVelocity){
         return AutoBuilder.pathfindToPose(pose, TunerConstants.oTF_Constraints, endVelocity);
-    }
-
-    /**
-     * @param useMegaTag2 Boolean to use mt2 or mt1
-     * @return Valid pose estimate or null
-     */
-    private LimelightHelpers.PoseEstimate getLLMegaTEstimate(boolean useMegaTag2){
-        doRejectUpdate = false;
-        LimelightHelpers.PoseEstimate poseEstimate = new LimelightHelpers.PoseEstimate();
-
-        LimelightHelpers.SetRobotOrientation("limelight-right", getState().Pose.getRotation().getDegrees(),
-        0, 0, 0, 0, 0);
-        LimelightHelpers.SetRobotOrientation("limelight-back", getState().Pose.getRotation().getDegrees(),
-        0, 0, 0, 0, 0);
-        
-
-
-        if (useMegaTag2 == false) {
-            poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightUsed);
-
-            if (poseEstimate == null){
-                doRejectUpdate = true;
-            }
-            else{
-                if (poseEstimate.tagCount == 1 && poseEstimate.rawFiducials.length == 1) {
-                    if (poseEstimate.rawFiducials[0].ambiguity > .7) {
-                        doRejectUpdate = true;
-                    }
-                    if (poseEstimate.rawFiducials[0].distToCamera > 3) {
-                        doRejectUpdate = true;
-                    }
-                    }
-                    if (poseEstimate.tagCount == 0) {
-                    doRejectUpdate = true;
-                    }
-            }
-        }
-        else{
-            poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelightUsed);
-            if (poseEstimate == null) {
-                doRejectUpdate = true;
-            } 
-            else {
-                if (Math.abs(getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > 720){ // if our angular velocity is greater than 720 degrees per second,
-                    doRejectUpdate = true;
-                }
-                if (poseEstimate.tagCount == 0) {
-                    doRejectUpdate = true;
-                }
-            }
-        }
-
-        if (doRejectUpdate){
-            return null;
-        }
-        else{
-            return poseEstimate;
-        }
-    }
-
-    /**
-     * Updates the currently used limelight based on which limelight has the largest average tag area.
-     */
-    private static void chooseLL(boolean useMegaTag2){
-        limelightFrontAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-right").getEntry("botpose").getDoubleArray(new double[11])[10];
-        limelightBackAvgTagArea = NetworkTableInstance.getDefault().getTable("limelight-back").getEntry("botpose").getDoubleArray(new double[11])[10];
-        SmartDashboard.putNumber("Front Limelight Tag Area", limelightFrontAvgTagArea);
-        SmartDashboard.putNumber("Back Limelight Tag Area", limelightBackAvgTagArea);  
-
-        double translationSTD = TunerConstants.std02; // safe value
-        if(limelightFrontAvgTagArea > limelightBackAvgTagArea){
-            limelightUsed = "limelight-right";
-            translationSTD = TunerConstants.getTranslationVisionStd(limelightFrontAvgTagArea);
-        }
-        else{
-            limelightUsed = "limelight-back";
-            translationSTD = TunerConstants.getTranslationVisionStd(limelightBackAvgTagArea);
-                
-        }
-        
-        if (useMegaTag2){
-            TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 9999999); // Don't trust yaw, rely on Pigeon
-        }
-        else{
-            if (DriverStation.isAutonomous()){
-                double autonomousMultipier = 1;
-                TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD * autonomousMultipier, translationSTD * autonomousMultipier, 3 * autonomousMultipier); // Use vision yaw reading
-            }
-            else{
-                TunerConstants.visionStandardDeviation = VecBuilder.fill(translationSTD, translationSTD, 2.0); // Use vision yaw reading
-            }
-        }
-
-
-        SmartDashboard.putNumberArray("Vision Standard Deviations", TunerConstants.visionStandardDeviation.getData());
-        SmartDashboard.putString("Limelight Used", limelightUsed);
-    }
-
-    /**
-     * @return {@code true} if an april tag is in sight, {@code false} otherwise
-     */
-    public boolean LLHasTag(){
-        return getTag() != -1;
-    }
-
-    /**
-     * Returns the ID of the AprilTag currently visible by the Limelight camera.
-     * 
-     * @return ID. Returns -1 if no tag is detected.
-     */
-    public int getTag() {
-        return (int) NetworkTableInstance.getDefault().getTable("limelight-right").getEntry("tid").getInteger(-1);
     }
 
     /**
@@ -645,7 +500,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 Map.entry(9, this.pathPIDToTagMiddle(9)),
                 Map.entry(10, this.pathPIDToTagMiddle(10)),
                 Map.entry(11, this.pathPIDToTagMiddle(11)))
-        , this::getTag);
+        , () -> RobotContainer.getVision().getTag());
     }
 
     public Command pathPIDToTagRightSelect(){
@@ -663,7 +518,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 Map.entry(9, this.pathPIDToTagRight(9)),
                 Map.entry(10, this.pathPIDToTagRight(10)),
                 Map.entry(11, this.pathPIDToTagRight(11)))
-        , this::getTag);
+        , () -> RobotContainer.getVision().getTag());
     }
 
     public Command pathPIDToTagLeftSelect(){
@@ -681,7 +536,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 Map.entry(9, this.pathPIDToTagLeft(9)),
                 Map.entry(10, this.pathPIDToTagLeft(10)),
                 Map.entry(11, this.pathPIDToTagLeft(11)))
-        , this::getTag);
+        , () -> RobotContainer.getVision().getTag());
     }
 
 
@@ -819,9 +674,5 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public boolean pathPIDAtGoal (){
         return atGoalDebouncer.calculate(pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal() && isTrackingTagGoal);
-    }
-
-    public void useMegaTag2(boolean input){
-        useMegaTag2 = input;
     }
 }

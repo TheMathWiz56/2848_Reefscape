@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Pincer;
@@ -390,7 +391,7 @@ public class CommandFactory{
                 Map.entry(9, autoReefAlgaeHigh()),
                 Map.entry(10, autoReefAlgaeLow()),
                 Map.entry(11, autoReefAlgaeHigh()))
-        , () -> drive.getTag());
+        , () -> RobotContainer.getVision().getTag());
     }
 
 

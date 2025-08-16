@@ -60,7 +60,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    RobotContainer.getDrivetrain().useMegaTag2(false);
+    RobotContainer.getVision().setUseMegaTag2(false);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     if (m_autonomousCommand != null) {
@@ -84,7 +84,7 @@ public class Robot extends TimedRobot {
     }
 
     // Disabled for testing
-    RobotContainer.getDrivetrain().useMegaTag2(false);
+    RobotContainer.getVision().setUseMegaTag2(false);
 
     // Elastic.selectTab("Teleoperated"); // Causing lag, I think. If turned back on might cause commandSchedulerLoop issues
   }
