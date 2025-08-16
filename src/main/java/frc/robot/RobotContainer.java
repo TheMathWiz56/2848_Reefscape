@@ -44,6 +44,9 @@ import frc.robot.subsystems.Pincer;
 import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.Ascender;
 import frc.robot.subsystems.Vision;
+import lombok.Getter;
+import lombok.Setter;
+
 
 import frc.robot.Util.reef;
 
@@ -71,15 +74,15 @@ public class RobotContainer {
     public final CommandXboxController operatorJoystick = new CommandXboxController(2);
 
     // Subsystem Instances
-        public final static Arm arm = new Arm();
-        public final Ascender ascender = new Ascender();
-        public final Pincer pincer = new Pincer();
-        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-        public final Elevator elevator = new Elevator();
-        public final Lights lights = null;//new Lights();
+        @Getter private static final Arm arm = new Arm();
+        @Getter private static final Ascender ascender = new Ascender();
+        @Getter private static final Pincer pincer = new Pincer();
+        @Getter private static final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+        @Getter private static final Elevator elevator = new Elevator();
+        @Getter private static final Lights lights = null;//new Lights();
         
         // Command Factory
-        public final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
+        public static final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
 
         // Custom Triggers
         Trigger LLHasTag = new Trigger(() -> drivetrain.LLHasTag());    
