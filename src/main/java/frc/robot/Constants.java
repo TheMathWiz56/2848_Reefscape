@@ -505,21 +505,28 @@ public final class Constants {
 
         public static class VisionConstants {
             // List of camera names published to the network tables (set in the limelight browser config tool)
-            public static final String[] kCameraList = {"limelight-front", "limelight-back"};
+            public static final String[] kCameraList = {"limelight-right", "limelight-left"};
 
             // Filters
-            public static final double kMinAcceptableTagArea = 0.1;
+            public static final double kMinAcceptableTagArea = 0.35;
             public static final double kMaxAcceptableRotationalRate = 720; // deg/s
             public static final double kMaxAcceptableAmbiguity = 0.7;
             public static final double kMaxAcceptableDistance = 3; // m
 
             // Standard Deviation 
             public static final double kInvalidStandardDeviation = 9999999;
-            public static final double kDistanceMultiplier = 0.0;
+            // Multipliers
+            public static final double kAreaMultiplier = -1.18;
             public static final double kAmbiguityMultiplier = 0.0;
             public static final double kTagCountMultiplier = 0.0;
             public static final double kAngularVelocityMultiplier = 0.0;
             public static final double kLinearVelocityMultiplier = 0.0;
+            // Constants
+            public static final double kAreaConstant = 5.236;
+            public static final double kAmbiguityConstant = 0.0;
+            public static final double kTagCountConstant = 0.0;
+            public static final double kAngularVelocityConstant = 0.0;
+            public static final double kLinearVelocityConstant = 0.0;
 
         }
     }

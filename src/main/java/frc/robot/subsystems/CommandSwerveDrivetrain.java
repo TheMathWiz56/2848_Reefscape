@@ -418,20 +418,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public void resetToVision(){
         LimelightHelpers.PoseEstimate poseEstimate = RobotContainer.getVision().getVisionPoseEstimate(); // Might be able to switch to mt1 or 2. Needs testing if want to change
-
+        
         if (poseEstimate != null) {
             resetPose(poseEstimate.pose);         
         }
-    }
-
-    /**
-     * Uses the autobuilder and PathPlanner's navigation grid to pathfind to a pose in real time
-     * 
-     * @param pose Pose to pathfind to
-     * @param endVelocity Velocity at target pose
-     */
-    public Command pathPlanTo(Pose2d pose, LinearVelocity endVelocity){
-        return AutoBuilder.pathfindToPose(pose, TunerConstants.oTF_Constraints, endVelocity);
     }
 
     /**

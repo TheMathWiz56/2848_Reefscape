@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.math.numbers.N1;
@@ -30,9 +31,9 @@ public class Vision extends SubsystemBase {
 
     @Getter @Setter private boolean useMegaTag2 = false;
     private String[] cameraList;
-    private String bestLimeLight = "";
-    @Getter private double translationStdDev = kInvalidStandardDeviation;
-    @Getter private double rotationStdDev;
+    @Getter @Setter private String bestLimeLight = "";
+    @Getter @Setter private double translationStdDev = kInvalidStandardDeviation;
+    @Getter @Setter private double rotationStdDev = kInvalidStandardDeviation;
     @Getter private Matrix<N3, N1> visionStandardDeviation = VecBuilder.fill(translationStdDev, translationStdDev, rotationStdDev);
     @Getter private LimelightHelpers.PoseEstimate visionPoseEstimate = null;
 
@@ -44,7 +45,31 @@ public class Vision extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
-        
+        // Permanent
+        builder.addBooleanProperty("Use Mega Tag 2", this::isUseMegaTag2, this::setUseMegaTag2);
+
+        builder.addStringProperty("Best Limelight", this::getBestLimeLight, this::setBestLimeLight);
+
+        /*
+        // Debugging/Testing
+        builder.addDoubleProperty("Translational Standard Deviation", this::getTranslationStdDev, this::setTranslationStdDev);
+        builder.addDoubleProperty("Rotational Standard Deviation", this::getRotationStdDev, this::setRotationStdDev);
+        builder.addDoubleProperty(
+            "Pose Estimate Avg Tag Area",
+            () -> (visionPoseEstimate != null ? visionPoseEstimate.avgTagArea : 0.0),
+            null
+        );
+        builder.addDoubleProperty(
+            "Pose Estimate Ambiguity",
+            () -> (visionPoseEstimate != null ? visionPoseEstimate.rawFiducials[0].ambiguity : 0.0),
+            null
+        );
+        builder.addDoubleProperty(
+            "Pose Estimate Tag Count",
+            () -> (visionPoseEstimate != null ? visionPoseEstimate.tagCount : 0.0),
+            null
+        );
+        */
     }
 
 
@@ -60,6 +85,8 @@ public class Vision extends SubsystemBase {
                 Utils.fpgaToCurrentTime(visionPoseEstimate.timestampSeconds), 
                 visionStandardDeviation);
         }
+
+        SmartDashboard.putData(this);
     }
 
     /**
@@ -90,13 +117,14 @@ public class Vision extends SubsystemBase {
     public void updateVisionPoseEstimate(){
         boolean rejectUpdate = false;
         LimelightHelpers.PoseEstimate visionPoseEstimate = new LimelightHelpers.PoseEstimate();
+              
+        if (useMegaTag2){
+            visionPoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(bestLimeLight);
+            // Check to ensure there is a valid pose estimate
+            if (visionPoseEstimate == null) {
+                rejectUpdate = true;
+            }   
 
-        visionPoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(bestLimeLight);
-        // Check to ensure there is a valid pose estimate
-        if (visionPoseEstimate == null) {
-            rejectUpdate = true;
-        }         
-        else if (useMegaTag2){
             // Update robot orientation for MegaTag2
             for (String camera : cameraList){
                 LimelightHelpers.SetRobotOrientation(camera, RobotContainer.getDrivetrain().getState().Pose.getRotation().getDegrees(),
@@ -114,6 +142,12 @@ public class Vision extends SubsystemBase {
         }
         // Using Megatag1 
         else {
+            visionPoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(bestLimeLight);
+            // Check to ensure there is a valid pose estimate
+            if (visionPoseEstimate == null) {
+                rejectUpdate = true;
+            }   
+
             // Reject update if our angular velocity is greater than a threshold degrees per second,
             if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxAcceptableRotationalRate){
                 rejectUpdate = true;
@@ -142,7 +176,20 @@ public class Vision extends SubsystemBase {
      * Updated the Translational and Rotational Standard Deviations for the measurement from the best limelight
      */
     public void setStandardDeviation(){
-        
+        translationStdDev = 0.0;
+        // April Tag Factors
+        translationStdDev += kAreaMultiplier * visionPoseEstimate.avgTagArea + kAreaConstant;
+        translationStdDev += kAmbiguityMultiplier * visionPoseEstimate.rawFiducials[0].ambiguity + kAmbiguityConstant; // only accounts for the ambiguity of 1 visible tag
+        translationStdDev += kTagCountMultiplier * visionPoseEstimate.tagCount + kTagCountConstant;
+
+        // Velocity Factors
+        translationStdDev += kAngularVelocityMultiplier * 
+            Math.hypot(RobotContainer.getDrivetrain().getState().Speeds.vxMetersPerSecond, RobotContainer.getDrivetrain().getState().Speeds.vyMetersPerSecond) + 
+            kAngularVelocityConstant;
+        translationStdDev += kLinearVelocityMultiplier * 
+            RobotContainer.getDrivetrain().getState().Speeds.vxMetersPerSecond + kLinearVelocityConstant;
+
+        visionStandardDeviation = VecBuilder.fill(translationStdDev, translationStdDev, rotationStdDev);
     }
 
     /**
