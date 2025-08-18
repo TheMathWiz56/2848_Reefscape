@@ -50,7 +50,9 @@ public class Vision extends SubsystemBase {
 
         builder.addStringProperty("Best Limelight", this::getBestLimeLight, this::setBestLimeLight);
 
-        /*
+        builder.addBooleanProperty("Robot has tag", this::getRobotHasTag, null);
+
+        
         // Debugging/Testing
         builder.addDoubleProperty("Translational Standard Deviation", this::getTranslationStdDev, this::setTranslationStdDev);
         builder.addDoubleProperty("Rotational Standard Deviation", this::getRotationStdDev, this::setRotationStdDev);
@@ -69,7 +71,71 @@ public class Vision extends SubsystemBase {
             () -> (visionPoseEstimate != null ? visionPoseEstimate.tagCount : 0.0),
             null
         );
-        */
+        builder.addBooleanProperty("LimeLight Right Has Tag", () -> cameraHasTag("limelight-right"), null);
+        builder.addBooleanProperty("LimeLight Left Has Tag", () -> cameraHasTag("limelight-left"), null);
+
+        // Standard Deviation Tuning
+        // Multipliers
+        builder.addDoubleProperty(
+            "Tuning Area Multiplier",
+            () -> VisionConstants.getKAreaMultiplier(),
+            (val) -> VisionConstants.setKAreaMultiplier(val)
+        );
+    
+        builder.addDoubleProperty(
+            "Tuning Ambiguity Multiplier",
+            () -> VisionConstants.getKAmbiguityMultiplier(),
+            (val) -> VisionConstants.setKAmbiguityMultiplier(val)
+        );
+    
+        builder.addDoubleProperty(
+            "Tuning Tag Count Multiplier",
+            () -> VisionConstants.getKTagCountMultiplier(),
+            (val) -> VisionConstants.setKTagCountMultiplier(val)
+        );
+    
+        builder.addDoubleProperty(
+            "Tuning Angular Velocity Multiplier",
+            () -> VisionConstants.getKAngularVelocityMultiplier(),
+            (val) -> VisionConstants.setKAngularVelocityMultiplier(val)
+        );
+    
+        builder.addDoubleProperty(
+            "Tuning Linear Velocity Multiplier",
+            () -> VisionConstants.getKLinearVelocityMultiplier(),
+            (val) -> VisionConstants.setKLinearVelocityMultiplier(val)
+        );
+    
+        // Constants
+        builder.addDoubleProperty(
+            "Tuning Area Constant",
+            () -> VisionConstants.getKAreaConstant(),
+            (val) -> VisionConstants.setKAreaConstant(val)
+        );
+    
+        builder.addDoubleProperty(
+            "Tuning Ambiguity Constant",
+            () -> VisionConstants.getKAmbiguityConstant(),
+            (val) -> VisionConstants.setKAmbiguityConstant(val)
+        );
+    
+        builder.addDoubleProperty(
+            "Tuning Tag Count Constant",
+            () -> VisionConstants.getKTagCountConstant(),
+            (val) -> VisionConstants.setKTagCountConstant(val)
+        );
+    
+        builder.addDoubleProperty(
+            "Tuning Angular Velocity Constant",
+            () -> VisionConstants.getKAngularVelocityConstant(),
+            (val) -> VisionConstants.setKAngularVelocityConstant(val)
+        );
+    
+        builder.addDoubleProperty(
+            "Tuning Linear Velocity Constant",
+            () -> VisionConstants.getKLinearVelocityConstant(),
+            (val) -> VisionConstants.setKLinearVelocityConstant(val)
+        );
     }
 
 
@@ -78,13 +144,17 @@ public class Vision extends SubsystemBase {
         chooseLL();
 
         // Add vision pose estimate to the pose estimator
-        if (!bestLimeLight.equals("") && visionPoseEstimate != null) {
+        if (!(bestLimeLight.equals(""))){
             updateVisionPoseEstimate();
-            setStandardDeviation();
-            RobotContainer.getDrivetrain().addVisionMeasurement(visionPoseEstimate.pose, 
-                Utils.fpgaToCurrentTime(visionPoseEstimate.timestampSeconds), 
-                visionStandardDeviation);
+
+            if (visionPoseEstimate != null) {
+                setStandardDeviation();
+                RobotContainer.getDrivetrain().addVisionMeasurement(visionPoseEstimate.pose, 
+                    Utils.fpgaToCurrentTime(visionPoseEstimate.timestampSeconds), 
+                    visionStandardDeviation);
+            }
         }
+        
 
         SmartDashboard.putData(this);
     }
@@ -95,17 +165,26 @@ public class Vision extends SubsystemBase {
     public void chooseLL(){
         bestLimeLight = ""; // Reset best camera
         double bestTagArea = kMinAcceptableTagArea; // Start with minimumm acceptable area
+        int bestTagCount = 0;
 
         for (String camera : cameraList) {
-            double tagArea = NetworkTableInstance.getDefault()
-                                .getTable(camera)
-                                .getEntry("botpose")
-                                .getDoubleArray(new double[11])[10];
             boolean hasTag = cameraHasTag(camera);
 
-            if (hasTag && tagArea > bestTagArea) {
-                bestLimeLight = camera;
-                bestTagArea = tagArea;
+            if (hasTag){
+                double[] botpose = NetworkTableInstance.getDefault()
+                    .getTable(camera)
+                    .getEntry("botpose")
+                    .getDoubleArray(new double[11]);
+
+                double tagArea = botpose[10];
+                SmartDashboard.putNumber("Raw Tag Count", botpose[7]);
+                int tagCount = (int) botpose[7];
+
+                if (tagCount > bestTagCount || (tagCount == bestTagCount && tagArea > bestTagArea)){
+                    bestLimeLight = camera;
+                    bestTagArea = tagArea;
+                    bestTagCount = tagCount;
+                }
             }
         }
     }
@@ -123,44 +202,47 @@ public class Vision extends SubsystemBase {
             // Check to ensure there is a valid pose estimate
             if (visionPoseEstimate == null) {
                 rejectUpdate = true;
-            }   
-
-            // Update robot orientation for MegaTag2
-            for (String camera : cameraList){
-                LimelightHelpers.SetRobotOrientation(camera, RobotContainer.getDrivetrain().getState().Pose.getRotation().getDegrees(),
-            0, 0, 0, 0, 0);
             }
-
-            // Reject update if our angular velocity is greater than a threshold degrees per second,
-            if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxAcceptableRotationalRate){
-                rejectUpdate = true;
-            }
-            // Reject update if there are no visible tags (Redundant?)
-            else if (visionPoseEstimate.tagCount == 0) {
-                rejectUpdate = true;
-            }
+            else{
+                // Update robot orientation for MegaTag2
+                for (String camera : cameraList){
+                    LimelightHelpers.SetRobotOrientation(camera, RobotContainer.getDrivetrain().getState().Pose.getRotation().getDegrees(),
+                0, 0, 0, 0, 0);
+                }
+                // Reject update if our angular velocity is greater than a threshold degrees per second,
+                if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxAcceptableRotationalRate){
+                    rejectUpdate = true;
+                }
+                // Reject update if there are no visible tags (Redundant?)
+                else if (visionPoseEstimate.tagCount == 0) {
+                    rejectUpdate = true;
+                }
+            }  
+            
         }
         // Using Megatag1 
         else {
             visionPoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(bestLimeLight);
+            
             // Check to ensure there is a valid pose estimate
-            if (visionPoseEstimate == null) {
+            if (visionPoseEstimate == null || visionPoseEstimate.rawFiducials.length == 0) {
                 rejectUpdate = true;
             }   
-
-            // Reject update if our angular velocity is greater than a threshold degrees per second,
-            if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxAcceptableRotationalRate){
-                rejectUpdate = true;
+            else{
+                if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxAcceptableRotationalRate){
+                    rejectUpdate = true;
+                }
+                else if (visionPoseEstimate.rawFiducials[0].ambiguity > kMaxAcceptableAmbiguity) {
+                    rejectUpdate = true;
+                }
+                else if (visionPoseEstimate.rawFiducials[0].distToCamera > kMaxAcceptableDistance) {
+                    rejectUpdate = true;
+                }
+                else if (visionPoseEstimate.tagCount == 0) {
+                    rejectUpdate = true;
+                }
             }
-            else if (visionPoseEstimate.rawFiducials[0].ambiguity > kMaxAcceptableAmbiguity) {
-                rejectUpdate = true;
-            }
-            else if (visionPoseEstimate.rawFiducials[0].distToCamera > kMaxAcceptableDistance) {
-                rejectUpdate = true;
-            }
-            else if (visionPoseEstimate.tagCount == 0) {
-            rejectUpdate = true;
-            }
+            
         }
 
         // Update Pose Estimate if not rejected
@@ -178,16 +260,24 @@ public class Vision extends SubsystemBase {
     public void setStandardDeviation(){
         translationStdDev = 0.0;
         // April Tag Factors
-        translationStdDev += kAreaMultiplier * visionPoseEstimate.avgTagArea + kAreaConstant;
+        if (visionPoseEstimate.avgTagArea < kAreaLimit){
+            translationStdDev += kAreaMultiplier * visionPoseEstimate.avgTagArea + kAreaConstant;
+        }
         translationStdDev += kAmbiguityMultiplier * visionPoseEstimate.rawFiducials[0].ambiguity + kAmbiguityConstant; // only accounts for the ambiguity of 1 visible tag
         translationStdDev += kTagCountMultiplier * visionPoseEstimate.tagCount + kTagCountConstant;
 
         // Velocity Factors
         translationStdDev += kAngularVelocityMultiplier * 
-            Math.hypot(RobotContainer.getDrivetrain().getState().Speeds.vxMetersPerSecond, RobotContainer.getDrivetrain().getState().Speeds.vyMetersPerSecond) + 
+            Math.abs(RobotContainer.getDrivetrain().getState().Speeds.omegaRadiansPerSecond) + 
             kAngularVelocityConstant;
         translationStdDev += kLinearVelocityMultiplier * 
-            RobotContainer.getDrivetrain().getState().Speeds.vxMetersPerSecond + kLinearVelocityConstant;
+            Math.hypot(RobotContainer.getDrivetrain().getState().Speeds.vxMetersPerSecond, RobotContainer.getDrivetrain().getState().Speeds.vyMetersPerSecond) + 
+            kLinearVelocityConstant;
+
+        
+        if (translationStdDev < kMinimumStandardDeviation){
+            translationStdDev = kMinimumStandardDeviation;
+        }
 
         visionStandardDeviation = VecBuilder.fill(translationStdDev, translationStdDev, rotationStdDev);
     }
@@ -205,7 +295,7 @@ public class Vision extends SubsystemBase {
      * Gets if any of the onboard cameras see an April Tag
      * @return true if there is a visible tag
      */
-    public boolean robotHasTag(){
+    public boolean getRobotHasTag(){
         for (String camera : cameraList){
             if (cameraHasTag(camera)){
                 return true;

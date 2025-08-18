@@ -80,13 +80,13 @@ public class RobotContainer {
         @Getter private static final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         @Getter private static final Elevator elevator = new Elevator();
         @Getter private static final Lights lights = null;//new Lights();
-        @Getter private static final Vision vision = new Vision();//new Lights();
+        @Getter private static final Vision vision = new Vision();
         
         // Command Factory
         public static final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
 
         // Custom Triggers
-        Trigger LLHasTag = new Trigger(() -> vision.robotHasTag());    
+        Trigger LLHasTag = new Trigger(() -> vision.getRobotHasTag());    
         private final BooleanSupplier manualDrivebase = () -> Math.hypot(driverJoystick.getLeftX(), driverJoystick.getLeftY()) > 0.25
                                                                 || Math.abs(driverJoystick.getRightX()) > 0.25;
 
@@ -150,6 +150,7 @@ public class RobotContainer {
                 arm.setDefaultCommand(arm.holdState());
                 pincer.setDefaultCommand(pincer.holdState());
                 ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
+                vision.setDefaultCommand(Commands.idle(vision));
 
         // Drivebase Telemetry
         drivetrain.registerTelemetry(logger::telemeterize);

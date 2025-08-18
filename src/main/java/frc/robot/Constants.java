@@ -20,6 +20,9 @@ import edu.wpi.first.wpilibj.util.Color;
 import frc.robot.Util.fieldPoint;
 import frc.robot.Util.fieldPoly;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public final class Constants {
 
     public static final class operatorConstants{
@@ -505,7 +508,7 @@ public final class Constants {
 
         public static class VisionConstants {
             // List of camera names published to the network tables (set in the limelight browser config tool)
-            public static final String[] kCameraList = {"limelight-right", "limelight-left"};
+            public static final String[] kCameraList = {"limelight-right"}; // limelight-left
 
             // Filters
             public static final double kMinAcceptableTagArea = 0.35;
@@ -515,19 +518,20 @@ public final class Constants {
 
             // Standard Deviation 
             public static final double kInvalidStandardDeviation = 9999999;
+            public static final double kMinimumStandardDeviation = 0.25;
+            public static final double kAreaLimit = 5.0;
             // Multipliers
-            public static final double kAreaMultiplier = -1.18;
-            public static final double kAmbiguityMultiplier = 0.0;
-            public static final double kTagCountMultiplier = 0.0;
-            public static final double kAngularVelocityMultiplier = 0.0;
-            public static final double kLinearVelocityMultiplier = 0.0;
+            @Getter @Setter public static double kAreaMultiplier = -0.4;
+            @Getter @Setter public static double kAmbiguityMultiplier = 0.0;
+            @Getter @Setter public static double kTagCountMultiplier = -0.5;
+            @Getter @Setter public static double kAngularVelocityMultiplier = 0.0;
+            @Getter @Setter public static double kLinearVelocityMultiplier = 1;
             // Constants
-            public static final double kAreaConstant = 5.236;
-            public static final double kAmbiguityConstant = 0.0;
-            public static final double kTagCountConstant = 0.0;
-            public static final double kAngularVelocityConstant = 0.0;
-            public static final double kLinearVelocityConstant = 0.0;
-
+            @Getter @Setter public static double kAreaConstant = 2.5;
+            @Getter @Setter public static double kAmbiguityConstant = 0.0;
+            @Getter @Setter public static double kTagCountConstant = 0.5;
+            @Getter @Setter public static double kAngularVelocityConstant = 0.0;
+            @Getter @Setter public static double kLinearVelocityConstant = 0.0;
         }
     }
 
