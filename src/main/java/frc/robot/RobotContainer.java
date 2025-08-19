@@ -362,15 +362,6 @@ class CommandFactory{
     //         });
     // }
 
-    public Command goTolL4(){
-        return elevator.goToL(Constants.reef.reefLs.L4)
-                .alongWith(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
-                    Constants.reef.reefToState.get(
-                        Constants.reef.reefLs.L4
-                    )
-                )));
-    }
-
     public Command exhaustCoral(){
         return pincer.exhaust()
                 .andThen(pincer.holdState());

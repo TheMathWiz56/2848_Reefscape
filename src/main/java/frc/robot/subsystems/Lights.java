@@ -21,15 +21,12 @@ public class Lights extends SubsystemBase{
         led.setLength(kNumberOfLEDs);
         led.start();
 
-        // Set the default pattern to fast scrolling Jesuit
-        currentPattern = kFastScrollingJesuit;
     }
 
     @Override
     public void periodic(){
         led.setData(ledBuffer);
     }
-
     
     /**
      * Creates a command that runs a pattern on the entire LED strip.
