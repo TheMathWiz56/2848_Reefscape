@@ -20,7 +20,6 @@ public class Lights extends SubsystemBase{
     public Lights(){
         led.setLength(kNumberOfLEDs);
         led.start();
-
     }
 
     @Override
