@@ -14,40 +14,30 @@ import static edu.wpi.first.units.Units.*;
 public class Lights extends SubsystemBase{
     private final AddressableLED led = new AddressableLED(kPwmPort);
     private final AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(kNumberOfLEDs);
-    private LEDPattern currentPattern = kFastScrollingJesuit;
+
+    private LEDPattern currentPattern;
 
     public Lights(){
-        
         led.setLength(kNumberOfLEDs);
-        
         led.start();
 
-        currentPattern.applyTo(ledBuffer);
+        // Set the default pattern to fast scrolling Jesuit
+        currentPattern = kFastScrollingJesuit;
     }
 
     @Override
     public void periodic(){
-        currentPattern.applyTo(ledBuffer);
         led.setData(ledBuffer);
     }
 
-    /** Sets the lights to blink orange, indicating that a command is being run.
-     * @return Command
+    
+    /**
+     * Creates a command that runs a pattern on the entire LED strip.
+     *
+     * @param pattern the LED pattern to run
      */
-    public Command inAction(){
-        return startEnd(() -> currentPattern = kOrange, () -> currentPattern = kFastScrollingJesuit);
-    }
-
-    /** Sets the lights to blink orange, indicating that a command has finished.
-     * @return Command
-     */
-    public Command actionComplete(){
-        return startEnd(() -> currentPattern = kGreenBlink, () -> currentPattern = kFastScrollingJesuit)
-            .withTimeout(Seconds.of(1));
-    }
-
-    public Command holdState(){
-        return Commands.idle(this);
+    public Command runPattern(LEDPattern pattern) {
+        return run(() -> pattern.applyTo(ledBuffer));
     }
     
 }
