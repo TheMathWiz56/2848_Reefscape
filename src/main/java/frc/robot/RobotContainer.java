@@ -191,14 +191,14 @@ public class RobotContainer {
         
         // Operator Joystick Bindings
                 //Scoring Commands
-                operatorJoystick.y().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scorelL2());
-                operatorJoystick.rightBumper().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scorelL3());
+                operatorJoystick.y().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scoreL2());
+                operatorJoystick.rightBumper().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scoreL3());
                 operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate())
                         .and(()-> !arm.facingDownwards())
-                                .onTrue(commandFactory.scorelL4(false));
+                                .onTrue(commandFactory.scoreL4(false));
                 operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate())
                         .and(()-> arm.facingDownwards())
-                                .onTrue(commandFactory.scorelL4(true));
+                                .onTrue(commandFactory.scoreL4(true));
                 
                 // Feed Commands
                 operatorJoystick.pov(0).onTrue(commandFactory.feed());
@@ -333,19 +333,19 @@ class CommandFactory{
 
 /*Moves only elevator, pivot and intake to score on reef */
   
-    public Command scoreL(Constants.reef.reefLs L,int reef){
-        return elevator.goToL(L,reef)
-            // .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
-            //     Constants.reef.reefToState.get(L)
-            // )))
-            .andThen(pincer.exhaust())
-             .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
-            .finallyDo((interrupted) ->{
-                  pincer.stopIntake().schedule();
-                });
-    }
+    // public Command scoreL(Constants.reef.reefLs L,int reef){
+    //     return elevator.goToL(L,reef)
+    //         // .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+    //         //     Constants.reef.reefToState.get(L)
+    //         // )))
+    //         .andThen(pincer.exhaust())
+    //          .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+    //         .finallyDo((interrupted) ->{
+    //               pincer.stopIntake().schedule();
+    //             });
+    // }
 
-    public Command scorelL1(){
+    public Command scoreL1(){
         return elevator.goToL(Constants.reef.reefLs.L1)
         .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
             Constants.reef.reefToState.get(
@@ -358,7 +358,7 @@ class CommandFactory{
               pincer.stopIntake();
             });
     }
-    public Command scorelL2(){
+    public Command scoreL2(){
         return elevator.goToL(Constants.reef.reefLs.L2)
         .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
             Constants.reef.reefToState.get(
@@ -369,7 +369,7 @@ class CommandFactory{
         .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
         .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral()); // .unless(() -> !pincer.hasCoral())
     }
-    public Command scorelL3(){
+    public Command scoreL3(){
         return elevator.goToL(Constants.reef.reefLs.L3)
         .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
             Constants.reef.reefToState.get(
@@ -380,7 +380,7 @@ class CommandFactory{
         .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
          .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral()); // .unless(() -> !pincer.hasCoral())
         }
-    public Command scorelL4(boolean facingDownwards){
+    public Command scoreL4(boolean facingDownwards){
         // Added transition to avoid ramming into elevator top
 
         if (facingDownwards){
@@ -626,9 +626,9 @@ class CommandFactory{
             .raceWith(
                 new SelectCommand<>(
                     Map.ofEntries(
-                        Map.entry(2, scorelL2()),
-                        Map.entry(3, scorelL3()),
-                        Map.entry(4, scorelL4(true)))
+                        Map.entry(2, scoreL2()),
+                        Map.entry(3, scoreL3()),
+                        Map.entry(4, scoreL4(true)))
                     , () -> elevator.getLevelQueue())));
     }
 
@@ -638,9 +638,9 @@ class CommandFactory{
             .raceWith(
                 new SelectCommand<>(
                     Map.ofEntries(
-                        Map.entry(2, scorelL2()),
-                        Map.entry(3, scorelL3()),
-                        Map.entry(4, scorelL4(true)))
+                        Map.entry(2, scoreL2()),
+                        Map.entry(3, scoreL3()),
+                        Map.entry(4, scoreL4(true)))
                     , () -> elevator.getLevelQueue())));
     }
 
