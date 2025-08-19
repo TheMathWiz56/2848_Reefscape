@@ -338,7 +338,8 @@ class CommandFactory{
                 Constants.reef.reefToState.get(level)
             )))
             .andThen(pincer.exhaust().until(() -> !pincer.hasCoral())) // In some of the cmds this would be .andThen(pincer.exhaust()).andThen(pincer.holdState()).until(() -> !pincer.hasCoral()), this seems to be better though
-            .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral());
+            .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral())
+            .deadlineFor(lights.runPattern(LEDConstants.kGreenBlink));
     }
 
     // Score a level.
