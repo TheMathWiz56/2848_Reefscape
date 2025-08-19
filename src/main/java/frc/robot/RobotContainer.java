@@ -339,7 +339,7 @@ class CommandFactory{
             )))
             .andThen(pincer.exhaust().until(() -> !pincer.hasCoral())) // In some of the cmds this would be .andThen(pincer.exhaust()).andThen(pincer.holdState()).until(() -> !pincer.hasCoral()), this seems to be better though
             .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral())
-            .deadlineFor(lights.runPattern(LEDConstants.kGreenBlink));
+            .deadlineFor(lights.runPattern(LEDConstants.kOrangeBlink));
     }
 
     // Score a level.
@@ -417,7 +417,8 @@ class CommandFactory{
          .andThen(pincer.pincerFunnel())
          .andThen(pincer.intake())
          .andThen(pincer.holdState().until(()->pincer.hasCoral()))
-         .andThen(pincer.stopIntake());
+         .andThen(pincer.stopIntake())
+        .deadlineFor(lights.runPattern(LEDConstants.kGreenBlink));
     }
 
     public Command feedSequential(){

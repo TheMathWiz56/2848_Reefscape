@@ -446,6 +446,7 @@ public final class Constants {
 
             // LED Patterns
             public static final LEDPattern kOrange = LEDPattern.solid(Color.kOrangeRed);
+            public static final LEDPattern kOrangeBlink = kOrange.blink(Milliseconds.of(100));
             public static final LEDPattern kGreen = LEDPattern.solid(Color.kGreen);
             public static final LEDPattern kGreenBlink = kGreen.blink(Milliseconds.of(100));
             public static final LEDPattern kJesuit = LEDPattern.gradient(LEDPattern.GradientType.kContinuous,
