@@ -9,9 +9,6 @@ package frc.robot.subsystems;
 import frc.robot.Constants;
 import static frc.robot.Constants.ArmConstants.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import java.util.function.DoubleSupplier;
 
 import com.revrobotics.spark.SparkMax;
