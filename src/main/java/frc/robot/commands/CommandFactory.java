@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -304,6 +305,17 @@ public class CommandFactory{
             //.andThen(arm.pivotToParallel());
             //.until(() -> pincer.hasAlgae())
             //.finallyDo((interrupted) -> pincer.stopIntake());
+    }
+
+
+    public Command newGroundAlgae(){
+        return new ParallelCommandGroup(
+            elevator.goToGroundAlgae(),
+            pincer.setPincerCurrentCMD(-1),
+            arm.goToGroundAlgae(),
+            pincer.intake()
+        ).until(()->pincer.hasAlgae())
+        .andThen(pincer.stopIntake());
     }
 
 /*score net net */

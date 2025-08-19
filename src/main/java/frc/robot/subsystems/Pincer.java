@@ -18,12 +18,20 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Pincer extends SubsystemBase{
+
+    private enum states{
+        ff,
+        volt
+    }
+
+    private states state = states.ff;
 
     
     private final SparkMax pincerMotor = new SparkMax(kPincerMotorId, MotorType.kBrushless);
@@ -48,6 +56,7 @@ public class Pincer extends SubsystemBase{
     private double lastLaserCANReading = 100;
 
     private boolean clampingOnAlgae = false;
+
 
     // Use current sensing for the algae
 
@@ -139,6 +148,19 @@ public class Pincer extends SubsystemBase{
         SmartDashboard.putData(this);
     }
 
+    public void pincerPID(){
+        pincerController.setReference(pincerSetpoint,SparkMax.ControlType.kPosition);
+    }
+
+    public void setPincerCurrent(double current){
+        pincerController.setReference(current, SparkMax.ControlType.kCurrent);
+    }
+
+
+    public Command setPincerCurrentCMD(double current){
+        return new InstantCommand(()->{setPincerCurrent(current);});
+    }
+
     public double getPincerSetpoint(){
         return pincerSetpoint;
     }
@@ -160,6 +182,7 @@ public class Pincer extends SubsystemBase{
         }
         else{
             distance_mm = lastLaserCANReading;
+        
         }
         return laserCanDebouncer.calculate( distance_mm < 25);
     }
@@ -175,7 +198,7 @@ public class Pincer extends SubsystemBase{
     // }
 
     public void setPincerOutput(double setpoint) {
-        pincerController.setReference(setpoint, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0);        
+        pincerController.setReference(setpoint, SparkMax.ControlType.kPosition, ClosedLoopSlot.kSlot0);    
     } 
 
     /** Moves the pincer to the specified setpoint
@@ -183,6 +206,7 @@ public class Pincer extends SubsystemBase{
      * @return Command
      */
     private Command pincerToSetpoint(double setpoint) {
+        pincerPID();
         return runOnce(() -> {pincerSetpoint = setpoint; clampingOnAlgae = false; });
     }
 
@@ -190,10 +214,12 @@ public class Pincer extends SubsystemBase{
      * @return Command
      */
     public Command pincerAlgae() {
+        pincerPID();
         return pincerToSetpoint(kAlgaePosition);
     }
 
     public Command reefAlgae(){
+        pincerPID();
         return pincerToSetpoint(Constants.PincerConstants.setPoints.get(
             Constants.robotStates.pincerStates.ALGAEINTAKE
         ));
@@ -203,6 +229,7 @@ public class Pincer extends SubsystemBase{
      * @return Command
      */
     public Command stowPincer() {
+        pincerPID();
         return pincerToSetpoint(kStowPosition);
     }
 
@@ -210,10 +237,12 @@ public class Pincer extends SubsystemBase{
      * @return Command
      */
     public Command pincerFunnel() {
+        pincerPID();
         return pincerToSetpoint(kFunnelPosition);
     }
 
     public Command pincerFunnel2() {
+        pincerPID();
         return pincerToSetpoint(kFunnel2Position);
     }
 
@@ -227,7 +256,7 @@ public class Pincer extends SubsystemBase{
         if(hasAlgae()) {
             intakeMotor.stopMotor();
         }else{
-            intakeMotor.set(-0.25);
+            setPincerCurrent(-15);
             //intakeMotor.stopMotor();
         } 
     }
@@ -236,7 +265,7 @@ public class Pincer extends SubsystemBase{
 
     public void holdPincer() {
         clampingOnAlgae = true;
-        pincerMotor.set(-0.25);
+        setPincerCurrent(-15);
     }
     
     public Command pincerAlgaeHold() {
@@ -248,12 +277,12 @@ public class Pincer extends SubsystemBase{
                         }).until(() -> hasAlgae());
     }
     public Command forceOpen(){
-        return runOnce(()->{clampingOnAlgae = false; pincerMotor.set(0.1);;});
+        return runOnce(()->{clampingOnAlgae = false; setPincerCurrent(15);});
     }
 
 
     public Command algaeGrab(){
-        return runOnce(()->{pincerMotor.set(-0.25); intakeMotor.set(-.25);});
+        return runOnce(()->{setPincerCurrent(15);; intakeMotor.set(-.25);});
     }
 
     /** Runs the intake motor at the intake speed
