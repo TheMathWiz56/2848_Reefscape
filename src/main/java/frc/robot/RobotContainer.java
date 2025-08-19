@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -36,6 +37,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import frc.robot.Constants.operatorConstants;
+import frc.robot.Constants.reef.reefLs;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -191,14 +193,14 @@ public class RobotContainer {
         
         // Operator Joystick Bindings
                 //Scoring Commands
-                operatorJoystick.y().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scoreL2());
-                operatorJoystick.rightBumper().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scoreL3());
+                operatorJoystick.y().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scoreLevel(reefLs.L2));
+                operatorJoystick.rightBumper().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate()).onTrue(commandFactory.scoreLevel(reefLs.L3));
                 operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate())
                         .and(()-> !arm.facingDownwards())
-                                .onTrue(commandFactory.scoreL4(false));
+                                .onTrue(commandFactory.scoreLevel(reefLs.L4, false));
                 operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate())
                         .and(()-> arm.facingDownwards())
-                                .onTrue(commandFactory.scoreL4(true));
+                                .onTrue(commandFactory.scoreLevel(reefLs.L4, true));
                 
                 // Feed Commands
                 operatorJoystick.pov(0).onTrue(commandFactory.feed());
@@ -333,78 +335,36 @@ class CommandFactory{
 
 /*Moves only elevator, pivot and intake to score on reef */
   
-    // public Command scoreL(Constants.reef.reefLs L,int reef){
-    //     return elevator.goToL(L,reef)
-    //         // .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
-    //         //     Constants.reef.reefToState.get(L)
-    //         // )))
-    //         .andThen(pincer.exhaust())
-    //          .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
-    //         .finallyDo((interrupted) ->{
-    //               pincer.stopIntake().schedule();
-    //             });
-    // }
-
-    public Command scoreL1(){
-        return elevator.goToL(Constants.reef.reefLs.L1)
-        .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
-            Constants.reef.reefToState.get(
-                Constants.reef.reefLs.L1
-            )
-        )))
-        .andThen(pincer.exhaust())
-         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
-        .finallyDo((interrupted) ->{
-              pincer.stopIntake();
-            });
-    }
-    public Command scoreL2(){
-        return elevator.goToL(Constants.reef.reefLs.L2)
-        .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
-            Constants.reef.reefToState.get(
-                Constants.reef.reefLs.L2
-            )
-        )))
-        .andThen(pincer.exhaust())
-        .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
-        .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral()); // .unless(() -> !pincer.hasCoral())
-    }
-    public Command scoreL3(){
-        return elevator.goToL(Constants.reef.reefLs.L3)
-        .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
-            Constants.reef.reefToState.get(
-                Constants.reef.reefLs.L3
-            )
-        )))
-        .andThen(pincer.exhaust())
-        .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
-         .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral()); // .unless(() -> !pincer.hasCoral())
-        }
-    public Command scoreL4(boolean facingDownwards){
-        // Added transition to avoid ramming into elevator top
-
-        if (facingDownwards){
-            return elevator.goToL(Constants.reef.reefLs.L4)
-                .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
-                    Constants.reef.reefToState.get(
-                        Constants.reef.reefLs.L4
-                    )
-                )))
-                .andThen(pincer.exhaust())
-                .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
-                .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral());
-        }
-
-        return arm.goStraightOn()
-            .andThen(elevator.goToL(Constants.reef.reefLs.L4))
+    // Score a level.
+    public Command scoreLevel(Constants.reef.reefLs level, boolean facingDownwards) {
+        return new ConditionalCommand(Commands.none(), arm.goStraightOn(), () -> facingDownwards)
+            .andThen(elevator.goToL(level))
             .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
-                Constants.reef.reefToState.get(
-                    Constants.reef.reefLs.L4
-                )
+                Constants.reef.reefToState.get(level)
             )))
-            .andThen(pincer.exhaust().until(() -> !pincer.hasCoral()))
+            .andThen(pincer.exhaust().until(() -> !pincer.hasCoral())) // In some of the cmds this would be .andThen(pincer.exhaust()).andThen(pincer.holdState()).until(() -> !pincer.hasCoral()), this seems to be better though
             .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral());
     }
+
+    // Score a level.
+    public Command scoreLevel(Constants.reef.reefLs level) {
+        return scoreLevel(level, true);
+    }
+
+    // This L1 code is different than scoreLevel(), but it probably would work, we aren't using it either way rn though
+    // public Command scoreL1(){
+    //     return elevator.goToL(Constants.reef.reefLs.L1)
+    //     .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
+    //         Constants.reef.reefToState.get(
+    //             Constants.reef.reefLs.L1
+    //         )
+    //     )))
+    //     .andThen(pincer.exhaust())
+    //      .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+    //     .finallyDo((interrupted) ->{
+    //           pincer.stopIntake();
+    //         });
+    // }
 
     public Command goTolL4(){
         return elevator.goToL(Constants.reef.reefLs.L4)
@@ -420,17 +380,6 @@ class CommandFactory{
                 .andThen(pincer.holdState());
     }
 
-    // public Command scoreL(){
-    //     return new WaitUntilCommand(()->elevator.isDone())
-    //         .andThen(arm.moveToPoint(Constants.ArmConstants.setPoints.get(
-    //             Constants.reef.reefToState.get(L.get())
-    //         )))
-    //         .andThen(pincer.exhaust())
-    //          .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
-    //         .finallyDo((interrupted) ->{
-    //               pincer.stopIntake().schedule();
-    //             });
-    // }
 /*stows. Uses sensor to determine which stow */
     public Command stow(boolean hasCoral, boolean hasAlgae, boolean isNearTop, boolean IsLow){
         Command output;
@@ -626,9 +575,9 @@ class CommandFactory{
             .raceWith(
                 new SelectCommand<>(
                     Map.ofEntries(
-                        Map.entry(2, scoreL2()),
-                        Map.entry(3, scoreL3()),
-                        Map.entry(4, scoreL4(true)))
+                        Map.entry(2, scoreLevel(reefLs.L2)),
+                        Map.entry(3, scoreLevel(reefLs.L3)),
+                        Map.entry(4, scoreLevel(reefLs.L4, true)))
                     , () -> elevator.getLevelQueue())));
     }
 
@@ -638,9 +587,9 @@ class CommandFactory{
             .raceWith(
                 new SelectCommand<>(
                     Map.ofEntries(
-                        Map.entry(2, scoreL2()),
-                        Map.entry(3, scoreL3()),
-                        Map.entry(4, scoreL4(true)))
+                        Map.entry(2, scoreLevel(reefLs.L2)),
+                        Map.entry(3, scoreLevel(reefLs.L3)),
+                        Map.entry(4, scoreLevel(reefLs.L4, true)))
                     , () -> elevator.getLevelQueue())));
     }
 
