@@ -31,7 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-
+import frc.robot.Constants.LEDConstants;
 import frc.robot.Constants.operatorConstants;
 import frc.robot.commands.CommandFactory;
 import frc.robot.generated.TunerConstants;
@@ -141,7 +141,7 @@ public class RobotContainer {
                 arm.setDefaultCommand(arm.holdState());
                 pincer.setDefaultCommand(pincer.holdState());
                 ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
-                //lights.setDefaultCommand(lights.holdState());
+                lights.setDefaultCommand(lights.runPattern(LEDConstants.kFastScrollingJesuit));
 
         // Drivebase Telemetry
         drivetrain.registerTelemetry(logger::telemeterize);
