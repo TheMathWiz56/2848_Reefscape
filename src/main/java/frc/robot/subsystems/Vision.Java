@@ -36,6 +36,8 @@ public class Vision extends SubsystemBase {
     @Getter @Setter private double rotationStdDev = kInvalidStandardDeviation;
     @Getter private Matrix<N3, N1> visionStandardDeviation = VecBuilder.fill(translationStdDev, translationStdDev, rotationStdDev);
     @Getter private LimelightHelpers.PoseEstimate visionPoseEstimate = null;
+    @Getter private LimelightHelpers.PoseEstimate visionPoseEstimateMT1 = null;
+    @Getter private LimelightHelpers.PoseEstimate visionPoseEstimateMT2 = null;
 
     public Vision(){
         this.cameraList = kCameraList;
@@ -57,20 +59,26 @@ public class Vision extends SubsystemBase {
         builder.addDoubleProperty("Translational Standard Deviation", this::getTranslationStdDev, this::setTranslationStdDev);
         builder.addDoubleProperty("Rotational Standard Deviation", this::getRotationStdDev, this::setRotationStdDev);
         builder.addDoubleProperty(
-            "Pose Estimate Avg Tag Area",
+            "Vision Pose Estimate Avg Tag Area",
             () -> (visionPoseEstimate != null ? visionPoseEstimate.avgTagArea : 0.0),
             null
         );
         builder.addDoubleProperty(
-            "Pose Estimate Ambiguity",
+            "Vision Pose Estimate Ambiguity",
             () -> (visionPoseEstimate != null ? visionPoseEstimate.rawFiducials[0].ambiguity : 0.0),
             null
         );
         builder.addDoubleProperty(
-            "Pose Estimate Tag Count",
+            "Vision Pose Estimate Tag Count",
             () -> (visionPoseEstimate != null ? visionPoseEstimate.tagCount : 0.0),
             null
         );
+        builder.addDoubleProperty(
+            "Vision Pose Estimate Avg Tag Distance",
+            () -> (visionPoseEstimate != null ? visionPoseEstimate.avgTagDist : 0.0),
+            null
+        );
+
         builder.addBooleanProperty("LimeLight Right Has Tag", () -> cameraHasTag("limelight-right"), null);
         builder.addBooleanProperty("LimeLight Left Has Tag", () -> cameraHasTag("limelight-left"), null);
 
@@ -136,6 +144,31 @@ public class Vision extends SubsystemBase {
             () -> VisionConstants.getKLinearVelocityConstant(),
             (val) -> VisionConstants.setKLinearVelocityConstant(val)
         );
+
+        builder.addDoubleProperty("Vision MegaTag1 X Pose Estimate",
+        () -> (visionPoseEstimateMT1 != null && visionPoseEstimateMT1.pose != null)
+                ? visionPoseEstimateMT1.pose.getX()
+                : 0.0,
+        null);
+
+        builder.addDoubleProperty("Vision MegaTag1 Y Pose Estimate",
+                () -> (visionPoseEstimateMT1 != null && visionPoseEstimateMT1.pose != null)
+                        ? visionPoseEstimateMT1.pose.getY()
+                        : 0.0,
+                null);
+
+        builder.addDoubleProperty("Vision MegaTag2 X Pose Estimate",
+                () -> (visionPoseEstimateMT2 != null && visionPoseEstimateMT2.pose != null)
+                        ? visionPoseEstimateMT2.pose.getX()
+                        : 0.0,
+                null);
+
+        builder.addDoubleProperty("Vision MegaTag2 Y Pose Estimate",
+                () -> (visionPoseEstimateMT2 != null && visionPoseEstimateMT2.pose != null)
+                        ? visionPoseEstimateMT2.pose.getY()
+                        : 0.0,
+                null);
+
     }
 
 
@@ -149,9 +182,10 @@ public class Vision extends SubsystemBase {
 
             if (visionPoseEstimate != null) {
                 setStandardDeviation();
+                /*
                 RobotContainer.getDrivetrain().addVisionMeasurement(visionPoseEstimate.pose, 
                     Utils.fpgaToCurrentTime(visionPoseEstimate.timestampSeconds), 
-                    visionStandardDeviation);
+                    visionStandardDeviation);*/
             }
         }
         
@@ -166,9 +200,13 @@ public class Vision extends SubsystemBase {
         bestLimeLight = ""; // Reset best camera
         double bestTagArea = kMinAcceptableTagArea; // Start with minimumm acceptable area
         int bestTagCount = 0;
+        visionPoseEstimateMT1 = null;
+        visionPoseEstimateMT2 = null;
+
 
         for (String camera : cameraList) {
             boolean hasTag = cameraHasTag(camera);
+            LimelightHelpers.SetRobotOrientation(camera, RobotContainer.getDrivetrain().getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
             if (hasTag){
                 double[] botpose = NetworkTableInstance.getDefault()
@@ -184,6 +222,8 @@ public class Vision extends SubsystemBase {
                     bestLimeLight = camera;
                     bestTagArea = tagArea;
                     bestTagCount = tagCount;
+                    visionPoseEstimateMT1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(bestLimeLight);
+                    visionPoseEstimateMT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(bestLimeLight);
                 }
             }
         }
@@ -198,17 +238,12 @@ public class Vision extends SubsystemBase {
         LimelightHelpers.PoseEstimate visionPoseEstimate = new LimelightHelpers.PoseEstimate();
               
         if (useMegaTag2){
-            visionPoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(bestLimeLight);
+            visionPoseEstimate = visionPoseEstimateMT2;
             // Check to ensure there is a valid pose estimate
             if (visionPoseEstimate == null) {
                 rejectUpdate = true;
             }
             else{
-                // Update robot orientation for MegaTag2
-                for (String camera : cameraList){
-                    LimelightHelpers.SetRobotOrientation(camera, RobotContainer.getDrivetrain().getState().Pose.getRotation().getDegrees(),
-                0, 0, 0, 0, 0);
-                }
                 // Reject update if our angular velocity is greater than a threshold degrees per second,
                 if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxAcceptableRotationalRate){
                     rejectUpdate = true;
@@ -222,7 +257,7 @@ public class Vision extends SubsystemBase {
         }
         // Using Megatag1 
         else {
-            visionPoseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue(bestLimeLight);
+            visionPoseEstimate = visionPoseEstimateMT1;
             
             // Check to ensure there is a valid pose estimate
             if (visionPoseEstimate == null || visionPoseEstimate.rawFiducials.length == 0) {

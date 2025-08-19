@@ -72,7 +72,7 @@ public class Ascender extends SubsystemBase {
 
     @Override
     public void periodic() {
-      SmartDashboard.putData(this);
+      //SmartDashboard.putData(this);
     }
 
     @Override

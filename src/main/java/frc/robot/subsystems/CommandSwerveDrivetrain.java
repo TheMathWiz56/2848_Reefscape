@@ -406,6 +406,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         m_field.setRobotPose(new Pose2d(currentPose.getTranslation().getX(), currentPose.getTranslation().getY(), new Rotation2d(currentPose.getRotation().getRadians())));
         Double[] fusedPose = Pose2dToDoubleArray(currentPose);
 
+        SmartDashboard.putNumber("Vision DriveBase Pose Estimate X", this.getState().Pose.getX());
+        SmartDashboard.putNumber("Vision DriveBase Pose Estimate Y", this.getState().Pose.getY());
+
     }
 
 
