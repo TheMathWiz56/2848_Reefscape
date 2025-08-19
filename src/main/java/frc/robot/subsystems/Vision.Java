@@ -38,9 +38,25 @@ public class Vision extends SubsystemBase {
     @Getter private LimelightHelpers.PoseEstimate visionPoseEstimate = null;
     @Getter private LimelightHelpers.PoseEstimate visionPoseEstimateMT1 = null;
     @Getter private LimelightHelpers.PoseEstimate visionPoseEstimateMT2 = null;
+    @Getter private double targetSkewDegrees = 0;
 
     public Vision(){
         this.cameraList = kCameraList;
+
+        // Vision setup
+        // Configure AprilTag Filters 
+        /*
+        if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
+            LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", new int[]{6, 7, 8, 9, 10, 11}); // Only track these tag IDs
+        }
+        else if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
+                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", new int[]{17, 18, 19, 20, 21, 22}); // Only track these tag IDs
+        }
+        else{
+                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", new int[]{6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22}); // Only track these tag IDs
+        }
+        LimelightHelpers.SetFiducialDownscalingOverride("limelight-right", 4.0f); // Increases the framerate*/
+
         
     }
 
@@ -76,6 +92,11 @@ public class Vision extends SubsystemBase {
         builder.addDoubleProperty(
             "Vision Pose Estimate Avg Tag Distance",
             () -> (visionPoseEstimate != null ? visionPoseEstimate.avgTagDist : 0.0),
+            null
+        );
+        builder.addDoubleProperty(
+            "Vision Pose Estimate Skew Degrees",
+            this::getTargetSkewDegrees,
             null
         );
 
@@ -193,16 +214,22 @@ public class Vision extends SubsystemBase {
         SmartDashboard.putData(this);
     }
 
+    private void resetBestVisionPoseEstimate(){
+        bestLimeLight = ""; // Reset best camera
+        visionPoseEstimateMT1 = null;
+        visionPoseEstimateMT2 = null;
+        targetSkewDegrees = 0;
+    }
+
     /**
      * Chooses the best LimeLight to add to the Pose Estimator
      */
     public void chooseLL(){
-        bestLimeLight = ""; // Reset best camera
+        resetBestVisionPoseEstimate();
+
         double bestTagArea = kMinAcceptableTagArea; // Start with minimumm acceptable area
         int bestTagCount = 0;
-        visionPoseEstimateMT1 = null;
-        visionPoseEstimateMT2 = null;
-
+        
 
         for (String camera : cameraList) {
             boolean hasTag = cameraHasTag(camera);
@@ -224,6 +251,7 @@ public class Vision extends SubsystemBase {
                     bestTagCount = tagCount;
                     visionPoseEstimateMT1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(bestLimeLight);
                     visionPoseEstimateMT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(bestLimeLight);
+                    targetSkewDegrees = LimelightHelpers.getTargetPose_RobotSpace(bestLimeLight)[4];
                 }
             }
         }

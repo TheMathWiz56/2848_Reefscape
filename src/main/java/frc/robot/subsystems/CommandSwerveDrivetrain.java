@@ -1,6 +1,10 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
+import static frc.robot.Constants.VisionConstants.kAngularVelocityConstant;
+import static frc.robot.Constants.VisionConstants.kAngularVelocityMultiplier;
+import static frc.robot.Constants.VisionConstants.kLinearVelocityConstant;
+import static frc.robot.Constants.VisionConstants.kLinearVelocityMultiplier;
 
 import java.util.List;
 import java.util.Map;
@@ -351,19 +355,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         pathPIDRotationController.setTolerance(TunerConstants.pathPID_Rotation_Tol);
         pathPIDRotationController.enableContinuousInput(-Math.PI, Math.PI);
 
-        // Vision setup
-        // Configure AprilTag detection
-        if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
-            LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", new int[]{6, 7, 8, 9, 10, 11}); // Only track these tag IDs
-        }
-        else if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
-                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", new int[]{17, 18, 19, 20, 21, 22}); // Only track these tag IDs
-        }
-        else{
-                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", new int[]{6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22}); // Only track these tag IDs
-        }
-        LimelightHelpers.SetFiducialDownscalingOverride("limelight-right", 2.0f); // Process at half resolution for improved framerate and reduced range
-
         if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
             flip_for_red = -1;
         }
@@ -408,6 +399,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         SmartDashboard.putNumber("Vision DriveBase Pose Estimate X", this.getState().Pose.getX());
         SmartDashboard.putNumber("Vision DriveBase Pose Estimate Y", this.getState().Pose.getY());
+        SmartDashboard.putNumber("Vision DriveBase Linear Speed", Math.hypot(RobotContainer.getDrivetrain().getState().Speeds.vxMetersPerSecond, RobotContainer.getDrivetrain().getState().Speeds.vyMetersPerSecond));
+        SmartDashboard.putNumber("Vision Drivebase Angular Speed", Math.abs(RobotContainer.getDrivetrain().getState().Speeds.omegaRadiansPerSecond));
 
     }
 
