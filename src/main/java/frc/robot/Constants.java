@@ -511,7 +511,7 @@ public final class Constants {
             public static final String[] kCameraList = {"limelight-right"}; // limelight-left
 
             // Filters
-            public static final double kMinAcceptableTagArea = 0.35;
+            public static final double kMinAcceptableTagArea = 0.25;
             public static final double kMaxAcceptableRotationalRate = 360; // deg/s
             public static final double kMaxAcceptableDistance = 3; // m
             public static final double kMaxTranslationalErrorMagnitude = 1.0; //m

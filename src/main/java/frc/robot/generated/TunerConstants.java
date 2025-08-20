@@ -7,6 +7,7 @@ import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.hardware.*;
 import com.ctre.phoenix6.signals.*;
 import com.ctre.phoenix6.swerve.*;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.*;
 import com.ctre.phoenix6.swerve.jni.SwerveJNI.ModulePosition;
 import com.pathplanner.lib.path.PathConstraints;
@@ -37,18 +38,17 @@ public class TunerConstants {
     public static final double pathPID_Translation_D = 0.0;
     public static final double pathPID_Translation_maxVy = 3; // m/s 1 // parallel to tag
     public static final double pathPID_Translation_maxVx = 2.5; // m/s 1 // normal to tag
-    public static final double pathPID_Translation_MaxA = 1.65;
+    public static final double pathPID_Translation_MaxA = .5; // 1.65
     public static final double pathPID_Translation_TolX = .1;
-    public static final double pathPID_Translation_TolY = .03;
+    public static final double pathPID_Translation_TolY = .03; //.03
     public static final double pathPID_Translation_TolYShift = .1;
+    public static final double pathPID_Translation_Deadband = 0.3;
 
-    public static final double pathPID_Translation_Deadband = 0.05;
-
-    public static final double pathPID_Rotation_P = 4; // (rad/s) / rad error
+    public static final double pathPID_Rotation_P = 8; // (rad/s) / rad error
     public static final double pathPID_Rotation_I = 0; // (rad/s) / rad error
     public static final double pathPID_Rotation_D = 0.0;
     public static final double pathPID_Rotation_maxV = 1.5; // rad/s 1.5
-    public static final double pathPID_Rotation_MaxA = 2; // rad/s/s 
+    public static final double pathPID_Rotation_MaxA = .25; // 2 rad/s/s 
     public static final double pathPID_Rotation_Tol = 0.05; // rad
     public static final double pathPID_Rotation_Deadband = 0.02;
 
@@ -70,7 +70,7 @@ public class TunerConstants {
     public static final Transform2d rightBranch = new Transform2d(0.46769, 0.16 + coralAlignmentShift, new Rotation2d(Math.PI));
     public static final Transform2d reefAlgae = new Transform2d(0.5,0.0,new Rotation2d(Math.PI));
 
-
+    public static final SwerveRequest.FieldCentric stopRequest = new SwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage).withVelocityX(0).withVelocityY(0).withRotationalRate(0);
 
 // Both sets of gains need to be tuned to your individual robot.
 

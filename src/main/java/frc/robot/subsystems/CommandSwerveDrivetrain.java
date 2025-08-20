@@ -356,8 +356,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return new Double[] {pose.getX(), pose.getY(), pose.getRotation().getRadians()};
     }
 
-   
-
 
     @Override
     public void periodic() {
@@ -393,6 +391,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putNumber("Vision DriveBase Linear Speed", Math.hypot(RobotContainer.getDrivetrain().getState().Speeds.vxMetersPerSecond, RobotContainer.getDrivetrain().getState().Speeds.vyMetersPerSecond));
         SmartDashboard.putNumber("Vision Drivebase Angular Speed", Math.abs(RobotContainer.getDrivetrain().getState().Speeds.omegaRadiansPerSecond));
 
+        SmartDashboard.putBoolean("Test Path PID At Goal", pathPIDAtGoal());
+        SmartDashboard.putNumber("Test Path PID Error", pathPIDRotationController.getPositionError());
     }
 
 
@@ -409,6 +409,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         if (poseEstimate != null) {
             resetPose(poseEstimate.pose);         
         }
+    }
+
+    public Command stop(){
+        return runOnce(() -> this.setControl(TunerConstants.stopRequest));
     }
 
     /**
@@ -609,7 +613,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
             pathPIDXController.reset(currentTagPose2d.getX()); //can reset by giving the controller the current position and velocity
             pathPIDYController.reset(currentTagPose2d.getY());
-            pathPIDRotationController.reset(currentTagPose2d.getRotation().getRadians());
+            pathPIDRotationController.reset(currentTagPose2d.getRotation().getRadians(), 0);
 
             pathPIDYController.setTolerance(TunerConstants.pathPID_Translation_TolY);
             isTrackingTagGoal = true;
@@ -617,6 +621,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             pathPIDXController.setGoal(goalTagPose2d.getX());
             pathPIDYController.setGoal(goalTagPose2d.getY());
             pathPIDRotationController.setGoal(goalTagPose2d.getRotation().getRadians());
+
+            SmartDashboard.putNumber("Test Path PID Goal", pathPIDRotationController.getGoal().position);
         
             }, () -> {
                 Pose2d currentFieldPose2d = this.getState().Pose;
