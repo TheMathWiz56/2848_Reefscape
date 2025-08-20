@@ -390,6 +390,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putNumber("Vision DriveBase Pose Estimate Y", this.getState().Pose.getY());
         SmartDashboard.putNumber("Vision DriveBase Linear Speed", Math.hypot(RobotContainer.getDrivetrain().getState().Speeds.vxMetersPerSecond, RobotContainer.getDrivetrain().getState().Speeds.vyMetersPerSecond));
         SmartDashboard.putNumber("Vision Drivebase Angular Speed", Math.abs(RobotContainer.getDrivetrain().getState().Speeds.omegaRadiansPerSecond));
+        SmartDashboard.putNumber("Vision DriveBase Rotation", this.getState().Pose.getRotation().getDegrees());
 
         SmartDashboard.putBoolean("Test Path PID At Goal", pathPIDAtGoal());
     }
