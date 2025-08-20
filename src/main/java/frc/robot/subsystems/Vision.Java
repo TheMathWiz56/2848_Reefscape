@@ -112,6 +112,7 @@ public class Vision extends SubsystemBase {
 
         // Standard Deviation Tuning
         // Multipliers
+        /*
         builder.addDoubleProperty(
             "Tuning Area Multiplier",
             () -> VisionConstants.getKAreaMultiplier(),
@@ -171,7 +172,7 @@ public class Vision extends SubsystemBase {
             "Tuning Linear Velocity Constant",
             () -> VisionConstants.getKLinearVelocityConstant(),
             (val) -> VisionConstants.setKLinearVelocityConstant(val)
-        );
+        );*/
 
         builder.addDoubleProperty("Vision MegaTag1 X Pose Estimate",
         () -> (visionPoseEstimateMT1 != null && visionPoseEstimateMT1.pose != null)
@@ -184,19 +185,12 @@ public class Vision extends SubsystemBase {
                         ? visionPoseEstimateMT1.pose.getY()
                         : 0.0,
                 null);
-
-        builder.addDoubleProperty("Vision MegaTag2 X Pose Estimate",
-                () -> (visionPoseEstimateMT2 != null && visionPoseEstimateMT2.pose != null)
-                        ? visionPoseEstimateMT2.pose.getX()
-                        : 0.0,
-                null);
-
-        builder.addDoubleProperty("Vision MegaTag2 Y Pose Estimate",
-                () -> (visionPoseEstimateMT2 != null && visionPoseEstimateMT2.pose != null)
-                        ? visionPoseEstimateMT2.pose.getY()
-                        : 0.0,
-                null);
-
+        
+        builder.addDoubleProperty("Vision MegaTag1 Rotation Pose Estimate",
+        () -> (visionPoseEstimateMT1 != null && visionPoseEstimateMT1.pose != null)
+                ? visionPoseEstimateMT1.pose.getRotation().getDegrees()
+                : 0.0,
+        null);
     }
 
 
@@ -307,6 +301,7 @@ public class Vision extends SubsystemBase {
                 rejectUpdate = true;
             }   
             else{
+                // add an ambiguity filter back in
                 if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxAcceptableRotationalRate){
                     rejectUpdate = true;
                 }
