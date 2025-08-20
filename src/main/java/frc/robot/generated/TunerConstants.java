@@ -37,7 +37,7 @@ public class TunerConstants {
     public static final double pathPID_Translation_D = 0.0;
     public static final double pathPID_Translation_maxVy = 3; // m/s 1 // parallel to tag
     public static final double pathPID_Translation_maxVx = 2.5; // m/s 1 // normal to tag
-    public static final double pathPID_Translation_MaxA = 1.75;
+    public static final double pathPID_Translation_MaxA = 1.65;
     public static final double pathPID_Translation_TolX = .1;
     public static final double pathPID_Translation_TolY = .03;
     public static final double pathPID_Translation_TolYShift = .1;

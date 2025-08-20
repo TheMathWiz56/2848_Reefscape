@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -39,6 +41,9 @@ public class Vision extends SubsystemBase {
     @Getter private LimelightHelpers.PoseEstimate visionPoseEstimateMT1 = null;
     @Getter private LimelightHelpers.PoseEstimate visionPoseEstimateMT2 = null;
     @Getter private double targetSkewDegrees = 0;
+    @Getter private Transform2d poseError = null;
+    @Getter private double adjustedSkewAngle = 0.0;
+    @Getter boolean rejectUpdate = false;
 
     public Vision(){
         this.cameraList = kCameraList;
@@ -69,6 +74,8 @@ public class Vision extends SubsystemBase {
         builder.addStringProperty("Best Limelight", this::getBestLimeLight, this::setBestLimeLight);
 
         builder.addBooleanProperty("Robot has tag", this::getRobotHasTag, null);
+
+        builder.addBooleanProperty("Reject Update", this::isRejectUpdate, null);
 
         
         // Debugging/Testing
@@ -203,10 +210,10 @@ public class Vision extends SubsystemBase {
 
             if (visionPoseEstimate != null) {
                 setStandardDeviation();
-                /*
+                
                 RobotContainer.getDrivetrain().addVisionMeasurement(visionPoseEstimate.pose, 
                     Utils.fpgaToCurrentTime(visionPoseEstimate.timestampSeconds), 
-                    visionStandardDeviation);*/
+                    visionStandardDeviation);
             }
         }
         
@@ -219,6 +226,13 @@ public class Vision extends SubsystemBase {
         visionPoseEstimateMT1 = null;
         visionPoseEstimateMT2 = null;
         targetSkewDegrees = 0;
+        adjustedSkewAngle = 0.0;
+
+        poseError = null;
+        rejectUpdate = false;
+
+        translationStdDev = 0.0;
+        rotationStdDev = kInvalidStandardDeviation;
     }
 
     /**
@@ -252,6 +266,7 @@ public class Vision extends SubsystemBase {
                     visionPoseEstimateMT1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(bestLimeLight);
                     visionPoseEstimateMT2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(bestLimeLight);
                     targetSkewDegrees = LimelightHelpers.getTargetPose_RobotSpace(bestLimeLight)[4];
+                    adjustedSkewAngle = 1 / Math.cos(Math.toRadians(targetSkewDegrees)) - 1;
                 }
             }
         }
@@ -262,7 +277,6 @@ public class Vision extends SubsystemBase {
      * Takes the best limelight and checks the pose estimate against filters before allowing to be sent to the pose estimator
      */
     public void updateVisionPoseEstimate(){
-        boolean rejectUpdate = false;
         LimelightHelpers.PoseEstimate visionPoseEstimate = new LimelightHelpers.PoseEstimate();
               
         if (useMegaTag2){
@@ -286,6 +300,7 @@ public class Vision extends SubsystemBase {
         // Using Megatag1 
         else {
             visionPoseEstimate = visionPoseEstimateMT1;
+            poseError = visionPoseEstimate.pose.minus(RobotContainer.getDrivetrain().getState().Pose);
             
             // Check to ensure there is a valid pose estimate
             if (visionPoseEstimate == null || visionPoseEstimate.rawFiducials.length == 0) {
@@ -295,13 +310,13 @@ public class Vision extends SubsystemBase {
                 if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxAcceptableRotationalRate){
                     rejectUpdate = true;
                 }
-                else if (visionPoseEstimate.rawFiducials[0].ambiguity > kMaxAcceptableAmbiguity) {
-                    rejectUpdate = true;
-                }
                 else if (visionPoseEstimate.rawFiducials[0].distToCamera > kMaxAcceptableDistance) {
                     rejectUpdate = true;
                 }
                 else if (visionPoseEstimate.tagCount == 0) {
+                    rejectUpdate = true;
+                }
+                else if (Math.hypot(poseError.getX(), poseError.getY()) > kMaxTranslationalErrorMagnitude){
                     rejectUpdate = true;
                 }
             }
@@ -321,22 +336,16 @@ public class Vision extends SubsystemBase {
      * Updated the Translational and Rotational Standard Deviations for the measurement from the best limelight
      */
     public void setStandardDeviation(){
-        translationStdDev = 0.0;
         // April Tag Factors
-        if (visionPoseEstimate.avgTagArea < kAreaLimit){
-            translationStdDev += kAreaMultiplier * visionPoseEstimate.avgTagArea + kAreaConstant;
+        if (visionPoseEstimate.avgTagDist > 0.5){
+            translationStdDev += 2* 1.2 * Math.sqrt(visionPoseEstimate.avgTagDist - 0.5); 
         }
-        translationStdDev += kAmbiguityMultiplier * visionPoseEstimate.rawFiducials[0].ambiguity + kAmbiguityConstant; // only accounts for the ambiguity of 1 visible tag
-        translationStdDev += kTagCountMultiplier * visionPoseEstimate.tagCount + kTagCountConstant;
-
-        // Velocity Factors
-        translationStdDev += kAngularVelocityMultiplier * 
-            Math.abs(RobotContainer.getDrivetrain().getState().Speeds.omegaRadiansPerSecond) + 
-            kAngularVelocityConstant;
-        translationStdDev += kLinearVelocityMultiplier * 
-            Math.hypot(RobotContainer.getDrivetrain().getState().Speeds.vxMetersPerSecond, RobotContainer.getDrivetrain().getState().Speeds.vyMetersPerSecond) + 
-            kLinearVelocityConstant;
-
+        
+        if (visionPoseEstimate.avgTagDist > 1.25){
+            translationStdDev += 2 *1.4 * (adjustedSkewAngle - 1.1) * (adjustedSkewAngle - 1.1);
+        }
+        
+        
         
         if (translationStdDev < kMinimumStandardDeviation){
             translationStdDev = kMinimumStandardDeviation;

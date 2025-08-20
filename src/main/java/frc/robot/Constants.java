@@ -512,9 +512,9 @@ public final class Constants {
 
             // Filters
             public static final double kMinAcceptableTagArea = 0.35;
-            public static final double kMaxAcceptableRotationalRate = 720; // deg/s
-            public static final double kMaxAcceptableAmbiguity = 0.7;
+            public static final double kMaxAcceptableRotationalRate = 360; // deg/s
             public static final double kMaxAcceptableDistance = 3; // m
+            public static final double kMaxTranslationalErrorMagnitude = 1.0; //m
 
             // Standard Deviation 
             public static final double kInvalidStandardDeviation = 9999999;

@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 import frc.robot.Constants.operatorConstants;
+import frc.robot.commands.CollectVisionData;
 import frc.robot.commands.CommandFactory;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
@@ -84,6 +85,7 @@ public class RobotContainer {
         
         // Command Factory
         public static final CommandFactory commandFactory = new CommandFactory(drivetrain, elevator, arm, pincer, lights);
+        public static final CollectVisionData collectVisionData = new CollectVisionData(drivetrain);
 
         // Custom Triggers
         Trigger LLHasTag = new Trigger(() -> vision.getRobotHasTag());    
@@ -174,7 +176,7 @@ public class RobotContainer {
                 driverJoystick.start().and(LLHasTag).onTrue(Commands.runOnce(() -> drivetrain.resetToVision()));
                 // reset the field-centric heading on back press
                 //driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-                driverJoystick.back().onTrue(drivetrain.testPathPIDTo(reef.tagPoseAndymarkMap.get(22).transformBy(TunerConstants.leftBranch), reef.tagPoseAndymarkMap.get(22)));
+                driverJoystick.back().onTrue(collectVisionData.collectVisionData());
 
                 LLHasTag.onTrue(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 1)))
                         .onFalse(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 0)));

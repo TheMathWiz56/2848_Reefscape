@@ -77,15 +77,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     // Field Widget in Elastic
     private static final Field2d m_field = new Field2d();
 
-    // April tag variables
-    private static boolean useMegaTag2 = true; // set to false to use MegaTag1. Should test to see which one works better, 1 or 2? Or if they can be combined/we switch between them based on some conditions
-    private static boolean doRejectUpdate = false;
-    private static String limelightUsed;
-    private static LimelightHelpers.PoseEstimate LLPoseEstimate;
-    //Get average tag areas (percentage of image), Choose the limelight with the highest average tag area
-    private static double limelightFrontAvgTagArea = 0;
-    private static double limelightBackAvgTagArea = 0;
-
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
     /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
@@ -413,8 +404,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @param forceUpdate Override the tag area requirement
      */
     public void resetToVision(){
-        LimelightHelpers.PoseEstimate poseEstimate = RobotContainer.getVision().getVisionPoseEstimate(); // Might be able to switch to mt1 or 2. Needs testing if want to change
-        
+        LimelightHelpers.PoseEstimate poseEstimate = RobotContainer.getVision().getVisionPoseEstimateMT1(); // Might be able to switch to mt1 or 2. Needs testing if want to change
+        SmartDashboard.putBoolean("Is Getting null pose estimate", poseEstimate != null);
         if (poseEstimate != null) {
             resetPose(poseEstimate.pose);         
         }
@@ -612,17 +603,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public Command testPathPIDTo (Pose2d goalPose, Pose2d tagPose){
         return this.startRun(()->{
-                Pose2d currentFieldPose2d = this.getState().Pose;
-                Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
-                Pose2d goalTagPose2d = goalPose.relativeTo(tagPose);
+            Pose2d currentFieldPose2d = this.getState().Pose;
+            Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
+            Pose2d goalTagPose2d = goalPose.relativeTo(tagPose);
 
-                pathPIDXController.reset(currentTagPose2d.getX()); //can reset by giving the controller the current position and velocity
-                pathPIDYController.reset(currentTagPose2d.getY());
-                pathPIDRotationController.reset(currentTagPose2d.getRotation().getRadians());
+            pathPIDXController.reset(currentTagPose2d.getX()); //can reset by giving the controller the current position and velocity
+            pathPIDYController.reset(currentTagPose2d.getY());
+            pathPIDRotationController.reset(currentTagPose2d.getRotation().getRadians());
 
-                pathPIDXController.setGoal(goalTagPose2d.getX());
-                pathPIDYController.setGoal(goalTagPose2d.getY());
-                pathPIDRotationController.setGoal(goalTagPose2d.getRotation().getRadians());
+            pathPIDYController.setTolerance(TunerConstants.pathPID_Translation_TolY);
+            isTrackingTagGoal = true;
+
+            pathPIDXController.setGoal(goalTagPose2d.getX());
+            pathPIDYController.setGoal(goalTagPose2d.getY());
+            pathPIDRotationController.setGoal(goalTagPose2d.getRotation().getRadians());
         
             }, () -> {
                 Pose2d currentFieldPose2d = this.getState().Pose;
@@ -631,7 +625,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 Translation2d positionPID = new Translation2d(pathPIDXController.calculate(currentTagPose2d.getX()), pathPIDYController.calculate(currentTagPose2d.getY())).rotateBy(tagPose.getRotation());
                 Translation2d fieldVelocity = new Translation2d(pathPIDXController.getSetpoint().velocity, pathPIDYController.getSetpoint().velocity).rotateBy(tagPose.getRotation());
                 
-                //fieldVelocity = fieldVelocity.plus(positionPID);
+                fieldVelocity = fieldVelocity.plus(positionPID);
 
                 pathPIDRequest
                     .withVelocityX(fieldVelocity.getX() * flip_for_red)
@@ -642,14 +636,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
                 this.setControl(pathPIDRequest);
 
-                SmartDashboard.putNumber("X PID Position Error", pathPIDXController.getPositionError());
-                SmartDashboard.putNumber("X PID Velocity Error", pathPIDXController.getVelocityError());
-                SmartDashboard.putNumber("X PID Velocity setpoint", pathPIDXController.getSetpoint().velocity);
-                SmartDashboard.putNumber("X PID Field Velocity setpoint", fieldVelocity.getX() * flip_for_red);
-                SmartDashboard.putNumber("X PID Position Setpoint", pathPIDXController.getSetpoint().position);
-                SmartDashboard.putNumber("X PID Position PV", currentTagPose2d.getX());
-
-            }).until(() -> pathPIDAtGoal());
+            }).until(() -> pathPIDAtGoal()).withName("PathPIDTo");
     }
 
     /**
