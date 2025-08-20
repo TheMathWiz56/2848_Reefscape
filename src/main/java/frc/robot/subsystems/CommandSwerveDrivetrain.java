@@ -392,7 +392,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putNumber("Vision Drivebase Angular Speed", Math.abs(RobotContainer.getDrivetrain().getState().Speeds.omegaRadiansPerSecond));
 
         SmartDashboard.putBoolean("Test Path PID At Goal", pathPIDAtGoal());
-        SmartDashboard.putNumber("Test Path PID Error", pathPIDRotationController.getPositionError());
     }
 
 
@@ -601,6 +600,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 SmartDashboard.putNumber("X PID Output", positionPID.getX());*/
 
             }).until(() -> pathPIDAtGoal()).withName("PathPIDTo").andThen(() -> {
+                isTrackingTagGoal = false;
                 timeToAlign.stop();
                 SmartDashboard.putNumber("Time To Align", timeToAlign.get()); }, this);
     }
@@ -621,8 +621,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             pathPIDXController.setGoal(goalTagPose2d.getX());
             pathPIDYController.setGoal(goalTagPose2d.getY());
             pathPIDRotationController.setGoal(goalTagPose2d.getRotation().getRadians());
-
-            SmartDashboard.putNumber("Test Path PID Goal", pathPIDRotationController.getGoal().position);
         
             }, () -> {
                 Pose2d currentFieldPose2d = this.getState().Pose;
@@ -642,14 +640,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
                 this.setControl(pathPIDRequest);
 
-            }).until(() -> pathPIDAtGoal()).withName("PathPIDTo");
+            }).until(() -> pathPIDAtGoal()).withName("PathPIDTo").andThen(() -> isTrackingTagGoal = false, this);
     }
 
     /**
      * Checks if the PID path follower has been at the goal for the specified debouncer time.
      * 
      * @return {@code true} if the PID controllers for X, Y, and rotation have all been at the goal 
-     *         for at least {@code 0.5} seconds (the debouncer time), otherwise {@code false}.
+     *         for at least {@code 0.15} seconds (the debouncer time), otherwise {@code false}.
      */
     public boolean pathPIDAtGoal (){
         return atGoalDebouncer.calculate(pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal() && isTrackingTagGoal);

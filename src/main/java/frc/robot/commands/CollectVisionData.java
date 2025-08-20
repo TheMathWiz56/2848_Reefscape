@@ -19,7 +19,7 @@ public class CollectVisionData {
         new Translation2d(6.821, 4.021), 
         new Translation2d(7.321, 4.021), new Translation2d(7.821, 4.021)};
 
-    private final double[] angleArray = {-60,45,-30,15,-15,30,-45,60};
+    private final double[] angleArray = {-60,-45,-30,-15,15,30,45,60};
 
     public CollectVisionData(CommandSwerveDrivetrain drive){
         this.drive = drive;
@@ -38,12 +38,13 @@ public class CollectVisionData {
         for (Translation2d position : positionArray){
             commands.add(drive.testPathPIDTo(new Pose2d(position, tagpose.getRotation().rotateBy(new Rotation2d(Math.PI))), tagpose));
             commands.add(drive.stop());
-            commands.add(new WaitCommand(1));
+            commands.add(new WaitCommand(0.5));
 
             for (double angle : angleArray){
                 commands.add(drive.testPathPIDTo(new Pose2d(position, tagpose.getRotation().rotateBy(new Rotation2d(Math.PI + Math.toRadians(angle)))), tagpose));
                 commands.add(drive.stop());
-                commands.add(new WaitCommand(1));
+                commands.add(new WaitCommand(0.5));
+                
             }
 
         }
@@ -59,20 +60,17 @@ public class CollectVisionData {
         Translation2d position = positionArray[3];
 
         commands.add(drive.testPathPIDTo(new Pose2d(position, tagpose.getRotation().rotateBy(new Rotation2d(Math.PI))), tagpose));
-        Command command1 = drive.testPathPIDTo(new Pose2d(position, tagpose.getRotation().rotateBy(new Rotation2d(Math.PI))), tagpose);
-        //commands.add(drive.stop());
+        commands.add(drive.stop());
         commands.add(new WaitCommand(1));
 
         commands.add(drive.testPathPIDTo(new Pose2d(position, tagpose.getRotation().rotateBy(new Rotation2d(Math.PI + Math.toRadians(60)))), tagpose));
-        Command command2 = drive.testPathPIDTo(new Pose2d(position, tagpose.getRotation().rotateBy(new Rotation2d(Math.PI + Math.toRadians(60)))), tagpose);
-        //commands.add(drive.stop());
+        commands.add(drive.stop());
         commands.add(new WaitCommand(1));
 
         commands.add(drive.testPathPIDTo(new Pose2d(position, tagpose.getRotation().rotateBy(new Rotation2d(Math.PI + Math.toRadians(-60)))), tagpose));
-        Command command3 = drive.testPathPIDTo(new Pose2d(position, tagpose.getRotation().rotateBy(new Rotation2d(Math.PI + Math.toRadians(-60)))), tagpose);
-        //commands.add(drive.stop());
+        commands.add(drive.stop());
         commands.add(new WaitCommand(1));
 
-        return command1.andThen(new WaitCommand(1)).andThen(command2).andThen(new WaitCommand(1)).andThen(command3).andThen(new WaitCommand(1));
+        return new SequentialCommandGroup(commands.toArray(new Command[0]));
     }
 }
