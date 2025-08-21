@@ -45,7 +45,6 @@ public class RobotContainer {
     private double MaxAngularRate = RotationsPerSecond.of(1.5).in(RadiansPerSecond); // 3/4 of a rotation per second
                                                                                       // max angular velocity
 
-    private double speedMultiplier = 1.0;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -81,6 +80,9 @@ public class RobotContainer {
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
 
+    /* Select different speeds for the drivebase */
+    private final SendableChooser<Double> speedChooser = new SendableChooser<Double>();
+
     public RobotContainer() {
         // NamedCommands.registerCommand("GoTo_L4", commandFactory.goTolL4());
         // NamedCommands.registerCommand("Exhaust_Coral", commandFactory.exhaustCoral());
@@ -107,6 +109,11 @@ public class RobotContainer {
 
         SmartDashboard.putData("Auto Mode", autoChooser);
 
+        speedChooser.setDefaultOption("100% Full Speed", 1.0);
+        speedChooser.addOption("75% Speed", 0.75);
+        speedChooser.addOption("50% Speed", 0.5);
+        speedChooser.addOption("25% Speed", 0.25);
+
         configureBindings();
 
         // Warmup path follower
@@ -122,12 +129,12 @@ public class RobotContainer {
                 // and Y is defined as to the left according to WPILib convention.
                 drivetrain.setDefaultCommand(
                         // Drivetrain will execute this command periodically
-                        drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed * speedMultiplier * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive
+                        drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed * speedChooser.getSelected() * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive
                                                                                                                 // forward with
                                                                                                                 // negative Y
                                                                                                                 // (forward)
-                                .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * speedMultiplier * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive left with negative X (left)
-                                .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate * speedMultiplier * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive counterclockwise with
+                                .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * speedChooser.getSelected() * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive left with negative X (left)
+                                .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate * speedChooser.getSelected() * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive counterclockwise with
                                 .withDeadband(MaxSpeed * 0.1 * elevator.getDrivetrainSpeedMultiplier().getAsDouble())
                                 .withRotationalDeadband(MaxAngularRate * 0.1 * elevator.getDrivetrainSpeedMultiplier().getAsDouble())                                                            // negative X (left)
                         ));
