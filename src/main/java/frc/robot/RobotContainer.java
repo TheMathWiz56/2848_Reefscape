@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -63,6 +64,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     public final CommandXboxController driverJoystick = new CommandXboxController(0);
+    public final CommandGenericHID keypad = new CommandGenericHID(1);
     public final CommandXboxController operatorJoystick = new CommandXboxController(2);
     public final CommandXboxController testingJoystick = new CommandXboxController(5); // You can put test commands onto here.
 
@@ -202,38 +204,45 @@ public class RobotContainer {
                 operatorJoystick.rightTrigger(operatorConstants.triggerBooleanThreshold).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).negate())
                         .and(()-> arm.facingDownwards())
                                 .onTrue(commandFactory.scorelL4(true));
+
+                keypad.button(1).onTrue(elevator.setLevelQueue(4));
+                keypad.button(2).onTrue(elevator.setLevelQueue(3));
+                keypad.button(3).onTrue(elevator.setLevelQueue(2));
+                keypad.button(4).onTrue(elevator.setLevelQueue(1));
+
                 
                 // Feed Commands
                 operatorJoystick.pov(0).onTrue(commandFactory.feed());
+                keypad.button(5).onTrue(commandFactory.feed());
 
                 // Stow Commands
 
                 //empty near top
-                operatorJoystick.pov(90)
+                keypad.button(9)
                         .and(elevator.isNearTop())
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(false, false, true, false));
                 //coral not low
-                operatorJoystick.pov(90)
+                keypad.button(9)
                         .and(() ->pincer.hasCoral())
                         .and(() -> !elevator.isLow().getAsBoolean())
                                 .onTrue(commandFactory.stow(true, false, false, false));
                 //all algae
-                operatorJoystick.pov(90).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+                keypad.button(9).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
                 //low coral
-                operatorJoystick.pov(90)
+                keypad.button(9)
                         .and(elevator.isLow())
                         .and(() -> pincer.hasCoral())
                                 .onTrue(commandFactory.stow(true, false, false, true));
                 //not high empty
-                operatorJoystick.pov(90)
+                keypad.button(9)
                         .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(false, false, false, false));
 
-                operatorJoystick.pov(90)
+                                keypad.button(9)
                         .and(elevator.isLow())
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
@@ -249,18 +258,18 @@ public class RobotContainer {
 
 
                 //Is High
-                operatorJoystick.a()
+                keypad.button(6)
                         .and(elevator.isNearTop())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(true, false, true, false));
                 //Is Middle
-                operatorJoystick.a()
+                keypad.button(6)
                         .and(() -> !elevator.isLow().getAsBoolean())
                         .and(() -> !elevator.isNearTop().getAsBoolean())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(true, false, false, false));
                 //Is Low
-                operatorJoystick.a()
+                keypad.button(6)
                         .and(elevator.isLow())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(true, false, false, true));    
@@ -302,9 +311,15 @@ public class RobotContainer {
                 operatorJoystick.rightStick().onTrue(pincer.pincerFunnel2());
                 operatorJoystick.x().onTrue(pincer.pincerFunnel());
 
+                keypad.button(14).onTrue(pincer.pincerFunnel());
+                keypad.button(15).onTrue(pincer.pincerAlgaeHold());
+
+
         operatorJoystick.pov(270).onTrue(commandFactory.net());
+        keypad.button(7).onTrue(commandFactory.net());
 
         operatorJoystick.pov(180).onTrue(commandFactory.groundAlgae());
+        keypad.button(8).onTrue(commandFactory.groundAlgae());
         
         //operatorJoystick.y().toggleOnTrue(pincer.holdIntakeCmd()); */
 
