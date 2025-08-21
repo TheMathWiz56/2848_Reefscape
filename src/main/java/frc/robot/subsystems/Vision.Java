@@ -279,7 +279,7 @@ public class Vision extends SubsystemBase {
 
         // Update Pose Estimate if not rejected and is applying filters
         if (rejectUpdate && applyFilters){
-            resetBestVisionPoseEstimate();
+            visionPoseEstimate =  null;
         }
         else{
             this.visionPoseEstimate =  visionPoseEstimate;
