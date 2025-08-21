@@ -401,7 +401,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public void resetToVision(){
         LimelightHelpers.PoseEstimate poseEstimate = RobotContainer.getVision().getVisionPoseEstimateMT1(); // Might be able to switch to mt1 or 2. Needs testing if want to change
-        SmartDashboard.putBoolean("Is Getting null pose estimate", poseEstimate != null);
         if (poseEstimate != null) {
             resetPose(poseEstimate.pose);         
         }
@@ -419,9 +418,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      *         If no tag is visible, a command is returned that logs the absence of a tag.
      */
     private Command pathPIDToTagLeft(int ID){
-        SmartDashboard.putNumber("Tag ID used", ID);
-        SmartDashboard.putString("Path PID to", reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch).toString());
-
         if (ID != -1) {
             return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.leftBranch),
                     reef.tagPoseAndymarkMap.get(ID), false);
@@ -430,8 +426,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     private Command pathPIDToTagMiddle(int ID) {
-        SmartDashboard.putNumber("Tag ID used", ID);
-
         if (ID != -1) {
             return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.reefAlgae),
                     reef.tagPoseAndymarkMap.get(ID), true);
@@ -451,10 +445,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      *         a tag.
      */
     private Command pathPIDToTagRight(int ID) {
-        SmartDashboard.putNumber("Tag ID used", ID);
-        SmartDashboard.putString("Path PID to",
-                reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch).toString());
-
         if (ID != -1) {
             return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch),
                     reef.tagPoseAndymarkMap.get(ID), false);

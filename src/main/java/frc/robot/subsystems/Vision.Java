@@ -270,8 +270,8 @@ public class Vision extends SubsystemBase {
             }
             // Reject update if the pose estimate is not inside of the field
             else if (visionPoseEstimate.pose.getX() < 0.0 || visionPoseEstimate.pose.getY() < 0.0 || 
-                visionPoseEstimate.pose.getX() > kFieldLength || visionPoseEstimate.pose.getY() > kFieldWidth){
-                    rejectUpdate = true;
+                        visionPoseEstimate.pose.getX() > kFieldLength || visionPoseEstimate.pose.getY() > kFieldWidth){
+                rejectUpdate = true;
             }
             
             
@@ -348,4 +348,5 @@ public class Vision extends SubsystemBase {
 /*
  * To Do 
  * Calibrate limelights
+ * Conditions for filters and std devs when there are two visible tags
  */
