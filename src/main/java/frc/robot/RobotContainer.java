@@ -236,18 +236,47 @@ public class RobotContainer {
                         .and(() -> pincer.hasCoral())
                                 .onTrue(commandFactory.stow(true, false, false, true));
                 //not high empty
-                keypad.button(9)
+                operatorJoystick.pov(90)
                         .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(false, false, false, false));
 
-                                keypad.button(9)
+                                operatorJoystick.pov(90)
                         .and(elevator.isLow())
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(false, false, false, true));
-
+                                operatorJoystick.pov(90)
+                                .and(elevator.isNearTop())
+                                .and(() -> !pincer.hasCoral())
+                                .and(() -> !pincer.hasAlgae())
+                                        .onTrue(commandFactory.stow(false, false, true, false));
+                        //coral not low
+                        operatorJoystick.pov(90)
+                                .and(() ->pincer.hasCoral())
+                                .and(() -> !elevator.isLow().getAsBoolean())
+                                        .onTrue(commandFactory.stow(true, false, false, false));
+                        //all algae
+                        operatorJoystick.pov(90).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+                        //low coral
+                        operatorJoystick.pov(90)
+                                .and(elevator.isLow())
+                                .and(() -> pincer.hasCoral())
+                                        .onTrue(commandFactory.stow(true, false, false, true));
+                        //not high empty
+                        operatorJoystick.pov(90)
+                                .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
+                                .and(() -> !pincer.hasCoral())
+                                .and(() -> !pincer.hasAlgae())
+                                        .onTrue(commandFactory.stow(false, false, false, false));
+        
+                                        operatorJoystick.pov(90)
+                                .and(elevator.isLow())
+                                .and(() -> !pincer.hasCoral())
+                                .and(() -> !pincer.hasAlgae())
+                                        .onTrue(commandFactory.stow(false, false, false, true));
+        
                 
                 operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).and(operatorJoystick.y().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising))
                         .onTrue(elevator.setLevelQueue(2));
@@ -287,6 +316,8 @@ public class RobotContainer {
                 operatorJoystick.leftTrigger(operatorConstants.triggerBooleanThreshold).onTrue(
                         commandFactory.reefAlgaeLow()
                 );
+
+                keypad.button(16).onTrue(commandFactory.getLollipop());
                 
 
                 /*
@@ -307,6 +338,7 @@ public class RobotContainer {
                 
 
         //Pincer
+                //operatorJoystick.b().onTrue(pincer.pincerAlgaeHold());
                 operatorJoystick.b().onTrue(pincer.pincerAlgaeHold());
                 operatorJoystick.rightStick().onTrue(pincer.pincerFunnel2());
                 operatorJoystick.x().onTrue(pincer.pincerFunnel());
