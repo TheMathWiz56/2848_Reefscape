@@ -76,13 +76,13 @@ public class Vision extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         // Permanent
-        builder.addBooleanProperty("Use Mega Tag 2", this::isUseMegaTag2, this::setUseMegaTag2);
-
         builder.addStringProperty("Best Limelight", this::getBestLimeLight, this::setBestLimeLight);
 
+        builder.addBooleanProperty("Is Using Mega Tag 2", this::isUseMegaTag2, this::setUseMegaTag2);
         builder.addBooleanProperty("Robot has tag", this::getRobotHasTag, null);
-
-        builder.addBooleanProperty("Reject Update", this::isRejectUpdate, null);
+        builder.addBooleanProperty("Is Rejecting Update", this::isRejectUpdate, null);
+        builder.addBooleanProperty("Is Applying Filters", this::isApplyFilters, this::setApplyFilters);
+        builder.addBooleanProperty("Is Adding To Pose Estimator", this::isAddToPoseEstimator, this::setAddToPoseEstimator);
 
         
         // Debugging/Testing
@@ -173,7 +173,7 @@ public class Vision extends SubsystemBase {
         poseError = null;
         rejectUpdate = false;
 
-        translationStdDev = 0.0;
+        translationStdDev = kInvalidStandardDeviation;
         rotationStdDev = kInvalidStandardDeviation;
     }
 
@@ -268,6 +268,11 @@ public class Vision extends SubsystemBase {
             else if (Math.abs(poseError.getRotation().getRadians()) > kMaxRotationalErrorMagnitude){
                 rejectUpdate = true;
             }
+            // Reject update if the pose estimate is not inside of the field
+            else if (visionPoseEstimate.pose.getX() < 0.0 || visionPoseEstimate.pose.getY() < 0.0 || 
+                visionPoseEstimate.pose.getX() > kFieldLength || visionPoseEstimate.pose.getY() > kFieldWidth){
+                    rejectUpdate = true;
+            }
             
             
         }
@@ -287,17 +292,23 @@ public class Vision extends SubsystemBase {
     public void setStandardDeviation(){
         // April Tag Factors
         if (visionPoseEstimate.avgTagDist > 0.5){
-            translationStdDev += 2* 1.2 * Math.sqrt(visionPoseEstimate.avgTagDist - 0.5); 
+            translationStdDev = 2* 1.2 * Math.sqrt(visionPoseEstimate.avgTagDist - 0.5);
+            rotationStdDev = 0.3 * visionPoseEstimate.avgTagDist - 0.1;
         }
         
-        if (visionPoseEstimate.avgTagDist > 1.25){
+        if (visionPoseEstimate.avgTagDist > kAddSkewDataDistanceThreshold){
             translationStdDev += 2 *1.4 * (adjustedSkewAngle - 1.1) * (adjustedSkewAngle - 1.1);
+            rotationStdDev += 0.02 * (adjustedSkewAngle - 4.1) * (adjustedSkewAngle - 4.1);
         }
         
         
         
-        if (translationStdDev < kMinimumStandardDeviation){
-            translationStdDev = kMinimumStandardDeviation;
+        if (translationStdDev < kMinimumTranslationalStandardDeviation){
+            translationStdDev = kMinimumTranslationalStandardDeviation;
+        }
+
+        if (rotationStdDev < kMinimumRotationalStandardDeviation){
+            rotationStdDev = kMinimumRotationalStandardDeviation;
         }
 
         visionStandardDeviation = VecBuilder.fill(translationStdDev, translationStdDev, rotationStdDev);
@@ -337,7 +348,5 @@ public class Vision extends SubsystemBase {
 
 /*
  * To Do 
- * add an ambiguity filter back in
- * add field limit filter
  * Calibrate limelights
  */

@@ -518,10 +518,15 @@ public final class Constants {
             public static final double kMaxTranslationalErrorMagnitude = 1.0; //m
             public static final double kMaxRotationalErrorMagnitude = 0.25; //rad
             public static final double kMaxAmbiguity = 0.4;
+            // Can also be grabbed from WPI AprilTag class
+            public static final double kFieldWidth = 8.05;
+            public static final double kFieldLength = 17.55;
 
             // Standard Deviation 
             public static final double kInvalidStandardDeviation = 9999999;
-            public static final double kMinimumStandardDeviation = 0.25;
+            public static final double kMinimumTranslationalStandardDeviation = 0.25;
+            public static final double kMinimumRotationalStandardDeviation = Math.toRadians(2.5); // rad
+            public static final double kAddSkewDataDistanceThreshold = 1.25; //m
         }
     }
 
