@@ -509,6 +509,7 @@ public final class Constants {
         public static class VisionConstants {
             // List of camera names published to the network tables (set in the limelight browser config tool)
             public static final String[] kCameraList = {"limelight-right"}; // limelight-left
+            public static final boolean kAddToPoseEstimator = true;
 
             // Filters
             public static final boolean kApplyFilters = true;

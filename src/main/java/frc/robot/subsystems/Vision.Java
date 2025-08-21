@@ -46,12 +46,14 @@ public class Vision extends SubsystemBase {
     @Getter boolean rejectUpdate = false;
 
     @Getter @Setter private boolean applyFilters;
+    @Getter @Setter private boolean addToPoseEstimator;
 
 
 
     public Vision(){
         this.cameraList = kCameraList;
         this.applyFilters = kApplyFilters;
+        this.addToPoseEstimator = kAddToPoseEstimator;
 
         // Vision setup
         // Configure AprilTag Filters 
@@ -145,10 +147,14 @@ public class Vision extends SubsystemBase {
 
             if (visionPoseEstimate != null) {
                 setStandardDeviation();
+
                 /*
-                RobotContainer.getDrivetrain().addVisionMeasurement(visionPoseEstimate.pose, 
+                if(addToPoseEstimator){
+                    RobotContainer.getDrivetrain().addVisionMeasurement(visionPoseEstimate.pose, 
                     Utils.fpgaToCurrentTime(visionPoseEstimate.timestampSeconds), 
-                    visionStandardDeviation);*/
+                    visionStandardDeviation);
+                }
+                */
             }
         }
         
@@ -222,7 +228,7 @@ public class Vision extends SubsystemBase {
                 rejectUpdate = true;
             }
             else{
-                // Reject update if our angular velocity is greater than a threshold degrees per second,
+                // Reject update if our angular velocity is greater than a threshold degrees per second
                 if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxRotationalRate){
                     rejectUpdate = true;
                 }
@@ -241,28 +247,32 @@ public class Vision extends SubsystemBase {
             // Check to ensure there is a valid pose estimate
             if (visionPoseEstimate == null || visionPoseEstimate.rawFiducials.length == 0) {
                 rejectUpdate = true;
-            }   
-            else{
-                if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxRotationalRate){
-                    rejectUpdate = true;
-                }
-                else if (visionPoseEstimate.tagCount == 0) {
-                    rejectUpdate = true;
-                }
-                else if (Math.hypot(poseError.getX(), poseError.getY()) > kMaxTranslationalErrorMagnitude){
-                    rejectUpdate = true;
-                }
-                else if (visionPoseEstimate.rawFiducials[0].ambiguity > kMaxAmbiguity){
-                    rejectUpdate = true;
-                }
-                else if (Math.abs(poseError.getRotation().getRadians()) > kMaxRotationalErrorMagnitude){
-                    rejectUpdate = true;
-                }
             }
+            // Reject update if our angular velocity is greater than a threshold degrees per second
+            else if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxRotationalRate){
+                rejectUpdate = true;
+            }
+            // Reject update if there are no visible tags (Redundant?)
+            else if (visionPoseEstimate.tagCount == 0) {
+                rejectUpdate = true;
+            }
+            // Reject update if the translational error magnitude is larger than the threshold
+            else if (Math.hypot(poseError.getX(), poseError.getY()) > kMaxTranslationalErrorMagnitude){
+                rejectUpdate = true;
+            }
+            // Reject update if the ambiguity is larger than the threshold
+            else if (visionPoseEstimate.rawFiducials[0].ambiguity > kMaxAmbiguity){
+                rejectUpdate = true;
+            }
+            // Reject update if the rotational error magnitude is larger than the threshold
+            else if (Math.abs(poseError.getRotation().getRadians()) > kMaxRotationalErrorMagnitude){
+                rejectUpdate = true;
+            }
+            
             
         }
 
-        // Update Pose Estimate if not rejected
+        // Update Pose Estimate if not rejected and is applying filters
         if (rejectUpdate && applyFilters){
             resetBestVisionPoseEstimate();
         }
