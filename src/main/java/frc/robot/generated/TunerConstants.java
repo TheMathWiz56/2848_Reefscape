@@ -36,19 +36,19 @@ public class TunerConstants {
     public static final double pathPID_Translation_P = 10; // (m/s) / m error
     public static final double pathPID_Translation_I = 0; // (m/s) / m error
     public static final double pathPID_Translation_D = 0.0;
-    public static final double pathPID_Translation_maxVy = 3; // m/s 1 // parallel to tag
-    public static final double pathPID_Translation_maxVx = 2.5; // m/s 1 // normal to tag
-    public static final double pathPID_Translation_MaxA = 1; // 1.65
+    public static final double pathPID_Translation_maxVy = 3; // m/s // parallel to tag
+    public static final double pathPID_Translation_maxVx = 2.5; // m/s // normal to tag
+    public static final double pathPID_Translation_MaxA = 1.65; // 1.65
     public static final double pathPID_Translation_TolX = .1;
     public static final double pathPID_Translation_TolY = .03; //.03
     public static final double pathPID_Translation_TolYShift = .1;
     public static final double pathPID_Translation_Deadband = 0.3;
 
-    public static final double pathPID_Rotation_P = 8; // 4 (rad/s) / rad error
+    public static final double pathPID_Rotation_P = 4; // 4 (rad/s) / rad error
     public static final double pathPID_Rotation_I = 0; // (rad/s) / rad error
     public static final double pathPID_Rotation_D = 0.0;
     public static final double pathPID_Rotation_maxV = 1.5; // rad/s 1.5
-    public static final double pathPID_Rotation_MaxA = .5; // 2 rad/s/s 
+    public static final double pathPID_Rotation_MaxA = 2; // 2 rad/s/s 
     public static final double pathPID_Rotation_Tol = 0.05; // rad
     public static final double pathPID_Rotation_Deadband = 0.02;
 

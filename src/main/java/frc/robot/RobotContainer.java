@@ -176,7 +176,7 @@ public class RobotContainer {
                 driverJoystick.start().and(LLHasTag).onTrue(Commands.runOnce(() -> drivetrain.resetToVision()));
                 // reset the field-centric heading on back press
                 //driverJoystick.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-                driverJoystick.back().onTrue(collectVisionData.collectVisionData());
+                driverJoystick.back().onTrue(Commands.runOnce(() -> drivetrain.seedFieldCentric()));
 
                 LLHasTag.onTrue(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 1)))
                         .onFalse(Commands.runOnce(() -> driverJoystick.setRumble(RumbleType.kBothRumble, 0)));
