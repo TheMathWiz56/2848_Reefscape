@@ -45,8 +45,13 @@ public class Vision extends SubsystemBase {
     @Getter private double adjustedSkewAngle = 0.0;
     @Getter boolean rejectUpdate = false;
 
+    @Getter @Setter private boolean applyFilters;
+
+
+
     public Vision(){
         this.cameraList = kCameraList;
+        this.applyFilters = kApplyFilters;
 
         // Vision setup
         // Configure AprilTag Filters 
@@ -110,70 +115,6 @@ public class Vision extends SubsystemBase {
         builder.addBooleanProperty("LimeLight Right Has Tag", () -> cameraHasTag("limelight-right"), null);
         builder.addBooleanProperty("LimeLight Left Has Tag", () -> cameraHasTag("limelight-left"), null);
 
-        // Standard Deviation Tuning
-        // Multipliers
-        /*
-        builder.addDoubleProperty(
-            "Tuning Area Multiplier",
-            () -> VisionConstants.getKAreaMultiplier(),
-            (val) -> VisionConstants.setKAreaMultiplier(val)
-        );
-    
-        builder.addDoubleProperty(
-            "Tuning Ambiguity Multiplier",
-            () -> VisionConstants.getKAmbiguityMultiplier(),
-            (val) -> VisionConstants.setKAmbiguityMultiplier(val)
-        );
-    
-        builder.addDoubleProperty(
-            "Tuning Tag Count Multiplier",
-            () -> VisionConstants.getKTagCountMultiplier(),
-            (val) -> VisionConstants.setKTagCountMultiplier(val)
-        );
-    
-        builder.addDoubleProperty(
-            "Tuning Angular Velocity Multiplier",
-            () -> VisionConstants.getKAngularVelocityMultiplier(),
-            (val) -> VisionConstants.setKAngularVelocityMultiplier(val)
-        );
-    
-        builder.addDoubleProperty(
-            "Tuning Linear Velocity Multiplier",
-            () -> VisionConstants.getKLinearVelocityMultiplier(),
-            (val) -> VisionConstants.setKLinearVelocityMultiplier(val)
-        );
-    
-        // Constants
-        builder.addDoubleProperty(
-            "Tuning Area Constant",
-            () -> VisionConstants.getKAreaConstant(),
-            (val) -> VisionConstants.setKAreaConstant(val)
-        );
-    
-        builder.addDoubleProperty(
-            "Tuning Ambiguity Constant",
-            () -> VisionConstants.getKAmbiguityConstant(),
-            (val) -> VisionConstants.setKAmbiguityConstant(val)
-        );
-    
-        builder.addDoubleProperty(
-            "Tuning Tag Count Constant",
-            () -> VisionConstants.getKTagCountConstant(),
-            (val) -> VisionConstants.setKTagCountConstant(val)
-        );
-    
-        builder.addDoubleProperty(
-            "Tuning Angular Velocity Constant",
-            () -> VisionConstants.getKAngularVelocityConstant(),
-            (val) -> VisionConstants.setKAngularVelocityConstant(val)
-        );
-    
-        builder.addDoubleProperty(
-            "Tuning Linear Velocity Constant",
-            () -> VisionConstants.getKLinearVelocityConstant(),
-            (val) -> VisionConstants.setKLinearVelocityConstant(val)
-        );*/
-
         builder.addDoubleProperty("Vision MegaTag1 X Pose Estimate",
         () -> (visionPoseEstimateMT1 != null && visionPoseEstimateMT1.pose != null)
                 ? visionPoseEstimateMT1.pose.getX()
@@ -217,6 +158,7 @@ public class Vision extends SubsystemBase {
 
     private void resetBestVisionPoseEstimate(){
         bestLimeLight = ""; // Reset best camera
+        visionPoseEstimate =  null;
         visionPoseEstimateMT1 = null;
         visionPoseEstimateMT2 = null;
         targetSkewDegrees = 0;
@@ -235,7 +177,7 @@ public class Vision extends SubsystemBase {
     public void chooseLL(){
         resetBestVisionPoseEstimate();
 
-        double bestTagArea = kMinAcceptableTagArea; // Start with minimumm acceptable area
+        double bestTagArea = kMinTagArea; // Start with minimumm acceptable area
         int bestTagCount = 0;
         
 
@@ -281,7 +223,7 @@ public class Vision extends SubsystemBase {
             }
             else{
                 // Reject update if our angular velocity is greater than a threshold degrees per second,
-                if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxAcceptableRotationalRate){
+                if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxRotationalRate){
                     rejectUpdate = true;
                 }
                 // Reject update if there are no visible tags (Redundant?)
@@ -301,10 +243,7 @@ public class Vision extends SubsystemBase {
                 rejectUpdate = true;
             }   
             else{
-                if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxAcceptableRotationalRate){
-                    rejectUpdate = true;
-                }
-                else if (visionPoseEstimate.rawFiducials[0].distToCamera > kMaxAcceptableDistance) {
+                if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxRotationalRate){
                     rejectUpdate = true;
                 }
                 else if (visionPoseEstimate.tagCount == 0) {
@@ -313,13 +252,19 @@ public class Vision extends SubsystemBase {
                 else if (Math.hypot(poseError.getX(), poseError.getY()) > kMaxTranslationalErrorMagnitude){
                     rejectUpdate = true;
                 }
+                else if (visionPoseEstimate.rawFiducials[0].ambiguity > kMaxAmbiguity){
+                    rejectUpdate = true;
+                }
+                else if (Math.abs(poseError.getRotation().getRadians()) > kMaxRotationalErrorMagnitude){
+                    rejectUpdate = true;
+                }
             }
             
         }
 
         // Update Pose Estimate if not rejected
-        if (rejectUpdate){
-            this.visionPoseEstimate =  null;
+        if (rejectUpdate && applyFilters){
+            resetBestVisionPoseEstimate();
         }
         else{
             this.visionPoseEstimate =  visionPoseEstimate;
@@ -354,7 +299,7 @@ public class Vision extends SubsystemBase {
      * @return true if there is a visible tag
      */
     public boolean cameraHasTag(String camera){
-        return kMinAcceptableTagArea < NetworkTableInstance.getDefault().getTable(camera).getEntry("botpose").getDoubleArray(new double[11])[10];
+        return kMinTagArea < NetworkTableInstance.getDefault().getTable(camera).getEntry("botpose").getDoubleArray(new double[11])[10];
     }
 
     /**

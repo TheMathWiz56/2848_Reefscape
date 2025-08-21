@@ -511,27 +511,16 @@ public final class Constants {
             public static final String[] kCameraList = {"limelight-right"}; // limelight-left
 
             // Filters
-            public static final double kMinAcceptableTagArea = 0.25;
-            public static final double kMaxAcceptableRotationalRate = 360; // deg/s
-            public static final double kMaxAcceptableDistance = 3; // m
+            public static final boolean kApplyFilters = true;
+            public static final double kMinTagArea = 0.25;
+            public static final double kMaxRotationalRate = 360; // deg/s
             public static final double kMaxTranslationalErrorMagnitude = 1.0; //m
+            public static final double kMaxRotationalErrorMagnitude = 0.25; //rad
+            public static final double kMaxAmbiguity = 0.4;
 
             // Standard Deviation 
             public static final double kInvalidStandardDeviation = 9999999;
             public static final double kMinimumStandardDeviation = 0.25;
-            public static final double kAreaLimit = 5.0;
-            // Multipliers
-            @Getter @Setter public static double kAreaMultiplier = -0.4;
-            @Getter @Setter public static double kAmbiguityMultiplier = 0.0;
-            @Getter @Setter public static double kTagCountMultiplier = -0.5;
-            @Getter @Setter public static double kAngularVelocityMultiplier = 0.0;
-            @Getter @Setter public static double kLinearVelocityMultiplier = 1;
-            // Constants
-            @Getter @Setter public static double kAreaConstant = 2.5;
-            @Getter @Setter public static double kAmbiguityConstant = 0.0;
-            @Getter @Setter public static double kTagCountConstant = 0.5;
-            @Getter @Setter public static double kAngularVelocityConstant = 0.0;
-            @Getter @Setter public static double kLinearVelocityConstant = 0.0;
         }
     }
 

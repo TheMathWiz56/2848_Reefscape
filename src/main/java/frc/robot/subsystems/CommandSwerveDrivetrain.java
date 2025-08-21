@@ -1,10 +1,6 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
-import static frc.robot.Constants.VisionConstants.kAngularVelocityConstant;
-import static frc.robot.Constants.VisionConstants.kAngularVelocityMultiplier;
-import static frc.robot.Constants.VisionConstants.kLinearVelocityConstant;
-import static frc.robot.Constants.VisionConstants.kLinearVelocityMultiplier;
 
 import java.util.List;
 import java.util.Map;
