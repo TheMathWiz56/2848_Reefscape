@@ -54,6 +54,7 @@ public class Vision extends SubsystemBase {
         this.cameraList = kCameraList;
         this.applyFilters = kApplyFilters;
         this.addToPoseEstimator = kAddToPoseEstimator;
+        configureCameras();
     }
 
     public void configureCameras(){
@@ -74,7 +75,12 @@ public class Vision extends SubsystemBase {
         }
         LimelightHelpers.SetFiducialDownscalingOverride(camera, kDownscaleFactor); // Increases the framerate
 
+        // Force LEDs off
         LimelightHelpers.setLEDMode_ForceOff(camera);
+
+        // Apply window crop settings to increase framerate
+        CropWindowSettings cropWindow = cameraCropWindowMap.get(camera);
+        LimelightHelpers.setCropWindow(camera, cropWindow.getCropXMin(), cropWindow.getCropXMax(), cropWindow.getCropYMin(), cropWindow.getCropYMax());
     }
 
 
@@ -283,25 +289,32 @@ public class Vision extends SubsystemBase {
      * Updated the Translational and Rotational Standard Deviations for the measurement from the best limelight
      */
     public void setStandardDeviation(){
-        // Set standard deviations using avg tag distance data
-        //limited to more than 0.5 because of the sqrt function
-        if (visionPoseEstimate.avgTagDist > 0.5){
-            translationStdDev = 2* 1.2 * Math.sqrt(visionPoseEstimate.avgTagDist - 0.5);
-            rotationStdDev = 0.3 * visionPoseEstimate.avgTagDist - 0.1;
-        }
-        
-        // Modify standard deviations using tag skew data if past the distance threshold
-        if (visionPoseEstimate.avgTagDist > kAddSkewDataDistanceThreshold){
-            translationStdDev += 2 *1.4 * (adjustedSkewAngle - 1.1) * (adjustedSkewAngle - 1.1);
-            rotationStdDev += 0.02 * (adjustedSkewAngle - 4.1) * (adjustedSkewAngle - 4.1);
-        }
-        
-        // Check to make sure standard deviations are not below the minimum limits
-        if (translationStdDev < kMinimumTranslationalStandardDeviation){
+        if (visionPoseEstimate.tagCount > 1){
+            // If the camera sees more than 1 april tag assume the lowest standard deviation
             translationStdDev = kMinimumTranslationalStandardDeviation;
-        }
-        if (rotationStdDev < kMinimumRotationalStandardDeviation){
             rotationStdDev = kMinimumRotationalStandardDeviation;
+        }
+        else{
+            // Set standard deviations using avg tag distance data
+            //limited to more than 0.5 because of the sqrt function
+            if (visionPoseEstimate.avgTagDist > 0.5){
+                translationStdDev = 2* 1.2 * Math.sqrt(visionPoseEstimate.avgTagDist - 0.5);
+                rotationStdDev = 0.3 * visionPoseEstimate.avgTagDist - 0.1;
+            }
+            
+            // Modify standard deviations using tag skew data if past the distance threshold
+            if (visionPoseEstimate.avgTagDist > kAddSkewDataDistanceThreshold){
+                translationStdDev += 2 *1.4 * (adjustedSkewAngle - 1.1) * (adjustedSkewAngle - 1.1);
+                rotationStdDev += 2*0.02 * (adjustedSkewAngle - 4.1) * (adjustedSkewAngle - 4.1);
+            }
+            
+            // Check to make sure standard deviations are not below the minimum limits
+            if (translationStdDev < kMinimumTranslationalStandardDeviation){
+                translationStdDev = kMinimumTranslationalStandardDeviation;
+            }
+            if (rotationStdDev < kMinimumRotationalStandardDeviation){
+                rotationStdDev = kMinimumRotationalStandardDeviation;
+            }
         }
 
         // Fill out Standard deviation matrix for drivebase
@@ -345,4 +358,6 @@ public class Vision extends SubsystemBase {
  * Calibrate limelights
  * Conditions for filters and std devs when there are two visible tags
  * figure out window crop values to increase framerate?
+ * but the limelight 3G lenses
+ * pathPID include initial velocity
  */

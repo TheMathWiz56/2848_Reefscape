@@ -14,6 +14,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -507,6 +509,30 @@ public final class Constants {
         }
 
         public static class VisionConstants {
+            public static class CropWindowSettings{
+                @Getter @Setter private double cropXMin;
+                @Getter @Setter private double cropXMax;
+                @Getter @Setter private double cropYMin;
+                @Getter @Setter private double cropYMax;
+
+                public CropWindowSettings(double cropXMin, double cropXMax, double cropYMin, double cropYMax){
+                    if (cropXMin >= cropXMax || cropYMin >= cropYMax) {
+                        throw new IllegalArgumentException("Invalid crop window: min must be less than max");
+                    }
+                    this.cropXMin = cropXMin;
+                    this.cropXMax = cropXMax;
+                    this.cropYMin = cropYMin;
+                    this.cropYMax = cropYMax;
+                }
+
+                public CropWindowSettings(){
+                    this.cropXMin = -1;
+                    this.cropXMax = 1;
+                    this.cropYMin = -1;
+                    this.cropYMax = 1;
+                }
+            }
+
             // List of camera names published to the network tables (set in the limelight browser config tool)
             public static final String[] kCameraList = {"limelight-right"}; // limelight-left
             public static final boolean kAddToPoseEstimator = true;
@@ -516,6 +542,15 @@ public final class Constants {
             public static final int[] kBlueAprilTagList = new int[]{17, 18, 19, 20, 21, 22};
             public static final int[] kAllAprilTagList = new int[]{6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
             public static final float kDownscaleFactor = 4.0f;
+            // crop settings
+            public static final Map<String, CropWindowSettings> cameraCropWindowMap;
+
+            static {
+                cameraCropWindowMap = new HashMap<>();
+                cameraCropWindowMap.put("limelight-right", new CropWindowSettings(-1, 1, -0.4, 0.9));
+                cameraCropWindowMap.put("limelight-left", new CropWindowSettings());
+            }
+
 
             // Filters
             public static final boolean kApplyFilters = true;
