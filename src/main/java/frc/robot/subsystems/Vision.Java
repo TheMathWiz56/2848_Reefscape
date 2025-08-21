@@ -360,4 +360,6 @@ public class Vision extends SubsystemBase {
  * figure out window crop values to increase framerate?
  * but the limelight 3G lenses
  * pathPID include initial velocity
+ * don't allow auto align score algae until corrected with the limelights
+ * marge back into main
  */
