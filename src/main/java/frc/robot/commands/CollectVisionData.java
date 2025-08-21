@@ -24,6 +24,7 @@ public class CollectVisionData {
         this.drive = drive;
 
         // Row 2
+        /*
         positionArray.add(new Translation2d(7.321, 5.521));
 
         // Row 3
@@ -37,6 +38,8 @@ public class CollectVisionData {
 
         // Row 5
         positionArray.add(new Translation2d(7.321, 4.021));
+        */
+        
         positionArray.add(new Translation2d(7.821, 4.021));
 
         // Row 6

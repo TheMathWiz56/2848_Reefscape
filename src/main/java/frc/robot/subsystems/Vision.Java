@@ -301,7 +301,6 @@ public class Vision extends SubsystemBase {
                 rejectUpdate = true;
             }   
             else{
-                // add an ambiguity filter back in
                 if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxAcceptableRotationalRate){
                     rejectUpdate = true;
                 }
@@ -380,3 +379,10 @@ public class Vision extends SubsystemBase {
     }
 
 }
+
+/*
+ * To Do 
+ * add an ambiguity filter back in
+ * add field limit filter
+ * Calibrate limelights
+ */
