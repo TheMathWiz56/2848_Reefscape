@@ -511,6 +511,12 @@ public final class Constants {
             public static final String[] kCameraList = {"limelight-right"}; // limelight-left
             public static final boolean kAddToPoseEstimator = true;
 
+            // Camera settings
+            public static final int[] kRedAprilTagList = new int[]{6, 7, 8, 9, 10, 11};
+            public static final int[] kBlueAprilTagList = new int[]{17, 18, 19, 20, 21, 22};
+            public static final int[] kAllAprilTagList = new int[]{6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
+            public static final float kDownscaleFactor = 4.0f;
+
             // Filters
             public static final boolean kApplyFilters = true;
             public static final double kMinTagArea = 0.25;

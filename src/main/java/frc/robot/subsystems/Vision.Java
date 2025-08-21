@@ -54,22 +54,27 @@ public class Vision extends SubsystemBase {
         this.cameraList = kCameraList;
         this.applyFilters = kApplyFilters;
         this.addToPoseEstimator = kAddToPoseEstimator;
+    }
 
-        // Vision setup
-        // Configure AprilTag Filters 
-        /*
+    public void configureCameras(){
+        for (String camera : cameraList){
+            configureCamera(camera);
+        }
+    }
+
+    private void configureCamera(String camera){
         if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red){
-            LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", new int[]{6, 7, 8, 9, 10, 11}); // Only track these tag IDs
+            LimelightHelpers.SetFiducialIDFiltersOverride(camera, kRedAprilTagList); // Only track these tag IDs
         }
         else if (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue){
-                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", new int[]{17, 18, 19, 20, 21, 22}); // Only track these tag IDs
+            LimelightHelpers.SetFiducialIDFiltersOverride(camera, kBlueAprilTagList); // Only track these tag IDs
         }
         else{
-                LimelightHelpers.SetFiducialIDFiltersOverride("limelight-right", new int[]{6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22}); // Only track these tag IDs
+            LimelightHelpers.SetFiducialIDFiltersOverride(camera, kAllAprilTagList); // Only track these tag IDs
         }
-        LimelightHelpers.SetFiducialDownscalingOverride("limelight-right", 4.0f); // Increases the framerate*/
+        LimelightHelpers.SetFiducialDownscalingOverride(camera, kDownscaleFactor); // Increases the framerate
 
-        
+        LimelightHelpers.setLEDMode_ForceOff(camera);
     }
 
 
@@ -160,8 +165,11 @@ public class Vision extends SubsystemBase {
         SmartDashboard.putData(this);
     }
 
+    /**
+     * Resets all stored variables for best camera and pose estimate readings
+     */
     private void resetBestVisionPoseEstimate(){
-        bestLimeLight = ""; // Reset best camera
+        bestLimeLight = "";
         visionPoseEstimate =  null;
         visionPoseEstimateMT1 = null;
         visionPoseEstimateMT2 = null;
@@ -187,6 +195,7 @@ public class Vision extends SubsystemBase {
 
         for (String camera : cameraList) {
             boolean hasTag = cameraHasTag(camera);
+            // Sets the robot orientation to each camera, used for MegaTag2
             LimelightHelpers.SetRobotOrientation(camera, RobotContainer.getDrivetrain().getState().Pose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
             if (hasTag){
@@ -196,7 +205,6 @@ public class Vision extends SubsystemBase {
                     .getDoubleArray(new double[11]);
 
                 double tagArea = botpose[10];
-                SmartDashboard.putNumber("Raw Tag Count", botpose[7]);
                 int tagCount = (int) botpose[7];
 
                 if (tagCount > bestTagCount || (tagCount == bestTagCount && tagArea > bestTagArea)){
@@ -224,21 +232,10 @@ public class Vision extends SubsystemBase {
             // Check to ensure there is a valid pose estimate
             if (visionPoseEstimate == null) {
                 rejectUpdate = true;
-            }
-            else{
-                // Reject update if our angular velocity is greater than a threshold degrees per second
-                if (Math.abs(RobotContainer.getDrivetrain().getPigeon2().getAngularVelocityZWorld().getValueAsDouble()) > kMaxRotationalRate){
-                    rejectUpdate = true;
-                }
-                // Reject update if there are no visible tags (Redundant?)
-                else if (visionPoseEstimate.tagCount == 0) {
-                    rejectUpdate = true;
-                }
-            }  
-            
+            }            
         }
-        // Using Megatag1 
         else {
+            // Using Megatag1 
             visionPoseEstimate = visionPoseEstimateMT1;
             poseError = visionPoseEstimate.pose.minus(RobotContainer.getDrivetrain().getState().Pose);
             
@@ -271,8 +268,6 @@ public class Vision extends SubsystemBase {
                         visionPoseEstimate.pose.getX() > kFieldLength || visionPoseEstimate.pose.getY() > kFieldWidth){
                 rejectUpdate = true;
             }
-            
-            
         }
 
         // Update Pose Estimate if not rejected and is applying filters
@@ -288,12 +283,14 @@ public class Vision extends SubsystemBase {
      * Updated the Translational and Rotational Standard Deviations for the measurement from the best limelight
      */
     public void setStandardDeviation(){
-        // April Tag Factors
+        // Set standard deviations using avg tag distance data
+        //limited to more than 0.5 because of the sqrt function
         if (visionPoseEstimate.avgTagDist > 0.5){
             translationStdDev = 2* 1.2 * Math.sqrt(visionPoseEstimate.avgTagDist - 0.5);
             rotationStdDev = 0.3 * visionPoseEstimate.avgTagDist - 0.1;
         }
         
+        // Modify standard deviations using tag skew data if past the distance threshold
         if (visionPoseEstimate.avgTagDist > kAddSkewDataDistanceThreshold){
             translationStdDev += 2 *1.4 * (adjustedSkewAngle - 1.1) * (adjustedSkewAngle - 1.1);
             rotationStdDev += 0.02 * (adjustedSkewAngle - 4.1) * (adjustedSkewAngle - 4.1);
@@ -347,4 +344,5 @@ public class Vision extends SubsystemBase {
  * To Do 
  * Calibrate limelights
  * Conditions for filters and std devs when there are two visible tags
+ * figure out window crop values to increase framerate?
  */
