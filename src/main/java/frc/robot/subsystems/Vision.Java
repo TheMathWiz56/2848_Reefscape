@@ -151,8 +151,8 @@ public class Vision extends SubsystemBase {
                 /*
                 if(addToPoseEstimator){
                     RobotContainer.getDrivetrain().addVisionMeasurement(visionPoseEstimate.pose, 
-                    Utils.fpgaToCurrentTime(visionPoseEstimate.timestampSeconds), 
-                    visionStandardDeviation);
+                        Utils.fpgaToCurrentTime(visionPoseEstimate.timestampSeconds), 
+                        visionStandardDeviation);
                 }
                 */
             }
@@ -301,16 +301,15 @@ public class Vision extends SubsystemBase {
             rotationStdDev += 0.02 * (adjustedSkewAngle - 4.1) * (adjustedSkewAngle - 4.1);
         }
         
-        
-        
+        // Check to make sure standard deviations are not below the minimum limits
         if (translationStdDev < kMinimumTranslationalStandardDeviation){
             translationStdDev = kMinimumTranslationalStandardDeviation;
         }
-
         if (rotationStdDev < kMinimumRotationalStandardDeviation){
             rotationStdDev = kMinimumRotationalStandardDeviation;
         }
 
+        // Fill out Standard deviation matrix for drivebase
         visionStandardDeviation = VecBuilder.fill(translationStdDev, translationStdDev, rotationStdDev);
     }
 
