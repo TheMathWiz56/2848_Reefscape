@@ -135,7 +135,7 @@ public class RobotContainer {
                 arm.setDefaultCommand(arm.holdState());
                 pincer.setDefaultCommand(pincer.holdState());
                 ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
-                lights.setDefaultCommand(lights.runPattern(LEDConstants.kFastScrollingJesuit));
+                lights.setDefaultCommand(lights.defaultRun(() -> pincer.hasCoral(), () -> pincer.hasAlgae()));
 
         // Drivebase Telemetry
         drivetrain.registerTelemetry(logger::telemeterize);
@@ -339,7 +339,7 @@ class CommandFactory{
             )))
             .andThen(pincer.exhaust().until(() -> !pincer.hasCoral())) // In some of the cmds this would be .andThen(pincer.exhaust()).andThen(pincer.holdState()).until(() -> !pincer.hasCoral()), this seems to be better though
             .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral())
-            .deadlineFor(lights.runPattern(LEDConstants.kOrangeBlink));
+            .deadlineFor(lights.runPattern(LEDConstants.kScoringCoral));
     }
 
     // Score a level.
@@ -407,7 +407,7 @@ class CommandFactory{
             .andThen(pincer.pincerFunnel());
             }
 
-        return output;
+        return output.deadlineFor(lights.runPattern(LEDConstants.kStowing));
     }
     /*move claw, pivot, elevator to intake */
     public Command feed(){
@@ -418,7 +418,7 @@ class CommandFactory{
          .andThen(pincer.intake())
          .andThen(pincer.holdState().until(()->pincer.hasCoral()))
          .andThen(pincer.stopIntake())
-        .deadlineFor(lights.runPattern(LEDConstants.kGreenBlink));
+        .deadlineFor(lights.runPattern(LEDConstants.kFeeding));
     }
 
     public Command feedSequential(){
@@ -427,7 +427,8 @@ class CommandFactory{
             .andThen(pincer.pincerFunnel())
             .andThen(pincer.intake())
             .andThen(pincer.holdState().until(()->pincer.hasCoral()))
-            .andThen(pincer.stopIntake());
+            .andThen(pincer.stopIntake())
+            .deadlineFor(lights.runPattern(LEDConstants.kFeeding));
     }
 
     public Command reefAlgaeHigh(){
@@ -437,11 +438,12 @@ class CommandFactory{
             //.andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
             //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
-            .andThen(pincer.pincerAlgaeHold());
+            .andThen(pincer.pincerAlgaeHold())
             //.andThen(Commands.waitUntil(() -> pincer.hasAlgae()))
             //.andThen(arm.pivotToParallel());
             //.until(() -> pincer.hasAlgae())
             //.finallyDo((interrupted) -> pincer.stopIntake());
+            .deadlineFor(lights.runPattern(LEDConstants.kFeeding));
         }
 
     private Command reefAlgaeHighNoPinch(){
@@ -462,11 +464,12 @@ class CommandFactory{
             //andThen(pincer.reefAlgae())
             .andThen(pincer.intake())
             //.andThen(new WaitUntilCommand(()->pincer.hasAlgae()))
-            .andThen(pincer.pincerAlgaeHold());
+            .andThen(pincer.pincerAlgaeHold())
             //.andThen(Commands.waitUntil(() -> pincer.hasAlgae()))
             //.andThen(arm.pivotToParallel());
             //.until(() -> pincer.hasAlgae())
             //.finallyDo((interrupted) -> pincer.stopIntake());
+            .deadlineFor(lights.runPattern(LEDConstants.kFeeding));
     }
 
 /*score net net */
@@ -475,7 +478,8 @@ class CommandFactory{
         arm.goToNet())
         .andThen(pincer.exhaust())
         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
-        .finallyDo((interrupted) ->{pincer.stopIntake(); pincer.pincerFunnel();});
+        .finallyDo((interrupted) ->{pincer.stopIntake(); pincer.pincerFunnel();})
+        .deadlineFor(lights.runPattern(LEDConstants.kScoringAlgae));
     }
     /*score processor */
     public Command processor(){
@@ -492,16 +496,19 @@ class CommandFactory{
         .andThen(pincer.exhaust())
         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
         .finallyDo((interrupted) ->
-              {pincer.stopIntake(); pincer.pincerFunnel();});  
+              {pincer.stopIntake(); pincer.pincerFunnel();})
+        .deadlineFor(lights.runPattern(LEDConstants.kScoringAlgae));  
     }
     public Command groundAlgae(){
         return new ParallelCommandGroup(elevator.goToGroundAlgae(),
-        arm.goToGroundAlgae());
+        arm.goToGroundAlgae())
+        .deadlineFor(lights.runPattern(LEDConstants.kFeeding));
     }
 
     private Command pinceAlgae(){
         return pincer.intake()
-            .andThen(pincer.pincerAlgaeHold());
+            .andThen(pincer.pincerAlgaeHold())
+            .deadlineFor(lights.runPattern(LEDConstants.kFeeding));
     }
 
     private Command autoReefAlgaeStow(){
@@ -553,7 +560,7 @@ class CommandFactory{
                 Map.entry(9, autoReefAlgaeHigh()),
                 Map.entry(10, autoReefAlgaeLow()),
                 Map.entry(11, autoReefAlgaeHigh()))
-        , () -> drive.getTag());
+        , () -> drive.getTag()).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning));
     }
 
 
@@ -566,7 +573,7 @@ class CommandFactory{
                         Map.entry(2, scoreLevel(reefLs.L2)),
                         Map.entry(3, scoreLevel(reefLs.L3)),
                         Map.entry(4, scoreLevel(reefLs.L4, true)))
-                    , () -> elevator.getLevelQueue())));
+                    , () -> elevator.getLevelQueue()))).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning));
     }
 
     public Command autoReefCoralRight(){
@@ -578,7 +585,7 @@ class CommandFactory{
                         Map.entry(2, scoreLevel(reefLs.L2)),
                         Map.entry(3, scoreLevel(reefLs.L3)),
                         Map.entry(4, scoreLevel(reefLs.L4, true)))
-                    , () -> elevator.getLevelQueue())));
+                    , () -> elevator.getLevelQueue()))).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning));
     }
 
 }

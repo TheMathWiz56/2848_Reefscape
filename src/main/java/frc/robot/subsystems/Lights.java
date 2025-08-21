@@ -2,10 +2,13 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.LEDConstants.*;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.LEDConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class Lights extends SubsystemBase{
@@ -31,4 +34,16 @@ public class Lights extends SubsystemBase{
         return run(() -> pattern.applyTo(ledBuffer));
     }
     
+    public Command defaultRun(BooleanSupplier hasCoral, BooleanSupplier hasAlgae) {
+        return run(() -> {
+            if(hasCoral.getAsBoolean()) {
+                LEDConstants.kWithCoral.applyTo(ledBuffer);
+            } else if(hasAlgae.getAsBoolean()) {
+                LEDConstants.kWithAlgae.applyTo(ledBuffer);
+            } else {
+                LEDConstants.kNormal.applyTo(ledBuffer);
+            }
+        });
+    }
+
 }
