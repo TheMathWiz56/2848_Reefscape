@@ -148,13 +148,11 @@ public class Vision extends SubsystemBase {
             if (visionPoseEstimate != null) {
                 setStandardDeviation();
 
-                /*
                 if(addToPoseEstimator){
                     RobotContainer.getDrivetrain().addVisionMeasurement(visionPoseEstimate.pose, 
                         Utils.fpgaToCurrentTime(visionPoseEstimate.timestampSeconds), 
                         visionStandardDeviation);
                 }
-                */
             }
         }
         
