@@ -558,7 +558,7 @@ public final class Constants {
             public static final double kMaxRotationalRate = 360; // deg/s
             public static final double kMaxTranslationalErrorMagnitude = 1; //m
             public static final double kMaxRotationalErrorMagnitude = 0.25; //rad
-            public static final double kMaxAmbiguity = 0.4;
+            public static final double kMaxAmbiguity = 0.6;
             // Can also be grabbed from WPI AprilTag class
             public static final double kFieldWidth = 8.05;
             public static final double kFieldLength = 17.55;

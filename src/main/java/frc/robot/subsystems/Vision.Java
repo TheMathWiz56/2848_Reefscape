@@ -296,12 +296,26 @@ public class Vision extends SubsystemBase {
             translationStdDev = kMinimumTranslationalStandardDeviation;
             rotationStdDev = kMinimumRotationalStandardDeviation;
         }
-        else {
+        else if (useOldStdDev){
             translationStdDev = (visionPoseEstimate.avgTagArea * (-18.3)) + 11.34;
             rotationStdDev = 0.3 * visionPoseEstimate.avgTagDist - 0.1;
 
             // Modify standard deviations using tag skew data if past the distance threshold
             if (visionPoseEstimate.avgTagDist > kAddSkewDataDistanceThreshold){
+                rotationStdDev += 0.02 * (adjustedSkewAngle - 4.1) * (adjustedSkewAngle - 4.1);
+            }
+        }
+        else{
+            // Set standard deviations using avg tag distance data
+            //limited to more than 0.5 because of the sqrt function
+            if (visionPoseEstimate.avgTagDist > 0.5){
+                translationStdDev = 0.25 * 1.2 * Math.sqrt(visionPoseEstimate.avgTagDist - 0.5);
+                rotationStdDev = 0.3 * visionPoseEstimate.avgTagDist - 0.1;
+            }
+            
+            // Modify standard deviations using tag skew data if past the distance threshold
+            if (visionPoseEstimate.avgTagDist > kAddSkewDataDistanceThreshold){
+                translationStdDev += 1.4 * (adjustedSkewAngle - 1.1) * (adjustedSkewAngle - 1.1);
                 rotationStdDev += 0.02 * (adjustedSkewAngle - 4.1) * (adjustedSkewAngle - 4.1);
             }
         }
