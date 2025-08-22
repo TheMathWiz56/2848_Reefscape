@@ -356,7 +356,6 @@ public class RobotContainer {
                 //operatorJoystick.b().onTrue(pincer.algaeGrab());
                 //operatorJoystick.rightStick().onTrue(pincer.pincerFunnel2());
                 operatorJoystick.x().onTrue(pincer.pincerFunnel());
-                operatorJoystick.rightStick().onTrue(pincer.forceOpen());
                 //operatorJoystick.x().onTrue(()->pincer.setPincerOutput(0.278));
 
                 keypad.button(14).onTrue(pincer.pincerFunnel());
