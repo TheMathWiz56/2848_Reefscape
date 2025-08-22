@@ -33,11 +33,11 @@ public class TunerConstants {
     public final static double odometryUpdateFrequency = 250;
     public static Matrix<N3, N1> odometryStandardDeviation = VecBuilder.fill(.1,.1, Units.degreesToRadians(5));
 
-    public static final double pathPID_Translation_P = 10; // (m/s) / m error
+    public static final double pathPID_Translation_P = 4; // (m/s) / m error
     public static final double pathPID_Translation_I = 0; // (m/s) / m error
     public static final double pathPID_Translation_D = 0.0;
-    public static final double pathPID_Translation_maxVy = 3; // m/s // parallel to tag
-    public static final double pathPID_Translation_maxVx = 2.5; // m/s // normal to tag
+    public static final double pathPID_Translation_maxVy = 4.5; // m/s // parallel to tag
+    public static final double pathPID_Translation_maxVx = 3; // m/s // normal to tag
     public static final double pathPID_Translation_MaxA = 1.5; // 1.65
     public static final double pathPID_Translation_TolX = .1;
     public static final double pathPID_Translation_TolY = .03; //.03
@@ -47,7 +47,7 @@ public class TunerConstants {
     public static final double pathPID_Rotation_P = 4; // 4 (rad/s) / rad error
     public static final double pathPID_Rotation_I = 0; // (rad/s) / rad error
     public static final double pathPID_Rotation_D = 0.0;
-    public static final double pathPID_Rotation_maxV = 1.5; // rad/s 1.5
+    public static final double pathPID_Rotation_maxV = 2; // rad/s 1.5
     public static final double pathPID_Rotation_MaxA = 2; // 2 rad/s/s 
     public static final double pathPID_Rotation_Tol = 0.05; // rad
     public static final double pathPID_Rotation_Deadband = 0.02;
