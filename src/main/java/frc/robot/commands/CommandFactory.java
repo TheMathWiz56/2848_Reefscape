@@ -315,6 +315,16 @@ public class CommandFactory{
         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
         .finallyDo((interrupted) ->{pincer.stopIntake(); pincer.pincerFunnel();});
     }
+
+    public Command getLollipop(){
+        return new ParallelCommandGroup(
+            elevator.goToProcessor(),
+            arm.goToProcessor(),
+            pincer.pincerFunnel()
+        );
+    }
+
+    
     /*score processor */
     public Command processor(){
         /* return elevator.goToProcessor()
