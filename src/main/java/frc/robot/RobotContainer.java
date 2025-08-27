@@ -214,31 +214,37 @@ public class RobotContainer {
                         .and(elevator.isNearTop())
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
-                                .onTrue(commandFactory.stow(false, false, true, false));
+                                .onTrue(commandFactory.stow(false, false, true, false)
+                                .deadlineFor(lights.runPattern(LEDConstants.kStowing)));
                 //coral not low
                 operatorJoystick.pov(90)
                         .and(() ->pincer.hasCoral())
                         .and(() -> !elevator.isLow().getAsBoolean())
-                                .onTrue(commandFactory.stow(true, false, false, false));
+                                .onTrue(commandFactory.stow(true, false, false, false)
+                                .deadlineFor(lights.runPattern(LEDConstants.kStowing)));
                 //all algae
-                operatorJoystick.pov(90).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+                operatorJoystick.pov(90).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false)
+                .deadlineFor(lights.runPattern(LEDConstants.kStowing)));
                 //low coral
                 operatorJoystick.pov(90)
                         .and(elevator.isLow())
                         .and(() -> pincer.hasCoral())
-                                .onTrue(commandFactory.stow(true, false, false, true));
+                                .onTrue(commandFactory.stow(true, false, false, true)
+                                .deadlineFor(lights.runPattern(LEDConstants.kStowing)));
                 //not high empty
                 operatorJoystick.pov(90)
                         .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
-                                .onTrue(commandFactory.stow(false, false, false, false));
+                                .onTrue(commandFactory.stow(false, false, false, false)
+                                .deadlineFor(lights.runPattern(LEDConstants.kStowing)));
 
                 operatorJoystick.pov(90)
                         .and(elevator.isLow())
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
-                                .onTrue(commandFactory.stow(false, false, false, true));
+                                .onTrue(commandFactory.stow(false, false, false, true)
+                                .deadlineFor(lights.runPattern(LEDConstants.kStowing)));
 
                 
                 operatorJoystick.back().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).and(operatorJoystick.y().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising))
@@ -253,21 +259,25 @@ public class RobotContainer {
                 operatorJoystick.a()
                         .and(elevator.isNearTop())
                         .and(() -> !pincer.hasAlgae())
-                                .onTrue(commandFactory.stow(true, false, true, false));
+                                .onTrue(commandFactory.stow(true, false, true, false)
+                                .deadlineFor(lights.runPattern(LEDConstants.kStowing)));
                 //Is Middle
                 operatorJoystick.a()
                         .and(() -> !elevator.isLow().getAsBoolean())
                         .and(() -> !elevator.isNearTop().getAsBoolean())
                         .and(() -> !pincer.hasAlgae())
-                                .onTrue(commandFactory.stow(true, false, false, false));
+                                .onTrue(commandFactory.stow(true, false, false, false)
+                                .deadlineFor(lights.runPattern(LEDConstants.kStowing)));
                 //Is Low
                 operatorJoystick.a()
                         .and(elevator.isLow())
                         .and(() -> !pincer.hasAlgae())
-                                .onTrue(commandFactory.stow(true, false, false, true));    
+                                .onTrue(commandFactory.stow(true, false, false, true)
+                                .deadlineFor(lights.runPattern(LEDConstants.kStowing)));    
                                 
                                 
-                operatorJoystick.start().onTrue(commandFactory.stow(false, true, false, false));
+                operatorJoystick.start().onTrue(commandFactory.stow(false, true, false, false)
+                .deadlineFor(lights.runPattern(LEDConstants.kStowing)));
                 
 
                 //reef algae
@@ -414,7 +424,7 @@ class CommandFactory{
             .andThen(pincer.pincerFunnel());
             }
 
-        return output.deadlineFor(lights.runPattern(LEDConstants.kStowing));
+        return output;
     }
     /*move claw, pivot, elevator to intake */
     public Command feed(){
@@ -529,7 +539,7 @@ class CommandFactory{
     }
 
     private Command autoReefAlgaeHigh(){
-        return drive.pathPIDToTagMiddleSelect()
+        return drive.pathPIDToTagMiddleSelect().deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
                 .alongWith(autoReefAlgaeStow())
             .andThen(reefAlgaeHighNoPinch()
                 .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)))
@@ -541,7 +551,7 @@ class CommandFactory{
     }
 
     private Command autoReefAlgaeLow(){
-        return drive.pathPIDToTagMiddleSelect()
+        return drive.pathPIDToTagMiddleSelect().deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
                 .alongWith(autoReefAlgaeStow())
             .andThen(reefAlgaeLowNoPinch()
                 .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)))
@@ -567,7 +577,7 @@ class CommandFactory{
                 Map.entry(9, autoReefAlgaeHigh()),
                 Map.entry(10, autoReefAlgaeLow()),
                 Map.entry(11, autoReefAlgaeHigh()))
-        , () -> drive.getTag()).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning));
+        , () -> drive.getTag());
     }
 
 
