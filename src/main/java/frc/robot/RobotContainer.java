@@ -572,7 +572,7 @@ class CommandFactory{
 
 
     public Command autoReefCoralLeft(){
-        return drive.pathPIDToTagLeftSelect()
+        return drive.pathPIDToTagLeftSelect().deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
             .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)
             .raceWith(
                 new SelectCommand<>(
@@ -580,11 +580,11 @@ class CommandFactory{
                         Map.entry(2, scoreLevel(reefLs.L2)),
                         Map.entry(3, scoreLevel(reefLs.L3)),
                         Map.entry(4, scoreLevel(reefLs.L4, true)))
-                    , () -> elevator.getLevelQueue()))).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning));
+                    , () -> elevator.getLevelQueue())));
     }
 
     public Command autoReefCoralRight(){
-        return drive.pathPIDToTagRightSelect()
+        return drive.pathPIDToTagRightSelect().deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
             .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)
             .raceWith(
                 new SelectCommand<>(
@@ -592,7 +592,7 @@ class CommandFactory{
                         Map.entry(2, scoreLevel(reefLs.L2)),
                         Map.entry(3, scoreLevel(reefLs.L3)),
                         Map.entry(4, scoreLevel(reefLs.L4, true)))
-                    , () -> elevator.getLevelQueue()))).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning));
+                    , () -> elevator.getLevelQueue())));
     }
 
 }
