@@ -271,7 +271,7 @@ public final class Constants {
             public static final double kPincerMotorMinOutput = -1;
             public static final double kPincerMotorMaxOutput = 1;
             public static final double kPincerMotorAbsoluteEncoderOffset = 0.7;
-            public static final boolean kPincerMotorZeroCentered = true;
+            public static final boolean kPincerMotorZeroCentered = false;
 
             // Soft Limits
             public static final boolean kSoftLimitsEnabled = false;
