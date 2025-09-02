@@ -230,61 +230,61 @@ public class RobotContainer {
 
                 // Stow Commands
 
-                //empty near top
+                // //empty near top
+                // keypad.button(9)
+                //         .and(elevator.isNearTop())
+                //         .and(() -> !pincer.hasCoral())
+                //         .and(() -> !pincer.hasAlgae())
+                //                 .onTrue(commandFactory.stow(false, false, true, false));
+                // //coral not low
+                // keypad.button(9)
+                //         .and(() ->pincer.hasCoral())
+                //         .and(() -> !elevator.isLow().getAsBoolean())
+                //                 .onTrue(commandFactory.stow(true, false, false, false));
+                // //all algae
+                // keypad.button(9).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+                // //low coral
+                // keypad.button(9)
+                //         .and(elevator.isLow())
+                //         .and(() -> pincer.hasCoral())
+                //                 .onTrue(commandFactory.stow(true, false, false, true));
+                // //not high empty
                 keypad.button(9)
-                        .and(elevator.isNearTop())
-                        .and(() -> !pincer.hasCoral())
-                        .and(() -> !pincer.hasAlgae())
-                                .onTrue(commandFactory.stow(false, false, true, false));
-                //coral not low
-                keypad.button(9)
-                        .and(() ->pincer.hasCoral())
-                        .and(() -> !elevator.isLow().getAsBoolean())
-                                .onTrue(commandFactory.stow(true, false, false, false));
-                //all algae
-                keypad.button(9).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
-                //low coral
-                keypad.button(9)
-                        .and(elevator.isLow())
-                        .and(() -> pincer.hasCoral())
-                                .onTrue(commandFactory.stow(true, false, false, true));
-                //not high empty
-                operatorJoystick.pov(90)
                         .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(false, false, false, false));
 
-                                operatorJoystick.pov(90)
+                                keypad.button(9)
                         .and(elevator.isLow())
                         .and(() -> !pincer.hasCoral())
                         .and(() -> !pincer.hasAlgae())
                                 .onTrue(commandFactory.stow(false, false, false, true));
-                                operatorJoystick.pov(90)
+                                keypad.button(9)
                                 .and(elevator.isNearTop())
                                 .and(() -> !pincer.hasCoral())
                                 .and(() -> !pincer.hasAlgae())
                                         .onTrue(commandFactory.stow(false, false, true, false));
                         //coral not low
-                        operatorJoystick.pov(90)
+                        keypad.button(9)
                                 .and(() ->pincer.hasCoral())
                                 .and(() -> !elevator.isLow().getAsBoolean())
                                         .onTrue(commandFactory.stow(true, false, false, false));
                         //all algae
-                        operatorJoystick.pov(90).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+                        keypad.button(9).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
                         //low coral
-                        operatorJoystick.pov(90)
+                        keypad.button(9)
                                 .and(elevator.isLow())
                                 .and(() -> pincer.hasCoral())
                                         .onTrue(commandFactory.stow(true, false, false, true));
                         //not high empty
-                        operatorJoystick.pov(90)
+                        keypad.button(9)
                                 .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
                                 .and(() -> !pincer.hasCoral())
                                 .and(() -> !pincer.hasAlgae())
                                         .onTrue(commandFactory.stow(false, false, false, false));
         
-                                        operatorJoystick.pov(90)
+                                        keypad.button(9)
                                 .and(elevator.isLow())
                                 .and(() -> !pincer.hasCoral())
                                 .and(() -> !pincer.hasAlgae())
