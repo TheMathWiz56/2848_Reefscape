@@ -121,6 +121,8 @@ public class RobotContainer {
         speedChooser.addOption("50% Speed", 0.5);
         speedChooser.addOption("25% Speed", 0.25);
 
+        SmartDashboard.putData("Speed Select", speedChooser);
+
         configureBindings();
 
         reefData.reset();
