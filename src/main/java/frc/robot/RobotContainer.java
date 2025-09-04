@@ -66,7 +66,7 @@ public class RobotContainer {
     public final CommandXboxController driverJoystick = new CommandXboxController(0);
     public final CommandGenericHID keypad = new CommandGenericHID(1);
     public final CommandXboxController operatorJoystick = new CommandXboxController(2);
-    public final CommandXboxController testingJoystick = new CommandXboxController(5); // You can put test commands onto here.
+    //public final CommandXboxController testingJoystick = new CommandXboxController(5); // You can put test commands onto here.
 
     // Subsystem Instances
         @Getter private static final Arm arm = new Arm();
@@ -247,6 +247,46 @@ public class RobotContainer {
                 //         .and(() -> pincer.hasCoral())
                 //                 .onTrue(commandFactory.stow(true, false, false, true));
                 // //not high empty
+                operatorJoystick.pov(90)
+                        .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
+                        .and(() -> !pincer.hasCoral())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(false, false, false, false));
+
+                                operatorJoystick.pov(90)
+                        .and(elevator.isLow())
+                        .and(() -> !pincer.hasCoral())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(false, false, false, true));
+                                operatorJoystick.pov(90)
+                                .and(elevator.isNearTop())
+                                .and(() -> !pincer.hasCoral())
+                                .and(() -> !pincer.hasAlgae())
+                                        .onTrue(commandFactory.stow(false, false, true, false));
+                        //coral not low
+                        operatorJoystick.pov(90)
+                                .and(() ->pincer.hasCoral())
+                                .and(() -> !elevator.isLow().getAsBoolean())
+                                        .onTrue(commandFactory.stow(true, false, false, false));
+                        //all algae
+                        operatorJoystick.pov(90).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+                        //low coral
+                        operatorJoystick.pov(90)
+                                .and(elevator.isLow())
+                                .and(() -> pincer.hasCoral())
+                                        .onTrue(commandFactory.stow(true, false, false, true));
+                        //not high empty
+                        operatorJoystick.pov(90)
+                                .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
+                                .and(() -> !pincer.hasCoral())
+                                .and(() -> !pincer.hasAlgae())
+                                        .onTrue(commandFactory.stow(false, false, false, false));
+        
+                                        operatorJoystick.pov(90)
+                                .and(elevator.isLow())
+                                .and(() -> !pincer.hasCoral())
+                                .and(() -> !pincer.hasAlgae())
+                                        .onTrue(commandFactory.stow(false, false, false, true));
                 keypad.button(9)
                         .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
                         .and(() -> !pincer.hasCoral())
@@ -370,10 +410,11 @@ public class RobotContainer {
 
 
         // Testing pincer positions
+        /*
         testingJoystick.a().onTrue(pincer.pincerFunnel());
         testingJoystick.b().onTrue(pincer.pincerFunnel2());
         testingJoystick.x().onTrue(pincer.algaeScore());
-        testingJoystick.y().onTrue(pincer.stowPincer());
+        testingJoystick.y().onTrue(pincer.stowPincer());*/
     }
 
     public Command getAutonomousCommand() {
