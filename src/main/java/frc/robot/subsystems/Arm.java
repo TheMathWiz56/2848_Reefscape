@@ -161,7 +161,7 @@ public class Arm extends SubsystemBase {
             pivotPIDUpdated = false;
         }
 
-        //SmartDashboard.putData(this);
+        SmartDashboard.putData(this);
         List<Integer> keyDown = new ArrayList<>();
         keyDown = keypad.keys;
         keypad.keyMode mode = keypad.mode;
