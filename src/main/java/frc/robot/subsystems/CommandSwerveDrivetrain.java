@@ -95,6 +95,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     Timer timeToAlign = new Timer();
     private final Debouncer atGoalDebouncer = new Debouncer(TunerConstants.debounce_Time, DebounceType.kBoth);
 
+    private final Debouncer forceAtGoalDebouncer = new Debouncer(0.33, DebounceType.kRising);
+
     //Testing
     // Trapezoid profile for feedforward
     private final TrapezoidProfile trapezoidProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
@@ -372,6 +374,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
 
+            
         
         }
         
@@ -389,8 +392,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putNumber("Vision DriveBase Rotation", this.getState().Pose.getRotation().getDegrees());
 
         SmartDashboard.putBoolean("Test Path PID At Goal", pathPIDAtGoal());
-    }
 
+        forceAtGoal();
+
+    }
+    
 
     // ___________________________________________________ Vision Code ___________________________________________________
     
@@ -586,7 +592,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 SmartDashboard.putNumber("X PID Position PV", currentTagPose2d.getX());
                 SmartDashboard.putNumber("X PID Output", positionPID.getX());*/
 
-            }).until(() -> pathPIDAtGoal()).withName("PathPIDTo").andThen(() -> {
+            }).until(() -> pathPIDAtGoal() || forceAtGoal()).withName("PathPIDTo").andThen(() -> {
                 isTrackingTagGoal = false;
                 timeToAlign.stop();
                 SmartDashboard.putNumber("Time To Align", timeToAlign.get()); }, this);
@@ -627,7 +633,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
                 this.setControl(pathPIDRequest);
 
-            }).until(() -> pathPIDAtGoal()).withName("PathPIDTo").andThen(() -> isTrackingTagGoal = false, this);
+            }).until(() -> pathPIDAtGoal() || forceAtGoal()).withName("PathPIDTo").andThen(() -> isTrackingTagGoal = false, this);
     }
 
     /**
@@ -638,5 +644,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public boolean pathPIDAtGoal (){
         return atGoalDebouncer.calculate(pathPIDXController.atGoal() && pathPIDYController.atGoal() && pathPIDRotationController.atGoal() && isTrackingTagGoal);
+    }
+
+    public boolean forceAtGoal() {
+        return forceAtGoalDebouncer.calculate(Math.hypot(RobotContainer.getDrivetrain().getState().Speeds.vxMetersPerSecond, RobotContainer.getDrivetrain().getState().Speeds.vyMetersPerSecond)
+            <= 0.001 && isTrackingTagGoal);
     }
 }

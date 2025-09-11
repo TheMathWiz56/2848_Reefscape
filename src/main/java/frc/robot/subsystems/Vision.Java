@@ -47,7 +47,7 @@ public class Vision extends SubsystemBase {
 
     @Getter @Setter private boolean applyFilters;
     @Getter @Setter private boolean addToPoseEstimator;
-    @Getter @Setter private boolean useOldStdDev = false;
+    @Getter @Setter private boolean useOldStdDev = true;
 
 
     public Vision(){
@@ -260,17 +260,17 @@ public class Vision extends SubsystemBase {
                 rejectUpdate = true;
             }
             // Reject update if the translational error magnitude is larger than the threshold
-            else if (Math.hypot(poseError.getX(), poseError.getY()) > kMaxTranslationalErrorMagnitude){
-                rejectUpdate = true;
-            }
+            // else if (Math.hypot(poseError.getX(), poseError.getY()) > kMaxTranslationalErrorMagnitude){
+            //     rejectUpdate = true;
+            // }
             // Reject update if the ambiguity is larger than the threshold
             else if (visionPoseEstimate.rawFiducials[0].ambiguity > kMaxAmbiguity){
                 rejectUpdate = true;
             }
             // Reject update if the rotational error magnitude is larger than the threshold
-            else if (Math.abs(poseError.getRotation().getRadians()) > kMaxRotationalErrorMagnitude){
-                rejectUpdate = true;
-            }
+            // else if (Math.abs(poseError.getRotation().getRadians()) > kMaxRotationalErrorMagnitude){
+            //     rejectUpdate = true;
+            // }
             // Reject update if the pose estimate is not inside of the field
             else if (visionPoseEstimate.pose.getX() < 0.0 || visionPoseEstimate.pose.getY() < 0.0 || 
                         visionPoseEstimate.pose.getX() > kFieldLength || visionPoseEstimate.pose.getY() > kFieldWidth){
