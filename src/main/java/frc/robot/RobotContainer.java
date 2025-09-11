@@ -9,48 +9,38 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.function.BooleanSupplier;
-import java.util.function.IntSupplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.fasterxml.jackson.databind.util.Named;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindingCommand;
-import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-
 import frc.robot.Constants.operatorConstants;
 import frc.robot.commands.CollectVisionData;
 import frc.robot.commands.CommandFactory;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Ascender;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Pincer;
 import frc.robot.subsystems.Lights;
-import frc.robot.subsystems.Ascender;
+import frc.robot.subsystems.Pincer;
 import frc.robot.subsystems.Vision;
 import lombok.Getter;
-import lombok.Setter;
-
-
-import frc.robot.Util.reef;
 
 
 
@@ -59,7 +49,6 @@ public class RobotContainer {
     private double MaxAngularRate = RotationsPerSecond.of(1.5).in(RadiansPerSecond); // 3/4 of a rotation per second
                                                                                       // max angular velocity
 
-    private double speedMultiplier = 1.0;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -72,10 +61,12 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
+    private final SendableChooser<Double> speedChooser = new SendableChooser<Double>();
+
     public final CommandXboxController driverJoystick = new CommandXboxController(0);
     public final CommandGenericHID keypad = new CommandGenericHID(1);
     public final CommandXboxController operatorJoystick = new CommandXboxController(2);
-    public final CommandXboxController testingJoystick = new CommandXboxController(5); // You can put test commands onto here.
+    //public final CommandXboxController testingJoystick = new CommandXboxController(5); // You can put test commands onto here.
 
     // Subsystem Instances
         @Getter private static final Arm arm = new Arm();
@@ -125,6 +116,13 @@ public class RobotContainer {
 
         SmartDashboard.putData("Auto Mode", autoChooser);
 
+        speedChooser.setDefaultOption("100% Full Speed", 1.0);
+        speedChooser.addOption("75% Speed", 0.75);
+        speedChooser.addOption("50% Speed", 0.5);
+        speedChooser.addOption("25% Speed", 0.25);
+
+        SmartDashboard.putData("Speed Select", speedChooser);
+
         configureBindings();
 
         reefData.reset();
@@ -142,12 +140,12 @@ public class RobotContainer {
                 // and Y is defined as to the left according to WPILib convention.
                 drivetrain.setDefaultCommand(
                         // Drivetrain will execute this command periodically
-                        drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed * speedMultiplier * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive
+                        drivetrain.applyRequest(() -> drive.withVelocityX(-driverJoystick.getLeftY() * MaxSpeed * speedChooser.getSelected() * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive
                                                                                                                 // forward with
                                                                                                                 // negative Y
                                                                                                                 // (forward)
-                                .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * speedMultiplier * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive left with negative X (left)
-                                .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate * speedMultiplier * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive counterclockwise with
+                                .withVelocityY(-driverJoystick.getLeftX() * MaxSpeed * speedChooser.getSelected() * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive left with negative X (left)
+                                .withRotationalRate(-driverJoystick.getRightX() * MaxAngularRate * speedChooser.getSelected() * elevator.getDrivetrainSpeedMultiplier().getAsDouble()) // Drive counterclockwise with
                                 .withDeadband(MaxSpeed * 0.1 * elevator.getDrivetrainSpeedMultiplier().getAsDouble())
                                 .withRotationalDeadband(MaxAngularRate * 0.1 * elevator.getDrivetrainSpeedMultiplier().getAsDouble())                                                            // negative X (left)
                         ));
@@ -230,25 +228,25 @@ public class RobotContainer {
 
                 // Stow Commands
 
-                //empty near top
-                keypad.button(9)
-                        .and(elevator.isNearTop())
-                        .and(() -> !pincer.hasCoral())
-                        .and(() -> !pincer.hasAlgae())
-                                .onTrue(commandFactory.stow(false, false, true, false));
-                //coral not low
-                keypad.button(9)
-                        .and(() ->pincer.hasCoral())
-                        .and(() -> !elevator.isLow().getAsBoolean())
-                                .onTrue(commandFactory.stow(true, false, false, false));
-                //all algae
-                keypad.button(9).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
-                //low coral
-                keypad.button(9)
-                        .and(elevator.isLow())
-                        .and(() -> pincer.hasCoral())
-                                .onTrue(commandFactory.stow(true, false, false, true));
-                //not high empty
+                // //empty near top
+                // keypad.button(9)
+                //         .and(elevator.isNearTop())
+                //         .and(() -> !pincer.hasCoral())
+                //         .and(() -> !pincer.hasAlgae())
+                //                 .onTrue(commandFactory.stow(false, false, true, false));
+                // //coral not low
+                // keypad.button(9)
+                //         .and(() ->pincer.hasCoral())
+                //         .and(() -> !elevator.isLow().getAsBoolean())
+                //                 .onTrue(commandFactory.stow(true, false, false, false));
+                // //all algae
+                // keypad.button(9).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+                // //low coral
+                // keypad.button(9)
+                //         .and(elevator.isLow())
+                //         .and(() -> pincer.hasCoral())
+                //                 .onTrue(commandFactory.stow(true, false, false, true));
+                // //not high empty
                 operatorJoystick.pov(90)
                         .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
                         .and(() -> !pincer.hasCoral())
@@ -285,6 +283,46 @@ public class RobotContainer {
                                         .onTrue(commandFactory.stow(false, false, false, false));
         
                                         operatorJoystick.pov(90)
+                                .and(elevator.isLow())
+                                .and(() -> !pincer.hasCoral())
+                                .and(() -> !pincer.hasAlgae())
+                                        .onTrue(commandFactory.stow(false, false, false, true));
+                keypad.button(9)
+                        .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
+                        .and(() -> !pincer.hasCoral())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(false, false, false, false));
+
+                                keypad.button(9)
+                        .and(elevator.isLow())
+                        .and(() -> !pincer.hasCoral())
+                        .and(() -> !pincer.hasAlgae())
+                                .onTrue(commandFactory.stow(false, false, false, true));
+                                keypad.button(9)
+                                .and(elevator.isNearTop())
+                                .and(() -> !pincer.hasCoral())
+                                .and(() -> !pincer.hasAlgae())
+                                        .onTrue(commandFactory.stow(false, false, true, false));
+                        //coral not low
+                        keypad.button(9)
+                                .and(() ->pincer.hasCoral())
+                                .and(() -> !elevator.isLow().getAsBoolean())
+                                        .onTrue(commandFactory.stow(true, false, false, false));
+                        //all algae
+                        keypad.button(9).and(() ->pincer.hasAlgae()).onTrue(commandFactory.stow(false, true, false, false));
+                        //low coral
+                        keypad.button(9)
+                                .and(elevator.isLow())
+                                .and(() -> pincer.hasCoral())
+                                        .onTrue(commandFactory.stow(true, false, false, true));
+                        //not high empty
+                        keypad.button(9)
+                                .and(() -> !elevator.isNearTop().getAsBoolean() && !elevator.isLow().getAsBoolean())
+                                .and(() -> !pincer.hasCoral())
+                                .and(() -> !pincer.hasAlgae())
+                                        .onTrue(commandFactory.stow(false, false, false, false));
+        
+                                        keypad.button(9)
                                 .and(elevator.isLow())
                                 .and(() -> !pincer.hasCoral())
                                 .and(() -> !pincer.hasAlgae())
@@ -372,10 +410,11 @@ public class RobotContainer {
 
 
         // Testing pincer positions
+        /*
         testingJoystick.a().onTrue(pincer.pincerFunnel());
         testingJoystick.b().onTrue(pincer.pincerFunnel2());
         testingJoystick.x().onTrue(pincer.algaeScore());
-        testingJoystick.y().onTrue(pincer.stowPincer());
+        testingJoystick.y().onTrue(pincer.stowPincer());*/
     }
 
     public Command getAutonomousCommand() {

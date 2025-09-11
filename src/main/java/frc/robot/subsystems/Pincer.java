@@ -137,7 +137,7 @@ public class Pincer extends SubsystemBase{
             pincerPIDUpdated = false;
         }
 
-        //SmartDashboard.putData(this);
+        SmartDashboard.putData(this);
     }
 
     public double getPincerSetpoint(){

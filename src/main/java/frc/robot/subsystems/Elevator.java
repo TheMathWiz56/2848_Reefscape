@@ -351,7 +351,7 @@ public class Elevator extends SubsystemBase {
       CommandScheduler.getInstance().schedule(this.goToPosition(currentSetpoint, "AutoReProfile"));
     }
     
-    //SmartDashboard.putData(this);
+    SmartDashboard.putData(this);
     }
 
   @Override
