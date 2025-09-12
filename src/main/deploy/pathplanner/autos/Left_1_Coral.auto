@@ -30,9 +30,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "I_HP_No_Feed"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "I_StageHP"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Stow_Empty"
+                }
+              }
+            ]
           }
         }
       ]
