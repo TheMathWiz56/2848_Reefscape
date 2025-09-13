@@ -216,15 +216,34 @@ public class RobotContainer {
                         .and(()-> arm.facingDownwards())
                                 .onTrue(commandFactory.scorelL4(true));
 
-                keypad.button(1).onTrue(elevator.setLevelQueue(4));
-                keypad.button(2).onTrue(elevator.setLevelQueue(3));
-                keypad.button(3).onTrue(elevator.setLevelQueue(2));
-                keypad.button(4).onTrue(elevator.setLevelQueue(1));
+
+
+
+                keypad.button(3).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(keypad.button(10).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling)).onTrue(commandFactory.scorelL2());
+                keypad.button(2).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(keypad.button(10).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling)).onTrue(commandFactory.scorelL3());
+                keypad.button(1).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(keypad.button(10).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling))
+                        .and(()-> !arm.facingDownwards())
+                                .onTrue(commandFactory.scorelL4(false));
+                keypad.button(1).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising).and(keypad.button(10).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling))
+                        .and(()-> arm.facingDownwards())
+                                .onTrue(commandFactory.scorelL4(true));
+
+
+
+
+                
+
+                
+
+
 
                 
                 // Feed Commands
                 operatorJoystick.pov(0).onTrue(commandFactory.feed());
                 keypad.button(5).onTrue(commandFactory.feed());
+
+
+                keypad.button(13).onTrue(pincer.forceOpen());
 
                 // Stow Commands
 
@@ -337,6 +356,14 @@ public class RobotContainer {
                         .onTrue(elevator.setLevelQueue(4));
 
 
+                keypad.button(10).negate().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).and(keypad.button(3).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising))
+                        .onTrue(elevator.setLevelQueue(2));
+                keypad.button(10).negate().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).and(keypad.button(2).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising))
+                        .onTrue(elevator.setLevelQueue(3));
+                keypad.button(10).negate().debounce(operatorConstants.kQueueDebounceTime, DebounceType.kFalling).and(keypad.button(1).debounce(operatorConstants.kQueueDebounceTime, DebounceType.kRising))
+                        .onTrue(elevator.setLevelQueue(4));
+
+
                 //Is High
                 keypad.button(6)
                         .and(elevator.isNearTop())
@@ -369,6 +396,10 @@ public class RobotContainer {
                 );
 
                 keypad.button(16).onTrue(commandFactory.getLollipop());
+
+
+                //force score
+                
                 
 
                 /*

@@ -294,4 +294,8 @@ public class Pincer extends SubsystemBase{
         //return Commands.idle(this);
     }
 
+    public Command forceOpen(){
+        return run (() -> pincerMotor.set(0.05));
+    }
+
 }
