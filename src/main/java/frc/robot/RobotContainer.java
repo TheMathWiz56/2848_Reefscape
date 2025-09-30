@@ -437,7 +437,7 @@ public class RobotContainer {
         operatorJoystick.pov(180).onTrue(commandFactory.groundAlgae());
         keypad.button(8).onTrue(commandFactory.groundAlgae());
 
-        keypad.button(16).onTrue(commandFactory.exhaustNet()); // Temporary assignment
+        //keypad.button(16).onTrue(commandFactory.exhaustNet()); // Temporary assignment
 
         testingJoystick.a().onTrue(commandFactory.net());
         testingJoystick.b().onTrue(commandFactory.exhaustNet());
