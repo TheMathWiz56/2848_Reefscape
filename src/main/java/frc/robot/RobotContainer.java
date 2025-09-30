@@ -66,7 +66,7 @@ public class RobotContainer {
     public final CommandXboxController driverJoystick = new CommandXboxController(0);
     public final CommandGenericHID keypad = new CommandGenericHID(1);
     public final CommandXboxController operatorJoystick = new CommandXboxController(2);
-    //public final CommandXboxController testingJoystick = new CommandXboxController(5); // You can put test commands onto here.
+    public final CommandXboxController testingJoystick = new CommandXboxController(5); // You can put test commands onto here.
 
     // Subsystem Instances
         @Getter private static final Arm arm = new Arm();
@@ -436,7 +436,12 @@ public class RobotContainer {
 
         operatorJoystick.pov(180).onTrue(commandFactory.groundAlgae());
         keypad.button(8).onTrue(commandFactory.groundAlgae());
-        
+
+        keypad.button(16).onTrue(commandFactory.exhaustNet()); // Temporary assignment
+
+        testingJoystick.a().onTrue(commandFactory.net());
+        testingJoystick.b().onTrue(commandFactory.exhaustNet());
+
         //operatorJoystick.y().toggleOnTrue(pincer.holdIntakeCmd()); */
 
 

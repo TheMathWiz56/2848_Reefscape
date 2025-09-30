@@ -310,6 +310,20 @@ public class CommandFactory{
 /*score net net */
     public Command net(){
         return new ParallelCommandGroup(elevator.goToNet(),
+        arm.goToNet()); /*
+        .andThen(pincer.exhaust())
+        .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+        .finallyDo((interrupted) ->{pincer.stopIntake(); pincer.pincerFunnel();}); */
+    }
+
+    public Command exhaustNet() {
+        return pincer.exhaust()
+        .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+        .finallyDo((interrupted) ->{pincer.stopIntake(); pincer.pincerFunnel();});
+    }    
+
+    public Command netAndExhaust() {
+        return new ParallelCommandGroup(elevator.goToNet(),
         arm.goToNet())
         .andThen(pincer.exhaust())
         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
