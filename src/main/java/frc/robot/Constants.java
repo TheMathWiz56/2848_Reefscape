@@ -476,12 +476,22 @@ public final class Constants {
 
         }
 
-        public static class LEDConstants {
-            public static final int kPwmPort = 0;
+        public static class LEDConstants {public static final int kPwmPort = 0;
             public static final int kNumberOfLEDs = 150;
+
+            // New LED Patterns
+            public static final LEDPattern kNormal = LEDPattern.solid(Color.kWhite);
+            public static final LEDPattern kWithAlgae = LEDPattern.solid(Color.kGreen);
+            public static final LEDPattern kWithCoral = LEDPattern.solid(Color.kRed);
+            public static final LEDPattern kScoringAlgae = LEDPattern.solid(Color.kGreen).blink(Milliseconds.of(200));
+            public static final LEDPattern kScoringCoral = LEDPattern.solid(Color.kRed).blink(Milliseconds.of(200));
+            public static final LEDPattern kAutoAligning = LEDPattern.solid(Color.kBlue).blink(Milliseconds.of(200));
+            public static final LEDPattern kFeeding = LEDPattern.solid(Color.kYellow).blink(Milliseconds.of(200));
+            public static final LEDPattern kStowing = LEDPattern.solid(Color.kPurple).blink(Milliseconds.of(200));
 
             // LED Patterns
             public static final LEDPattern kOrange = LEDPattern.solid(Color.kOrangeRed);
+            public static final LEDPattern kOrangeBlink = kOrange.blink(Milliseconds.of(100));
             public static final LEDPattern kGreen = LEDPattern.solid(Color.kGreen);
             public static final LEDPattern kGreenBlink = kGreen.blink(Milliseconds.of(100));
             public static final LEDPattern kJesuit = LEDPattern.gradient(LEDPattern.GradientType.kContinuous,
