@@ -53,7 +53,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-
+import edu.wpi.first.math.util.Units;
 import frc.robot.LimelightHelpers;
 import frc.robot.RobotContainer;
 import frc.robot.reefData;
@@ -650,4 +650,19 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return forceAtGoalDebouncer.calculate(Math.hypot(RobotContainer.getDrivetrain().getState().Speeds.vxMetersPerSecond, RobotContainer.getDrivetrain().getState().Speeds.vyMetersPerSecond)
             <= 0.001 && isTrackingTagGoal);
     }
+
+    public Command pathfindTo(Pose2d goalPose) {
+        PathConstraints constraints = new PathConstraints(3.0, 4.0,
+        Units.degreesToRadians(540), Units.degreesToRadians(720));
+
+        return AutoBuilder.pathfindToPose(goalPose, constraints, 0.0);
+    }
+
+    private Command testPathfindToTag(int ID) {
+        if (ID != -1) {
+            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindTestOffset));
+        }
+        return this.runOnce(() -> SmartDashboard.putBoolean("bruh", true));
+    }
+
 }
