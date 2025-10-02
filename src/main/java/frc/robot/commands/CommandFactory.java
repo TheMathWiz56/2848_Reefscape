@@ -319,6 +319,7 @@ public class CommandFactory{
     public Command exhaustNet() {
         return pincer.exhaust()
         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+        .andThen(new InstantCommand(()->{pincer.stopIntake(); pincer.pincerFunnel();}))
         .finallyDo((interrupted) ->{pincer.stopIntake(); pincer.pincerFunnel();});
     }    
 
@@ -378,7 +379,7 @@ public class CommandFactory{
 
     private Command autoReefAlgaeHigh(){
         return drive.pathPIDToTagMiddleSelect()
-                .alongWith(autoReefAlgaeStow())
+                //.alongWith(autoReefAlgaeStow())
             .andThen(reefAlgaeHighNoPinch()
                 .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)))
             .andThen(pinceAlgae())
@@ -390,7 +391,7 @@ public class CommandFactory{
 
     private Command autoReefAlgaeLow(){
         return drive.pathPIDToTagMiddleSelect()
-                .alongWith(autoReefAlgaeStow())
+                //.alongWith(autoReefAlgaeStow())
             .andThen(reefAlgaeLowNoPinch()
                 .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)))
             .andThen(pinceAlgae())

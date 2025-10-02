@@ -189,7 +189,10 @@ public class RobotContainer {
 
                 //  !pincer.hasCoral() || 
                 driverJoystick.x().and(LLHasTag).onTrue(commandFactory.autoReefCoralLeft().until(() -> manualDrivebase.getAsBoolean()));
+                
+                
                 driverJoystick.b().and(LLHasTag).onTrue(commandFactory.autoReefCoralRight().until(() -> manualDrivebase.getAsBoolean()));
+                
                 driverJoystick.leftTrigger(operatorConstants.triggerBooleanThreshold)
                         .and(LLHasTag)
                                 .onTrue(commandFactory.autoReefAlgae()
@@ -368,19 +371,43 @@ public class RobotContainer {
                 keypad.button(6)
                         .and(elevator.isNearTop())
                         .and(() -> !pincer.hasAlgae())
+                        .and(()->!LLHasTag.getAsBoolean())
                                 .onTrue(commandFactory.stow(true, false, true, false));
                 //Is Middle
                 keypad.button(6)
                         .and(() -> !elevator.isLow().getAsBoolean())
                         .and(() -> !elevator.isNearTop().getAsBoolean())
                         .and(() -> !pincer.hasAlgae())
+                        .and(()->!LLHasTag.getAsBoolean())
                                 .onTrue(commandFactory.stow(true, false, false, false));
                 //Is Low
                 keypad.button(6)
                         .and(elevator.isLow())
                         .and(() -> !pincer.hasAlgae())
+                        .and(()->!LLHasTag.getAsBoolean())
                                 .onTrue(commandFactory.stow(true, false, false, true));    
-                                
+        
+
+                        keypad.button(6)
+                                .and(elevator.isNearTop())
+                                .and(() -> !pincer.hasAlgae())
+                                .and(LLHasTag)
+                                        .onTrue(elevator.autoReefAlgae().alongWith(arm.coralStow()));
+                        //Is Middle
+                        keypad.button(6)
+                                .and(() -> !elevator.isLow().getAsBoolean())
+                                .and(() -> !elevator.isNearTop().getAsBoolean())
+                                .and(() -> !pincer.hasAlgae())
+                                .and(LLHasTag)
+                                        .onTrue(elevator.autoReefAlgae().alongWith(arm.coralStow()));
+                        //Is Low
+                        keypad.button(6)
+                                .and(elevator.isLow())
+                                .and(() -> !pincer.hasAlgae())
+                                .and(LLHasTag)
+                                        .onTrue(elevator.autoReefAlgae().alongWith(arm.coralStow()));          
+
+                //.onTrue(elevator.autoReefAlgae());
                                 
                 operatorJoystick.start().onTrue(commandFactory.stow(false, true, false, false));
                 

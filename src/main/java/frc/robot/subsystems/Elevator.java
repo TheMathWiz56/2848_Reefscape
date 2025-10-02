@@ -20,8 +20,10 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.reefData;
 
 import static frc.robot.Constants.ElevatorConstants.*;
@@ -29,6 +31,7 @@ import static frc.robot.Constants.PincerConstants.kStowPosition;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.IntSupplier;
@@ -358,6 +361,24 @@ public class Elevator extends SubsystemBase {
   public void simulationPeriodic() {
 
   }
+
+  public Command autoReefAlgae(){
+        return new SelectCommand<>(
+            Map.ofEntries(
+                Map.entry(17, reefAlgaeLowAuto()),
+                Map.entry(18, reefAlgaeHighAuto()),
+                Map.entry(19, reefAlgaeLowAuto()),
+                Map.entry(20, reefAlgaeHighAuto()),
+                Map.entry(21, reefAlgaeLowAuto()),
+                Map.entry(22, reefAlgaeHighAuto()), 
+                Map.entry(6, reefAlgaeLowAuto()),
+                Map.entry(7, reefAlgaeHighAuto()),
+                Map.entry(8, reefAlgaeLowAuto()),
+                Map.entry(9, reefAlgaeHighAuto()),
+                Map.entry(10, reefAlgaeLowAuto()),
+                Map.entry(11, reefAlgaeHighAuto()))
+        , () -> RobotContainer.getVision().getTag());
+    }
 
   @Override
   public void initSendable(SendableBuilder builder) {

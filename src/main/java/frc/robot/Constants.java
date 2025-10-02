@@ -282,7 +282,7 @@ public final class Constants {
                 }
             };
 
-            public static final double scoreIntakeDelay = 1;
+            public static final double scoreIntakeDelay = .5; // was 1;
             // ID
             
             // public static final int kIntakePhotogateId = 0;
