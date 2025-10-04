@@ -547,6 +547,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             else{
                 isTrackingTagGoal = true;
             }
+            
 
             pathPIDXController.reset(currentTagPose2d.getX()); //can reset by giving the controller the current position and velocity
             pathPIDYController.reset(currentTagPose2d.getY());
@@ -596,6 +597,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 isTrackingTagGoal = false;
                 timeToAlign.stop();
                 SmartDashboard.putNumber("Time To Align", timeToAlign.get()); }, this);
+    }
+
+    public boolean closeToReef(){
+        return pathPIDXController.getPositionError() <1.2;
     }
 
     public Command testPathPIDTo (Pose2d goalPose, Pose2d tagPose){

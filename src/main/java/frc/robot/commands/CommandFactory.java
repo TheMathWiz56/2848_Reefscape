@@ -433,7 +433,14 @@ public class CommandFactory{
     }
 
     public Command autoReefCoralRight(){
-        return drive.pathPIDToTagRightSelect()
+        return new SelectCommand<>(
+            Map.ofEntries(
+                Map.entry(2, scorelL2()),
+                Map.entry(3, scorelL3()),
+                Map.entry(4, scorelL4(true)))
+            , () -> elevator.getLevelQueue()).onlyIf(()->drive.closeToReef())
+                .withDeadline(drive.pathPIDToTagRightSelect())
+            
             .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)
             .raceWith(
                 new SelectCommand<>(
