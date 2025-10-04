@@ -70,9 +70,9 @@ public class TunerConstants {
     public static final Transform2d rightBranch = new Transform2d(0.46769, 0.16 + coralAlignmentShift, new Rotation2d(Math.PI));
     public static final Transform2d reefAlgae = new Transform2d(0.5,0.0,new Rotation2d(Math.PI));
 
-    public static final Transform2d pathfindTestOffsetCenter = new Transform2d(1, 0.0, new Rotation2d(Math.PI));
-    public static final Transform2d pathfindTestOffsetLeft = new Transform2d(1, -0.16 + coralAlignmentShift, new Rotation2d(Math.PI));
-    public static final Transform2d pathfindTestOffsetRight = new Transform2d(1, 0.16 + coralAlignmentShift, new Rotation2d(Math.PI));
+    public static final Transform2d pathfindOffsetCenter = new Transform2d(1, 0.0, new Rotation2d(Math.PI));
+    public static final Transform2d pathfindOffsetLeft = new Transform2d(1, -0.16 + coralAlignmentShift, new Rotation2d(Math.PI));
+    public static final Transform2d pathfindOffsetRight = new Transform2d(1, 0.16 + coralAlignmentShift, new Rotation2d(Math.PI));
 
 
 

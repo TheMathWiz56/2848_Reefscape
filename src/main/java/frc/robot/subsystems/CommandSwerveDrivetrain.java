@@ -657,25 +657,25 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return AutoBuilder.pathfindToPose(goalPose, constraints, 0.0);
     }
 
-    public Command testPathfindToTag(int ID) {
+    public Command pathfindToTagCenter(int ID) {
         if (ID != -1) {
-            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindTestOffsetCenter));
+            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindOffsetCenter));
         }
-        return this.runOnce(() -> SmartDashboard.putBoolean("bruh", true));
+        return this.runOnce(() -> SmartDashboard.putBoolean("No tag at pathfind", true));
     }
 
-    public Command testPathfindToTagLeft(int ID) {
+    public Command pathfindToTagLeft(int ID) {
         if (ID != -1) {
-            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindTestOffsetLeft));
+            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindOffsetLeft));
         }
-        return this.runOnce(() -> SmartDashboard.putBoolean("bruh", true));
+        return this.runOnce(() -> SmartDashboard.putBoolean("No tag at pathfind", true));
     }
 
-    public Command testPathfindToTagRight(int ID) {
+    public Command pathfindToTagRight(int ID) {
         if (ID != -1) {
-            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindTestOffsetRight));
+            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindOffsetRight));
         }
-        return this.runOnce(() -> SmartDashboard.putBoolean("bruh", true));
+        return this.runOnce(() -> SmartDashboard.putBoolean("No tag at pathfind", true));
     }
 
 }
