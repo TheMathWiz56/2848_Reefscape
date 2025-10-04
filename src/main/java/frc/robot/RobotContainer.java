@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -396,6 +398,29 @@ public class RobotContainer {
                 );
 
                 keypad.button(16).onTrue(commandFactory.getLollipop());
+
+                testingJoystick.a().onTrue(drivetrain.testPathfindToTag(17).until(() -> manualDrivebase.getAsBoolean()));
+                testingJoystick.x().onTrue(drivetrain.testPathfindToTagLeft(17).until(() -> manualDrivebase.getAsBoolean())
+                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain)
+            .raceWith(
+                new SelectCommand<>(
+                    Map.ofEntries(
+                        Map.entry(2, commandFactory.scorelL2()),
+                        Map.entry(3, commandFactory.scorelL3()),
+                        Map.entry(4, commandFactory.scorelL4(true)))
+                    , () -> elevator.getLevelQueue())))
+                );
+                
+                testingJoystick.b().onTrue(drivetrain.testPathfindToTagRight(17).until(() -> manualDrivebase.getAsBoolean())
+                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain)
+            .raceWith(
+                new SelectCommand<>(
+                    Map.ofEntries(
+                        Map.entry(2, commandFactory.scorelL2()),
+                        Map.entry(3, commandFactory.scorelL3()),
+                        Map.entry(4, commandFactory.scorelL4(true)))
+                    , () -> elevator.getLevelQueue())))
+                );
 
 
                 //force score

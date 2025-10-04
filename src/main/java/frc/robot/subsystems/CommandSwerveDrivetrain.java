@@ -512,7 +512,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         , () -> RobotContainer.getVision().getTag());
     }
 
-
     private boolean pose2dSameYSign(Pose2d pose1, Pose2d pose2){
         return (pose1.getY() > 0 && pose2.getY() > 0 )|| (pose1.getY() < 0 && pose2.getY() < 0);
     }
@@ -652,15 +651,29 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public Command pathfindTo(Pose2d goalPose) {
-        PathConstraints constraints = new PathConstraints(3.0, 1.0,
+        PathConstraints constraints = new PathConstraints(3.0, 1.5,
         Units.degreesToRadians(540), Units.degreesToRadians(360));
 
         return AutoBuilder.pathfindToPose(goalPose, constraints, 0.0);
     }
 
-    private Command testPathfindToTag(int ID) {
+    public Command testPathfindToTag(int ID) {
         if (ID != -1) {
-            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindTestOffset));
+            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindTestOffsetCenter));
+        }
+        return this.runOnce(() -> SmartDashboard.putBoolean("bruh", true));
+    }
+
+    public Command testPathfindToTagLeft(int ID) {
+        if (ID != -1) {
+            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindTestOffsetLeft));
+        }
+        return this.runOnce(() -> SmartDashboard.putBoolean("bruh", true));
+    }
+
+    public Command testPathfindToTagRight(int ID) {
+        if (ID != -1) {
+            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindTestOffsetRight));
         }
         return this.runOnce(() -> SmartDashboard.putBoolean("bruh", true));
     }

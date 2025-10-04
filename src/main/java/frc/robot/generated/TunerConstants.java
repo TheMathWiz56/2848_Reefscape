@@ -70,7 +70,11 @@ public class TunerConstants {
     public static final Transform2d rightBranch = new Transform2d(0.46769, 0.16 + coralAlignmentShift, new Rotation2d(Math.PI));
     public static final Transform2d reefAlgae = new Transform2d(0.5,0.0,new Rotation2d(Math.PI));
 
-    public static final Transform2d pathfindTestOffset = new Transform2d(0.8, 0.0, new Rotation2d(Math.PI));
+    public static final Transform2d pathfindTestOffsetCenter = new Transform2d(1, 0.0, new Rotation2d(Math.PI));
+    public static final Transform2d pathfindTestOffsetLeft = new Transform2d(1, -0.16 + coralAlignmentShift, new Rotation2d(Math.PI));
+    public static final Transform2d pathfindTestOffsetRight = new Transform2d(1, 0.16 + coralAlignmentShift, new Rotation2d(Math.PI));
+
+
 
     public static final SwerveRequest.FieldCentric stopRequest = new SwerveRequest.FieldCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage).withVelocityX(0).withVelocityY(0).withRotationalRate(0);
 
