@@ -107,6 +107,16 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private TrapezoidProfile.State goalState = new TrapezoidProfile.State();
     private TrapezoidProfile.State currentState = new TrapezoidProfile.State();
 
+    private Pose2d currentFieldPose2d = new Pose2d();
+    private Pose2d currentTagPose2d = new Pose2d();
+    private Pose2d goalTagPose2d = new Pose2d();
+
+    private boolean isAligning = false;
+
+    
+
+
+
 
 
 
@@ -391,6 +401,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         SmartDashboard.putNumber("Vision Drivebase Angular Speed", Math.abs(RobotContainer.getDrivetrain().getState().Speeds.omegaRadiansPerSecond));
         SmartDashboard.putNumber("Vision DriveBase Rotation", this.getState().Pose.getRotation().getDegrees());
 
+        //SmartDashboard.putNumber("X controller error", pathPIDXController.getPositionError());
+
+        SmartDashboard.putBoolean("Is aligning", isAligning);
+        SmartDashboard.putBoolean("Is close", closeToReef());
+
+        SmartDashboard.putNumber("pos error",goalTagPose2d.minus(currentTagPose2d).getTranslation().getNorm());
+
         SmartDashboard.putBoolean("Test Path PID At Goal", pathPIDAtGoal());
 
         forceAtGoal();
@@ -531,9 +548,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             timeToAlign.reset();
             timeToAlign.start();
 
-            Pose2d currentFieldPose2d = this.getState().Pose;
-            Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
-            Pose2d goalTagPose2d = goalPose.relativeTo(tagPose);
+            currentFieldPose2d = this.getState().Pose;
+            currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
+            goalTagPose2d = goalPose.relativeTo(tagPose);
+
+            isAligning = true;
 
             
             if (Math.abs(currentTagPose2d.getTranslation().getY()) > TunerConstants.tagYShiftLimit && !isAlgae && pose2dSameYSign(goalTagPose2d, currentTagPose2d)){
@@ -567,8 +586,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     isTrackingTagGoal = true;
                 }
 
-                Pose2d currentFieldPose2d = this.getState().Pose;
-                Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
+                currentFieldPose2d = this.getState().Pose;
+                currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
 
                 Translation2d positionPID = new Translation2d(pathPIDXController.calculate(currentTagPose2d.getX()), pathPIDYController.calculate(currentTagPose2d.getY())).rotateBy(tagPose.getRotation());
                 Translation2d fieldVelocity = new Translation2d(pathPIDXController.getSetpoint().velocity, pathPIDYController.getSetpoint().velocity).rotateBy(tagPose.getRotation());
@@ -595,19 +614,26 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
             }).until(() -> pathPIDAtGoal() || forceAtGoal()).withName("PathPIDTo").andThen(() -> {
                 isTrackingTagGoal = false;
+                isAligning = false;
                 timeToAlign.stop();
                 SmartDashboard.putNumber("Time To Align", timeToAlign.get()); }, this);
     }
 
     public boolean closeToReef(){
-        return pathPIDXController.getPositionError() <1.2;
+
+            return isAligning && goalTagPose2d.minus(currentTagPose2d).getTranslation().getNorm() <TunerConstants.kEarlyMove;
+        
     }
+
+    
 
     public Command testPathPIDTo (Pose2d goalPose, Pose2d tagPose){
         return this.startRun(()->{
-            Pose2d currentFieldPose2d = this.getState().Pose;
-            Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
-            Pose2d goalTagPose2d = goalPose.relativeTo(tagPose);
+
+            currentFieldPose2d = this.getState().Pose;
+            currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
+            goalTagPose2d = goalPose.relativeTo(tagPose);
+            
 
             pathPIDXController.reset(currentTagPose2d.getX()); //can reset by giving the controller the current position and velocity
             pathPIDYController.reset(currentTagPose2d.getY());
@@ -619,10 +645,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             pathPIDXController.setGoal(goalTagPose2d.getX());
             pathPIDYController.setGoal(goalTagPose2d.getY());
             pathPIDRotationController.setGoal(goalTagPose2d.getRotation().getRadians());
+            isAligning = true;
         
             }, () -> {
-                Pose2d currentFieldPose2d = this.getState().Pose;
-                Pose2d currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
+                currentFieldPose2d = this.getState().Pose;
+                currentTagPose2d = currentFieldPose2d.relativeTo(tagPose);
+                
 
                 Translation2d positionPID = new Translation2d(pathPIDXController.calculate(currentTagPose2d.getX()), pathPIDYController.calculate(currentTagPose2d.getY())).rotateBy(tagPose.getRotation());
                 Translation2d fieldVelocity = new Translation2d(pathPIDXController.getSetpoint().velocity, pathPIDYController.getSetpoint().velocity).rotateBy(tagPose.getRotation());
@@ -638,7 +666,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
                 this.setControl(pathPIDRequest);
 
-            }).until(() -> pathPIDAtGoal() || forceAtGoal()).withName("PathPIDTo").andThen(() -> isTrackingTagGoal = false, this);
+            }).until(() -> pathPIDAtGoal() || forceAtGoal()).withName("PathPIDTo").andThen(() -> {isTrackingTagGoal = false; isAligning = false;}, this);
     }
 
     /**
