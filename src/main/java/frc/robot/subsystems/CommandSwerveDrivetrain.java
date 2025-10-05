@@ -600,6 +600,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     .withRotationalRate(pathPIDRotationController.calculate(currentTagPose2d.getRotation().getRadians()))
                     .withDeadband(TunerConstants.pathPID_Translation_Deadband)
                     .withRotationalDeadband(TunerConstants.pathPID_Rotation_Deadband);
+                    
 
                 this.setControl(pathPIDRequest);
                 
