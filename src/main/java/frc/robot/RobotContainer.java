@@ -426,8 +426,9 @@ public class RobotContainer {
 
                 keypad.button(16).onTrue(commandFactory.getLollipop());
 
-                testingJoystick.a().onTrue(drivetrain.testPathfindToTag(17).until(() -> manualDrivebase.getAsBoolean()));
-                testingJoystick.x().onTrue(drivetrain.testPathfindToTagLeft(17).until(() -> manualDrivebase.getAsBoolean())
+                /*
+                testingJoystick.a().onTrue(drivetrain.pathfindToTagCenter(17).until(() -> manualDrivebase.getAsBoolean()));
+                testingJoystick.x().onTrue(drivetrain.pathfindToTagLeft(17).until(() -> manualDrivebase.getAsBoolean())
                 .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain)
             .raceWith(
                 new SelectCommand<>(
@@ -438,7 +439,7 @@ public class RobotContainer {
                     , () -> elevator.getLevelQueue())))
                 );
                 
-                testingJoystick.b().onTrue(drivetrain.testPathfindToTagRight(17).until(() -> manualDrivebase.getAsBoolean())
+                testingJoystick.b().onTrue(drivetrain.pathfindToTagRight(17).until(() -> manualDrivebase.getAsBoolean())
                 .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain)
             .raceWith(
                 new SelectCommand<>(
@@ -449,6 +450,7 @@ public class RobotContainer {
                     , () -> elevator.getLevelQueue())))
                 );
 
+                 */
 
                 //force score
                 
