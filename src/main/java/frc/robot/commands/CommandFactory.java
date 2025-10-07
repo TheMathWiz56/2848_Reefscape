@@ -444,8 +444,20 @@ public class CommandFactory{
                     , () -> elevator.getLevelQueue())));
     }
 
-    public Command autoPathfindCoralLeft() {
-        return drive.pathfindToTagLeft(17)
+    public Command autoPathfindCoralLeft(int redID) {
+        return drive.pathfindToTagLeft(redID)
+        .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)
+    .raceWith(
+        new SelectCommand<>(
+            Map.ofEntries(
+                Map.entry(2, scorelL2()),
+                Map.entry(3, scorelL3()),
+                Map.entry(4, scorelL4(true)))
+            , () -> elevator.getLevelQueue())));
+    }
+    
+    public Command autoPathfindCoralRight(int redID) {
+        return drive.pathfindToTagRight(redID)
         .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)
     .raceWith(
         new SelectCommand<>(
@@ -456,17 +468,30 @@ public class CommandFactory{
             , () -> elevator.getLevelQueue())));
     }
 
-    
-    public Command autoPathfindCoralRight() {
-        return drive.pathfindToTagRight(17)
-        .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)
-    .raceWith(
-        new SelectCommand<>(
-            Map.ofEntries(
-                Map.entry(2, scorelL2()),
-                Map.entry(3, scorelL3()),
-                Map.entry(4, scorelL4(true)))
-            , () -> elevator.getLevelQueue())));
+    public Command autoPathfindAlgae(int redID) {
+        return drive.pathfindToTagCenter(redID).andThen(
+            new SelectCommand<>(
+                Map.ofEntries(
+                    Map.entry(Constants.reef.AlgaeHeight.HIGH, 
+                        reefAlgaeHighNoPinch()
+                            .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive))
+                        .andThen(pinceAlgae())
+                        .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-1)), drive))
+                            .withTimeout(.5)
+                            .andThen(arm.reefAlgaeHigh2nd())
+                        ),
+                    Map.entry(Constants.reef.AlgaeHeight.LOW, 
+                        reefAlgaeLowNoPinch()
+                        .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive))
+                    .andThen(pinceAlgae())
+                    .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-1)), drive))
+                        .withTimeout(.5)
+                        .andThen(arm.reefAlgaeHigh2nd())
+                    )
+                ),
+                () -> Constants.reef.correspondingAprilTags.get(redID)
+            )
+        );
     }
 
 }

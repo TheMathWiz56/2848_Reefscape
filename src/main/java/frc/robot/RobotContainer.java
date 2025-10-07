@@ -493,8 +493,8 @@ public class RobotContainer {
 
         keypad.button(17).onTrue(commandFactory.exhaustNet()); // Temporary assignment
 
-        //testingJoystick.a().onTrue(commandFactory.net());
-        //testingJoystick.b().onTrue(commandFactory.exhaustNet());
+        testingJoystick.a().onTrue(commandFactory.autoPathfindCoralLeft(8).until(() -> manualDrivebase.getAsBoolean()));
+        testingJoystick.b().onTrue(commandFactory.autoPathfindCoralRight(8).until(() -> manualDrivebase.getAsBoolean()));
 
         //operatorJoystick.y().toggleOnTrue(pincer.holdIntakeCmd()); */
 

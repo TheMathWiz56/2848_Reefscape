@@ -151,6 +151,39 @@ public final class Constants {
             };
         }
 
+        // Keys are red, values are blue. From the perspective of the driver station
+        public static final HashMap<Integer, Integer> correspondingAprilTags = new HashMap<>() {
+            {
+                put(6, 19);
+                put(7, 18);
+                put(8, 17);
+                put(9, 22);
+                put(10, 21);
+                put(11, 20);
+            }
+        };
+
+        public static enum AlgaeHeight {
+            HIGH, LOW
+        }
+
+        public static HashMap<Integer, AlgaeHeight> algaeHeights = new HashMap<>() {
+            {
+                Map.entry(17, AlgaeHeight.LOW);
+                Map.entry(18, AlgaeHeight.HIGH);
+                Map.entry(19, AlgaeHeight.LOW);
+                Map.entry(20, AlgaeHeight.HIGH);
+                Map.entry(21, AlgaeHeight.LOW);
+                Map.entry(22, AlgaeHeight.HIGH); 
+                Map.entry(6, AlgaeHeight.LOW);
+                Map.entry(7, AlgaeHeight.HIGH);
+                Map.entry(8, AlgaeHeight.LOW);
+                Map.entry(9, AlgaeHeight.HIGH);
+                Map.entry(10, AlgaeHeight.LOW);
+                Map.entry(11, AlgaeHeight.HIGH);
+            }
+        };
+
     }
 
     public static void kMotorBurnDelay() {

@@ -54,6 +54,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 import frc.robot.RobotContainer;
 import frc.robot.reefData;
@@ -657,25 +658,34 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return AutoBuilder.pathfindToPose(goalPose, constraints, 0.0);
     }
 
-    public Command pathfindToTagCenter(int ID) {
-        if (ID != -1) {
-            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindOffsetCenter));
+    public Command pathfindToTagCenter(int redID) {
+        if (redID != -1) {
+            return this.pathfindTo(reef.tagPoseAndymarkMap.get(getReefAprilTag(redID)).transformBy(TunerConstants.pathfindOffsetCenter));
         }
         return this.runOnce(() -> SmartDashboard.putBoolean("No tag at pathfind", true));
     }
 
-    public Command pathfindToTagLeft(int ID) {
-        if (ID != -1) {
-            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindOffsetLeft));
+    public Command pathfindToTagLeft(int redID) {
+        if (redID != -1) {
+            return this.pathfindTo(reef.tagPoseAndymarkMap.get(getReefAprilTag(redID)).transformBy(TunerConstants.pathfindOffsetLeft));
         }
         return this.runOnce(() -> SmartDashboard.putBoolean("No tag at pathfind", true));
     }
 
-    public Command pathfindToTagRight(int ID) {
-        if (ID != -1) {
-            return this.pathfindTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.pathfindOffsetRight));
+    public Command pathfindToTagRight(int redID) {
+        if (redID != -1) {
+            return this.pathfindTo(reef.tagPoseAndymarkMap.get(getReefAprilTag(redID)).transformBy(TunerConstants.pathfindOffsetRight));
         }
         return this.runOnce(() -> SmartDashboard.putBoolean("No tag at pathfind", true));
+    }
+
+    // Input red apriltag on reef that is desired, returns the corresponding red or blue apriltag ID given what alliance it is on
+    public int getReefAprilTag(int red) {
+        if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
+            return Constants.reef.correspondingAprilTags.get(red);
+        } else {
+            return red;
+        }
     }
 
 }
