@@ -76,7 +76,7 @@ public class RobotContainer {
         @Getter private static final Pincer pincer = new Pincer();
         @Getter private static final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         @Getter private static final Elevator elevator = new Elevator();
-        @Getter private static final Lights lights = null;//new Lights();
+        @Getter private static final Lights lights = new Lights();
         @Getter private static final Vision vision = new Vision();
         
         // Command Factory
@@ -156,6 +156,7 @@ public class RobotContainer {
                 pincer.setDefaultCommand(pincer.holdState());
                 ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
                 vision.setDefaultCommand(Commands.idle(vision));
+                lights.setDefaultCommand(lights.defaultRun(() -> pincer.hasCoral(), () -> pincer.hasAlgae()));
 
         // Drivebase Telemetry
         drivetrain.registerTelemetry(logger::telemeterize);
