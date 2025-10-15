@@ -88,6 +88,7 @@ public class RobotContainer {
         private final BooleanSupplier manualDrivebase = () -> Math.hypot(driverJoystick.getLeftX(), driverJoystick.getLeftY()) > 0.25
                                                                 || Math.abs(driverJoystick.getRightX()) > 0.25;
 
+        Trigger closeToReef = new Trigger(()->drivetrain.closeToReef());
 
     /* Path follower */
     private final SendableChooser<Command> autoChooser;
@@ -201,6 +202,9 @@ public class RobotContainer {
                                 .onTrue(commandFactory.autoReefAlgae()
                                 .until(() -> manualDrivebase.getAsBoolean()))
                                 ;
+
+                
+
                 // Make elevator go up a set amount - very not working
                 // driverJoystick.y().onTrue(elevator.goUpByDistance(1.25));
 
