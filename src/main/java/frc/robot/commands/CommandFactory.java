@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.Constants;
+import frc.robot.Constants.LEDConstants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
@@ -89,7 +90,8 @@ public class CommandFactory{
         )))
         .andThen(pincer.exhaust())
         .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
-        .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral()); // .unless(() -> !pincer.hasCoral())
+        .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral())
+        .deadlineFor(lights.runPattern(LEDConstants.kScoringCoral)); // .unless(() -> !pincer.hasCoral())
     }
     public Command scorelL3(){
         return elevator.goToL(Constants.reef.reefLs.lL3)
@@ -100,7 +102,8 @@ public class CommandFactory{
         )))
         .andThen(pincer.exhaust())
         .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
-         .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral()); // .unless(() -> !pincer.hasCoral())
+         .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral())
+         .deadlineFor(lights.runPattern(LEDConstants.kScoringCoral)); // .unless(() -> !pincer.hasCoral())
         }
     public Command scorelL4(boolean facingDownwards){
         // Added transition to avoid ramming into elevator top
@@ -114,7 +117,8 @@ public class CommandFactory{
                 )))
                 .andThen(pincer.exhaust())
                 .andThen(pincer.holdState()).until(() -> !pincer.hasCoral())
-                .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral());
+                .andThen(pincer.stopIntake()).unless(() -> !pincer.hasCoral())
+                .deadlineFor(lights.runPattern(LEDConstants.kScoringCoral));
         }
 
         return arm.goStraightOn()
@@ -246,7 +250,7 @@ public class CommandFactory{
             .andThen(pincer.pincerFunnel());
             }
 
-        return output;
+        return output.deadlineFor(lights.runPattern(LEDConstants.kStowing));
     }
     /*move claw, pivot, elevator to intake */
     public Command feed(){
@@ -256,7 +260,8 @@ public class CommandFactory{
          .andThen(pincer.pincerFunnel())
          .andThen(pincer.intake())
          .andThen(pincer.holdState().until(()->pincer.hasCoral()))
-         .andThen(pincer.stopIntake());
+         .andThen(pincer.stopIntake())
+         .deadlineFor(lights.runPattern(LEDConstants.kFeeding));
     }
 
     public Command feedSequential(){
@@ -265,7 +270,8 @@ public class CommandFactory{
             .andThen(pincer.pincerFunnel())
             .andThen(pincer.intake())
             .andThen(pincer.holdState().until(()->pincer.hasCoral()))
-            .andThen(pincer.stopIntake());
+            .andThen(pincer.stopIntake())
+            .deadlineFor(lights.runPattern(LEDConstants.kFeeding));
     }
 
     public Command reefAlgaeHigh(){
@@ -310,7 +316,7 @@ public class CommandFactory{
 /*score net net */
     public Command net(){
         return new ParallelCommandGroup(elevator.goToNet(),
-        arm.goToNet()); /*
+        arm.goToNet()).deadlineFor(lights.runPattern(LEDConstants.kScoringAlgae)); /*
         .andThen(pincer.exhaust())
         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
         .finallyDo((interrupted) ->{pincer.stopIntake(); pincer.pincerFunnel();}); */
@@ -328,6 +334,7 @@ public class CommandFactory{
         arm.goToNet())
         .andThen(pincer.exhaust())
         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+        .deadlineFor(lights.runPattern(LEDConstants.kScoringAlgae))
         .finallyDo((interrupted) ->{pincer.stopIntake(); pincer.pincerFunnel();});
     }
 
@@ -354,6 +361,7 @@ public class CommandFactory{
         arm.goToProcessor())
         .andThen(pincer.exhaust())
         .andThen(new WaitCommand(Constants.PincerConstants.scoreIntakeDelay))
+        .deadlineFor(lights.runPattern(LEDConstants.kScoringAlgae))
         .finallyDo((interrupted) ->
               {pincer.stopIntake(); pincer.pincerFunnel();});  
     }
@@ -378,7 +386,7 @@ public class CommandFactory{
     }
 
     private Command autoReefAlgaeHigh(){
-        return drive.pathPIDToTagMiddleSelect()
+        return drive.pathPIDToTagMiddleSelect().deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
                 //.alongWith(autoReefAlgaeStow())
             .andThen(reefAlgaeHighNoPinch()
                 .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)))
@@ -390,7 +398,7 @@ public class CommandFactory{
     }
 
     private Command autoReefAlgaeLow(){
-        return drive.pathPIDToTagMiddleSelect()
+        return drive.pathPIDToTagMiddleSelect().deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
                 //.alongWith(autoReefAlgaeStow())
             .andThen(reefAlgaeLowNoPinch()
                 .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)))
@@ -455,6 +463,70 @@ public class CommandFactory{
                         Map.entry(3, scorelL3()),
                         Map.entry(4, scorelL4(true)))
                     , () -> elevator.getLevelQueue())));
+    }
+
+    public Command autoPathfindCoralLeft(int redID) {
+        return drive.pathfindToTagLeft(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
+        .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)
+    .raceWith(
+        new SelectCommand<>(
+            Map.ofEntries(
+                Map.entry(2, scorelL2()),
+                Map.entry(3, scorelL3()),
+                Map.entry(4, scorelL4(true)))
+            , () -> elevator.getLevelQueue())));
+    }
+    
+    public Command autoPathfindCoralRight(int redID) {
+        return drive.pathfindToTagRight(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
+        .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)
+    .raceWith(
+        new SelectCommand<>(
+            Map.ofEntries(
+                Map.entry(2, scorelL2()),
+                Map.entry(3, scorelL3()),
+                Map.entry(4, scorelL4(true)))
+            , () -> elevator.getLevelQueue())));
+    }
+
+    public Command autoPathfindAlgae(int redID) {
+        return drive.pathfindToTagCenter(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning)).andThen(
+            new SelectCommand<>(
+            Map.ofEntries(
+                Map.entry(17, algaeSequenceLow()),
+                Map.entry(18, algaeSequenceHigh()),
+                Map.entry(19, algaeSequenceLow()),
+                Map.entry(20, algaeSequenceHigh()),
+                Map.entry(21, algaeSequenceLow()),
+                Map.entry(22, algaeSequenceHigh()), 
+                Map.entry(6, algaeSequenceLow()),
+                Map.entry(7, algaeSequenceHigh()),
+                Map.entry(8, algaeSequenceLow()),
+                Map.entry(9, algaeSequenceHigh()),
+                Map.entry(10, algaeSequenceLow()),
+                Map.entry(11, algaeSequenceHigh())),
+            () -> redID)
+        );
+    }
+
+    public Command algaeSequenceHigh() {
+        return reefAlgaeHighNoPinch()
+        .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive))
+        .andThen(pinceAlgae())
+            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-1)), drive)
+                .withTimeout(.5)
+                .andThen(arm.reefAlgaeHigh2nd())).deadlineFor(lights.runPattern(LEDConstants.kScoringAlgae))
+            ;
+    }
+
+    public Command algaeSequenceLow() {
+        return reefAlgaeLowNoPinch()
+        .raceWith(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive))
+        .andThen(pinceAlgae())
+            .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-1)), drive)
+                .withTimeout(.5)
+                .andThen(arm.reefAlgaeHigh2nd())).deadlineFor(lights.runPattern(LEDConstants.kScoringAlgae))
+        ;
     }
 
 }

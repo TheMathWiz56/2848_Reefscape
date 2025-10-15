@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -74,7 +76,7 @@ public class RobotContainer {
         @Getter private static final Pincer pincer = new Pincer();
         @Getter private static final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         @Getter private static final Elevator elevator = new Elevator();
-        @Getter private static final Lights lights = null;//new Lights();
+        @Getter private static final Lights lights = new Lights();
         @Getter private static final Vision vision = new Vision();
         
         // Command Factory
@@ -155,6 +157,7 @@ public class RobotContainer {
                 pincer.setDefaultCommand(pincer.holdState());
                 ascender.setDefaultCommand(ascender.manualClimb(() -> operatorJoystick.getLeftY()));
                 vision.setDefaultCommand(Commands.idle(vision));
+                lights.setDefaultCommand(lights.defaultRun(() -> pincer.hasCoral(), () -> pincer.hasAlgae()));
 
         // Drivebase Telemetry
         drivetrain.registerTelemetry(logger::telemeterize);
@@ -428,6 +431,31 @@ public class RobotContainer {
 
                 keypad.button(16).onTrue(commandFactory.getLollipop());
 
+                /*
+                testingJoystick.a().onTrue(drivetrain.pathfindToTagCenter(17).until(() -> manualDrivebase.getAsBoolean()));
+                testingJoystick.x().onTrue(drivetrain.pathfindToTagLeft(17).until(() -> manualDrivebase.getAsBoolean())
+                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain)
+            .raceWith(
+                new SelectCommand<>(
+                    Map.ofEntries(
+                        Map.entry(2, commandFactory.scorelL2()),
+                        Map.entry(3, commandFactory.scorelL3()),
+                        Map.entry(4, commandFactory.scorelL4(true)))
+                    , () -> elevator.getLevelQueue())))
+                );
+                
+                testingJoystick.b().onTrue(drivetrain.pathfindToTagRight(17).until(() -> manualDrivebase.getAsBoolean())
+                .andThen(Commands.run(() -> drivetrain.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drivetrain)
+            .raceWith(
+                new SelectCommand<>(
+                    Map.ofEntries(
+                        Map.entry(2, commandFactory.scorelL2()),
+                        Map.entry(3, commandFactory.scorelL3()),
+                        Map.entry(4, commandFactory.scorelL4(true)))
+                    , () -> elevator.getLevelQueue())))
+                );
+
+                 */
 
                 //force score
                 
@@ -470,8 +498,8 @@ public class RobotContainer {
 
         keypad.button(17).onTrue(commandFactory.exhaustNet()); // Temporary assignment
 
-        //testingJoystick.a().onTrue(commandFactory.net());
-        //testingJoystick.b().onTrue(commandFactory.exhaustNet());
+        testingJoystick.a().onTrue(commandFactory.autoPathfindAlgae(6).until(() -> manualDrivebase.getAsBoolean()));
+        testingJoystick.b().onTrue(commandFactory.autoPathfindAlgae(7).until(() -> manualDrivebase.getAsBoolean()));
 
         //operatorJoystick.y().toggleOnTrue(pincer.holdIntakeCmd()); */
 
