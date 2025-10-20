@@ -612,5 +612,11 @@ public final class Constants {
             public static final double kMinimumRotationalStandardDeviation = Math.toRadians(2.5); // rad
             public static final double kAddSkewDataDistanceThreshold = 2; //m
         }
+
+        public static class PathfindingConstants {
+            public static final double kMaxVelocity = 4.0;
+            public static final double kMaxAcceleration = 2.0;
+        }
+
     }
 
