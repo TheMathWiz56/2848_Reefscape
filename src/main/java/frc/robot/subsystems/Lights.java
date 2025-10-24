@@ -18,13 +18,14 @@ public class Lights extends SubsystemBase{
     public Lights(){
         led.setLength(kNumberOfLEDs);
         led.start();
+        LEDConstants.kNormal.applyTo(ledBuffer);
     }
 
     @Override
     public void periodic(){
         led.setData(ledBuffer);
     }
-    
+
     /**
      * Creates a command that runs a pattern on the entire LED strip.
      *
