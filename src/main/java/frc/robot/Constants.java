@@ -509,7 +509,7 @@ public final class Constants {
 
         }
 
-        public static class LEDConstants {public static final int kPwmPort = 0;
+        public static class LEDConstants {public static final int kPwmPort = 3;
             public static final int kNumberOfLEDs = 74;
 
             // New LED Patterns
