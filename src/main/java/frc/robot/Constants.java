@@ -510,7 +510,7 @@ public final class Constants {
         }
 
         public static class LEDConstants {public static final int kPwmPort = 0;
-            public static final int kNumberOfLEDs = 150;
+            public static final int kNumberOfLEDs = 74;
 
             // New LED Patterns
             public static final LEDPattern kNormal = LEDPattern.solid(Color.kWhite);
