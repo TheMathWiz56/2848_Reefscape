@@ -695,6 +695,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Command pathfindToTagCenter(int redID) {
         if (redID != -1) {
             return this.pathfindTo(reef.tagPoseAndymarkMap.get(getReefAprilTag(redID)).transformBy(TunerConstants.pathfindOffsetCenter));
+            //.andThen(pathPIDToTagMiddle(getReefAprilTag(redID)));
         }
         return this.runOnce(() -> SmartDashboard.putBoolean("No tag at pathfind", true));
     }
@@ -702,6 +703,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Command pathfindToTagLeft(int redID) {
         if (redID != -1) {
             return this.pathfindTo(reef.tagPoseAndymarkMap.get(getReefAprilTag(redID)).transformBy(TunerConstants.pathfindOffsetLeft));
+            //.andThen(pathPIDToTagLeft(getReefAprilTag(redID)));
         }
         return this.runOnce(() -> SmartDashboard.putBoolean("No tag at pathfind", true));
     }
@@ -709,6 +711,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Command pathfindToTagRight(int redID) {
         if (redID != -1) {
             return this.pathfindTo(reef.tagPoseAndymarkMap.get(getReefAprilTag(redID)).transformBy(TunerConstants.pathfindOffsetRight));
+            //.andThen(pathPIDToTagRight(getReefAprilTag(redID)));
         }
         return this.runOnce(() -> SmartDashboard.putBoolean("No tag at pathfind", true));
     }
