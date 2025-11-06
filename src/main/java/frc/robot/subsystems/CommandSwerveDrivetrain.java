@@ -441,7 +441,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      * @return A {@link Command} that moves the robot to the transformed position of the detected tag. 
      *         If no tag is visible, a command is returned that logs the absence of a tag.
      */
-    private Command pathPIDToTagLeft(int ID){
+    public Command pathPIDToTagLeft(int ID){
         if (ID != -1) {
             return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.leftBranch),
                     reef.tagPoseAndymarkMap.get(ID), false);
@@ -449,7 +449,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return this.runOnce(() -> SmartDashboard.putBoolean("No Tag at pathPID", true));
     }
 
-    private Command pathPIDToTagMiddle(int ID) {
+    public Command pathPIDToTagMiddle(int ID) {
         if (ID != -1) {
             return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.reefAlgae),
                     reef.tagPoseAndymarkMap.get(ID), true);
@@ -468,7 +468,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      *         If no tag is visible, a command is returned that logs the absence of
      *         a tag.
      */
-    private Command pathPIDToTagRight(int ID) {
+    public Command pathPIDToTagRight(int ID) {
         if (ID != -1) {
             return this.pathPIDTo(reef.tagPoseAndymarkMap.get(ID).transformBy(TunerConstants.rightBranch),
                     reef.tagPoseAndymarkMap.get(ID), false);
