@@ -493,7 +493,7 @@ public class CommandFactory{
          */
         
         // Pathfind, align, then elevator
-        return drive.pathfindToTagLeft(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
+        return new ParallelCommandGroup(drive.pathfindToTagRight(redID), stow(true, false, false, elevator.getState() == 0))//.deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
         .andThen(drive.pathPIDToTagLeft(drive.getReefAprilTag(redID)))
         .andThen(new ParallelRaceGroup((Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)))),
             new SelectCommand<>(
@@ -532,7 +532,7 @@ public class CommandFactory{
          */
         
          // Pathfind, align, then elevator
-         return drive.pathfindToTagRight(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
+         return new ParallelCommandGroup(drive.pathfindToTagRight(redID), stow(true, false, false, elevator.getState() == 0))//.deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
          .andThen(drive.pathPIDToTagRight(drive.getReefAprilTag(redID)))
          .andThen(new ParallelRaceGroup(
              Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45))),
@@ -545,9 +545,10 @@ public class CommandFactory{
     }
 
     public Command autoPathfindAlgae(int redID) {
-        return drive.pathfindToTagCenter(redID)
+        return new ParallelCommandGroup(drive.pathfindToTagCenter(redID), autoReefAlgaeStow())
         .andThen(drive.pathPIDToTagMiddle(drive.getReefAprilTag(redID)))
-        .deadlineFor(lights.runPattern(LEDConstants.kAutoAligning)).andThen(
+        //.deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
+            .andThen(
             new SelectCommand<>(
             Map.ofEntries(
                 Map.entry(17, algaeSequenceLow()),
@@ -572,7 +573,7 @@ public class CommandFactory{
         .andThen(pinceAlgae())
             .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-1)), drive)
                 .withTimeout(.5)
-                .andThen(arm.reefAlgaeHigh2nd())).deadlineFor(lights.runPattern(LEDConstants.kScoringAlgae))
+                .andThen(arm.reefAlgaeHigh2nd())).deadlineFor(lights.runPattern(LEDConstants.kFeeding))
             ;
     }
 
@@ -582,7 +583,7 @@ public class CommandFactory{
         .andThen(pinceAlgae())
             .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(-1)), drive)
                 .withTimeout(.5)
-                .andThen(arm.reefAlgaeHigh2nd())).deadlineFor(lights.runPattern(LEDConstants.kScoringAlgae))
+                .andThen(arm.reefAlgaeHigh2nd())).deadlineFor(lights.runPattern(LEDConstants.kFeeding))
         ;
     }
 
