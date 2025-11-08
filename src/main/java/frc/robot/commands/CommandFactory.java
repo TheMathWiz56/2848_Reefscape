@@ -545,7 +545,9 @@ public class CommandFactory{
     }
 
     public Command autoPathfindAlgae(int redID) {
-        return drive.pathfindToTagCenter(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning)).andThen(
+        return drive.pathfindToTagCenter(redID)
+        .andThen(drive.pathPIDToTagMiddle(drive.getReefAprilTag(redID)))
+        .deadlineFor(lights.runPattern(LEDConstants.kAutoAligning)).andThen(
             new SelectCommand<>(
             Map.ofEntries(
                 Map.entry(17, algaeSequenceLow()),
