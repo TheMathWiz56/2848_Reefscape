@@ -479,6 +479,8 @@ public class CommandFactory{
             , () -> elevator.getLevelQueue())));
         */
 
+        // Pathfind then align and raise elevator simultaneously
+        /*
         return drive.pathfindToTagLeft(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
         .andThen(new ParallelRaceGroup(drive.pathPIDToTagLeft(drive.getReefAprilTag(redID))
             .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)))),
@@ -488,6 +490,19 @@ public class CommandFactory{
                 Map.entry(3, scorelL3()),
                 Map.entry(4, scorelL4(true)))
             , () -> elevator.getLevelQueue())));
+         */
+        
+        // Pathfind, align, then elevator
+        return drive.pathfindToTagLeft(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
+        .andThen(drive.pathPIDToTagLeft(drive.getReefAprilTag(redID)))
+        .andThen(new ParallelRaceGroup((Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)))),
+            new SelectCommand<>(
+            Map.ofEntries(
+                Map.entry(2, scorelL2()),
+                Map.entry(3, scorelL3()),
+                Map.entry(4, scorelL4(true)))
+            , () -> elevator.getLevelQueue())));
+        
     }
     
     public Command autoPathfindCoralRight(int redID) {
@@ -503,6 +518,8 @@ public class CommandFactory{
             , () -> elevator.getLevelQueue()))); 
         */
 
+        // Pathfind then align and raise elevator simultaneously
+        /*
         return drive.pathfindToTagRight(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
         .andThen(new ParallelRaceGroup(drive.pathPIDToTagRight(drive.getReefAprilTag(redID))
             .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)))),
@@ -512,6 +529,19 @@ public class CommandFactory{
                 Map.entry(3, scorelL3()),
                 Map.entry(4, scorelL4(true)))
             , () -> elevator.getLevelQueue())));
+         */
+        
+         // Pathfind, align, then elevator
+         return drive.pathfindToTagRight(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
+         .andThen(drive.pathPIDToTagRight(drive.getReefAprilTag(redID)))
+         .andThen(new ParallelRaceGroup(
+             Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45))),
+             new SelectCommand<>(
+             Map.ofEntries(
+                 Map.entry(2, scorelL2()),
+                 Map.entry(3, scorelL3()),
+                 Map.entry(4, scorelL4(true)))
+             , () -> elevator.getLevelQueue())));
     }
 
     public Command autoPathfindAlgae(int redID) {
