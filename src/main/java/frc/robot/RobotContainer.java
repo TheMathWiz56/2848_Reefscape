@@ -500,6 +500,8 @@ public class RobotContainer {
 
         testingJoystick.a().onTrue(commandFactory.autoPathfindAlgae(6).until(() -> manualDrivebase.getAsBoolean()));
         testingJoystick.b().onTrue(commandFactory.autoPathfindAlgae(7).until(() -> manualDrivebase.getAsBoolean()));
+        testingJoystick.x().onTrue(commandFactory.autoPathfindCoralLeft(6).until(() -> manualDrivebase.getAsBoolean()));
+        testingJoystick.y().onTrue(commandFactory.autoPathfindCoralRight(6).until(() -> manualDrivebase.getAsBoolean()));
 
         //operatorJoystick.y().toggleOnTrue(pincer.holdIntakeCmd()); */
 
