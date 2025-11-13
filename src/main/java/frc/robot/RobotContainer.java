@@ -32,8 +32,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.operatorConstants;
+import frc.robot.Constants.reef.reefPositions;
 import frc.robot.commands.CollectVisionData;
 import frc.robot.commands.CommandFactory;
+import frc.robot.commands.CommandFactory.pathfindActions;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Ascender;
@@ -498,13 +500,26 @@ public class RobotContainer {
 
         keypad.button(17).onTrue(commandFactory.exhaustNet()); // Temporary assignment
 
+        /*
         testingJoystick.a().onTrue(commandFactory.autoPathfindAlgae(Constants.reef.reefPositions.FRONT_LEFT).until(() -> manualDrivebase.getAsBoolean()));
         testingJoystick.b().onTrue(commandFactory.autoPathfindAlgae(Constants.reef.reefPositions.FRONT_CENTER).until(() -> manualDrivebase.getAsBoolean()));
         testingJoystick.x().onTrue(commandFactory.autoPathfindCoralLeft(Constants.reef.reefPositions.FRONT_LEFT).until(() -> manualDrivebase.getAsBoolean()));
         testingJoystick.y().onTrue(commandFactory.autoPathfindCoralRight(Constants.reef.reefPositions.FRONT_LEFT).until(() -> manualDrivebase.getAsBoolean()));
+        */
 
         //operatorJoystick.y().toggleOnTrue(pincer.holdIntakeCmd()); */
 
+        // Keypad pathfinding
+        keypad.button(18).onTrue(commandFactory.autoPathfindAction(reefPositions.BACK_CENTER).until(() -> manualDrivebase.getAsBoolean()));
+        keypad.button(19).onTrue(commandFactory.autoPathfindAction(reefPositions.BACK_LEFT).until(() -> manualDrivebase.getAsBoolean()));
+        keypad.button(20).onTrue(commandFactory.autoPathfindAction(reefPositions.FRONT_LEFT).until(() -> manualDrivebase.getAsBoolean()));
+        keypad.button(21).onTrue(commandFactory.autoPathfindAction(reefPositions.FRONT_CENTER).until(() -> manualDrivebase.getAsBoolean()));
+        keypad.button(22).onTrue(commandFactory.autoPathfindAction(reefPositions.FRONT_RIGHT).until(() -> manualDrivebase.getAsBoolean()));
+        keypad.button(23).onTrue(commandFactory.autoPathfindAction(reefPositions.BACK_RIGHT).until(() -> manualDrivebase.getAsBoolean()));
+
+        keypad.button(24).onTrue(Commands.run(() -> commandFactory.setPathfindAction(pathfindActions.CORAL_LEFT)));
+        keypad.button(25).onTrue(Commands.run(() -> commandFactory.setPathfindAction(pathfindActions.CORAL_RIGHT)));
+        keypad.button(26).onTrue(Commands.run(() -> commandFactory.setPathfindAction(pathfindActions.ALGAE)));
 
         // Testing pincer positions
         /*
@@ -516,6 +531,6 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
-    }
+    }    
 
 }

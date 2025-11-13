@@ -587,4 +587,31 @@ public class CommandFactory{
         ;
     }
 
+    public enum pathfindActions {
+        CORAL_LEFT, CORAL_RIGHT, ALGAE
+    }
+
+    private pathfindActions nextPathfindAction = pathfindActions.CORAL_LEFT;
+
+    public void setPathfindAction(pathfindActions action) {
+        nextPathfindAction = action;
+    }
+
+    public pathfindActions getPathfindAction() {
+        return nextPathfindAction;
+    }
+
+    public Command autoPathfindAction(Constants.reef.reefPositions position) {
+        switch(nextPathfindAction) {
+            case ALGAE:
+                return autoPathfindAlgae(position);
+            case CORAL_LEFT:
+                return autoPathfindCoralLeft(position);
+            case CORAL_RIGHT:
+                return autoPathfindCoralRight(position);
+            default:
+                return Commands.none();
+        }
+    }
+
 }
