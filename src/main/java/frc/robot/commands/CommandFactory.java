@@ -466,9 +466,9 @@ public class CommandFactory{
                     , () -> elevator.getLevelQueue())));
     }
 
-    public Command autoPathfindCoralLeft(int redID) {
+    public Command autoPathfindCoralLeft(Constants.reef.reefPositions position) {
         /*
-        return drive.pathfindToTagLeft(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
+        return drive.pathfindToTagLeft(position).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
         .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)
     .raceWith(
         new SelectCommand<>(
@@ -481,8 +481,8 @@ public class CommandFactory{
 
         // Pathfind then align and raise elevator simultaneously
         /*
-        return drive.pathfindToTagLeft(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
-        .andThen(new ParallelRaceGroup(drive.pathPIDToTagLeft(drive.getReefAprilTag(redID))
+        return drive.pathfindToTagLeft(position).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
+        .andThen(new ParallelRaceGroup(drive.pathPIDToTagLeft(drive.getReefAprilTag(position))
             .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)))),
             new SelectCommand<>(
             Map.ofEntries(
@@ -493,8 +493,8 @@ public class CommandFactory{
          */
         
         // Pathfind, align, then elevator
-        return new ParallelCommandGroup(drive.pathfindToTagRight(redID), stow(true, false, false, elevator.getState() == 0))//.deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
-        .andThen(drive.pathPIDToTagLeft(drive.getReefAprilTag(redID)))
+        return new ParallelCommandGroup(drive.pathfindToTagRight(position), stow(true, false, false, elevator.getState() == 0))//.deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
+        .andThen(drive.pathPIDToTagLeft(drive.getReefAprilTag(position)))
         .andThen(new ParallelRaceGroup((Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)))),
             new SelectCommand<>(
             Map.ofEntries(
@@ -505,9 +505,9 @@ public class CommandFactory{
         
     }
     
-    public Command autoPathfindCoralRight(int redID) {
+    public Command autoPathfindCoralRight(Constants.reef.reefPositions position) {
         /*
-        return drive.pathfindToTagRight(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
+        return drive.pathfindToTagRight(position).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
         .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)), drive)
     .raceWith(
         new SelectCommand<>(
@@ -520,8 +520,8 @@ public class CommandFactory{
 
         // Pathfind then align and raise elevator simultaneously
         /*
-        return drive.pathfindToTagRight(redID).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
-        .andThen(new ParallelRaceGroup(drive.pathPIDToTagRight(drive.getReefAprilTag(redID))
+        return drive.pathfindToTagRight(position).deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
+        .andThen(new ParallelRaceGroup(drive.pathPIDToTagRight(drive.getReefAprilTag(position))
             .andThen(Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45)))),
             new SelectCommand<>(
             Map.ofEntries(
@@ -532,8 +532,8 @@ public class CommandFactory{
          */
         
          // Pathfind, align, then elevator
-         return new ParallelCommandGroup(drive.pathfindToTagRight(redID), stow(true, false, false, elevator.getState() == 0))//.deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
-         .andThen(drive.pathPIDToTagRight(drive.getReefAprilTag(redID)))
+         return new ParallelCommandGroup(drive.pathfindToTagRight(position), stow(true, false, false, elevator.getState() == 0))//.deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
+         .andThen(drive.pathPIDToTagRight(drive.getReefAprilTag(position)))
          .andThen(new ParallelRaceGroup(
              Commands.run(() -> drive.setControl(new SwerveRequest.RobotCentric().withVelocityX(0.45))),
              new SelectCommand<>(
@@ -544,9 +544,9 @@ public class CommandFactory{
              , () -> elevator.getLevelQueue())));
     }
 
-    public Command autoPathfindAlgae(int redID) {
-        return new ParallelCommandGroup(drive.pathfindToTagCenter(redID), autoReefAlgaeStow())
-        .andThen(drive.pathPIDToTagMiddle(drive.getReefAprilTag(redID)))
+    public Command autoPathfindAlgae(Constants.reef.reefPositions position) {
+        return new ParallelCommandGroup(drive.pathfindToTagCenter(position), autoReefAlgaeStow())
+        .andThen(drive.pathPIDToTagMiddle(drive.getReefAprilTag(position)))
         //.deadlineFor(lights.runPattern(LEDConstants.kAutoAligning))
             .andThen(
             new SelectCommand<>(
@@ -563,7 +563,7 @@ public class CommandFactory{
                 Map.entry(9, algaeSequenceHigh()),
                 Map.entry(10, algaeSequenceLow()),
                 Map.entry(11, algaeSequenceHigh())),
-            () -> redID)
+            () -> drive.getReefAprilTag(position))
         );
     }
 

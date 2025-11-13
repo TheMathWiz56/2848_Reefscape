@@ -498,10 +498,10 @@ public class RobotContainer {
 
         keypad.button(17).onTrue(commandFactory.exhaustNet()); // Temporary assignment
 
-        testingJoystick.a().onTrue(commandFactory.autoPathfindAlgae(6).until(() -> manualDrivebase.getAsBoolean()));
-        testingJoystick.b().onTrue(commandFactory.autoPathfindAlgae(7).until(() -> manualDrivebase.getAsBoolean()));
-        testingJoystick.x().onTrue(commandFactory.autoPathfindCoralLeft(6).until(() -> manualDrivebase.getAsBoolean()));
-        testingJoystick.y().onTrue(commandFactory.autoPathfindCoralRight(6).until(() -> manualDrivebase.getAsBoolean()));
+        testingJoystick.a().onTrue(commandFactory.autoPathfindAlgae(Constants.reef.reefPositions.FRONT_LEFT).until(() -> manualDrivebase.getAsBoolean()));
+        testingJoystick.b().onTrue(commandFactory.autoPathfindAlgae(Constants.reef.reefPositions.FRONT_CENTER).until(() -> manualDrivebase.getAsBoolean()));
+        testingJoystick.x().onTrue(commandFactory.autoPathfindCoralLeft(Constants.reef.reefPositions.FRONT_LEFT).until(() -> manualDrivebase.getAsBoolean()));
+        testingJoystick.y().onTrue(commandFactory.autoPathfindCoralRight(Constants.reef.reefPositions.FRONT_LEFT).until(() -> manualDrivebase.getAsBoolean()));
 
         //operatorJoystick.y().toggleOnTrue(pincer.holdIntakeCmd()); */
 

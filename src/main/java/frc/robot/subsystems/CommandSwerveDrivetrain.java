@@ -692,36 +692,27 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return AutoBuilder.pathfindToPose(goalPose, constraints, 0.0);
     }
 
-    public Command pathfindToTagCenter(int redID) {
-        if (redID != -1) {
-            return this.pathfindTo(reef.tagPoseAndymarkMap.get(getReefAprilTag(redID)).transformBy(TunerConstants.pathfindOffsetCenter));
-            //.andThen(pathPIDToTagMiddle(getReefAprilTag(redID)));
-        }
-        return this.runOnce(() -> SmartDashboard.putBoolean("No tag at pathfind", true));
+    public Command pathfindToTagCenter(Constants.reef.reefPositions position) {
+        return this.pathfindTo(reef.tagPoseAndymarkMap.get(getReefAprilTag(position)).transformBy(TunerConstants.pathfindOffsetCenter));
+        //.andThen(pathPIDToTagMiddle(getReefAprilTag(position)));
     }
 
-    public Command pathfindToTagLeft(int redID) {
-        if (redID != -1) {
-            return this.pathfindTo(reef.tagPoseAndymarkMap.get(getReefAprilTag(redID)).transformBy(TunerConstants.pathfindOffsetLeft));
-            //.andThen(pathPIDToTagLeft(getReefAprilTag(redID)));
-        }
-        return this.runOnce(() -> SmartDashboard.putBoolean("No tag at pathfind", true));
+    public Command pathfindToTagLeft(Constants.reef.reefPositions position) {
+        return this.pathfindTo(reef.tagPoseAndymarkMap.get(getReefAprilTag(position)).transformBy(TunerConstants.pathfindOffsetLeft));
+        //.andThen(pathPIDToTagLeft(getReefAprilTag(position)));
     }
 
-    public Command pathfindToTagRight(int redID) {
-        if (redID != -1) {
-            return this.pathfindTo(reef.tagPoseAndymarkMap.get(getReefAprilTag(redID)).transformBy(TunerConstants.pathfindOffsetRight));
-            //.andThen(pathPIDToTagRight(getReefAprilTag(redID)));
-        }
-        return this.runOnce(() -> SmartDashboard.putBoolean("No tag at pathfind", true));
+    public Command pathfindToTagRight(Constants.reef.reefPositions position) {
+        return this.pathfindTo(reef.tagPoseAndymarkMap.get(getReefAprilTag(position)).transformBy(TunerConstants.pathfindOffsetRight));
+        //.andThen(pathPIDToTagRight(getReefAprilTag(position)));
     }
 
     // Input red apriltag on reef that is desired, returns the corresponding red or blue apriltag ID given what alliance it is on
-    public int getReefAprilTag(int red) {
+    public int getReefAprilTag(Constants.reef.reefPositions position) {
         if(DriverStation.getAlliance().get() == DriverStation.Alliance.Blue) {
-            return Constants.reef.correspondingAprilTags.get(red);
+            return Constants.reef.reefAprilTagsBlue.get(position);
         } else {
-            return red;
+            return Constants.reef.reefAprilTagsRed.get(position);
         }
     }
 

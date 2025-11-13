@@ -151,15 +151,41 @@ public final class Constants {
             };
         }
 
-        // Keys are red, values are blue. From the perspective of the driver station
-        public static final HashMap<Integer, Integer> correspondingAprilTags = new HashMap<>() {
+        // // Keys are red, values are blue. From the perspective of the driver station
+        // public static final HashMap<Integer, Integer> correspondingAprilTags = new HashMap<>() {
+        //     {
+        //         put(6, 19);
+        //         put(7, 18);
+        //         put(8, 17);
+        //         put(9, 22);
+        //         put(10, 21);
+        //         put(11, 20);
+        //     }
+        // };
+
+        public static enum reefPositions {
+            BACK_CENTER, BACK_LEFT, FRONT_LEFT, FRONT_CENTER, FRONT_RIGHT, BACK_RIGHT
+        }
+
+        public static final HashMap<reefPositions, Integer> reefAprilTagsRed = new HashMap<>() {
             {
-                put(6, 19);
-                put(7, 18);
-                put(8, 17);
-                put(9, 22);
-                put(10, 21);
-                put(11, 20);
+                put(reefPositions.BACK_CENTER, 10);
+                put(reefPositions.BACK_LEFT, 11);
+                put(reefPositions.FRONT_LEFT, 6);
+                put(reefPositions.FRONT_CENTER, 7);
+                put(reefPositions.FRONT_RIGHT, 8);
+                put(reefPositions.BACK_RIGHT, 9);
+            }
+        };
+
+        public static final HashMap<reefPositions, Integer> reefAprilTagsBlue = new HashMap<>() {
+            {
+                put(reefPositions.BACK_CENTER, 21);
+                put(reefPositions.BACK_LEFT, 20);
+                put(reefPositions.FRONT_LEFT, 19);
+                put(reefPositions.FRONT_CENTER, 18);
+                put(reefPositions.FRONT_RIGHT, 17);
+                put(reefPositions.BACK_RIGHT, 22);
             }
         };
 
