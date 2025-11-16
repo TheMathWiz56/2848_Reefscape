@@ -602,16 +602,12 @@ public class CommandFactory{
     }
 
     public Command autoPathfindAction(Constants.reef.reefPositions position) {
-        switch(nextPathfindAction) {
-            case ALGAE:
-                return autoPathfindAlgae(position);
-            case CORAL_LEFT:
-                return autoPathfindCoralLeft(position);
-            case CORAL_RIGHT:
-                return autoPathfindCoralRight(position);
-            default:
-                return Commands.none();
-        }
+        return new SelectCommand<>(
+            Map.ofEntries(
+                Map.entry(pathfindActions.ALGAE, autoPathfindAlgae(position)),
+                Map.entry(pathfindActions.CORAL_LEFT, autoPathfindCoralLeft(position)),
+                Map.entry(pathfindActions.CORAL_RIGHT, autoPathfindCoralRight(position)))
+            , () -> nextPathfindAction);
     }
 
 }
